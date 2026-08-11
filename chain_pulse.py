@@ -40,6 +40,7 @@ pools, NOT by Blockscout name search -- that search returns six different
 Deps:  pip install requests eth-abi
 """
 
+import os
 import re
 import sys
 import json
@@ -51,6 +52,7 @@ from collections import defaultdict
 
 import requests
 from eth_abi import decode as abi_decode
+from eth_hash.auto import keccak
 
 # --------------------------------------------------------------------------- #
 # CONFIG
@@ -1093,6 +1095,192 @@ def fetch_nft_collections(hours=24, top_n=TOP_N, eth_price=None, usdg_decimals=6
     }
 
 
+# --------------------------------------------------------------------------- #
+# Reward distributors -- the "RewardsCoin" family
+# --------------------------------------------------------------------------- #
+# A distinctive Robinhood Chain pattern: projects route Uniswap v4 hook fees
+# into buying a DIFFERENT asset and paying it out to their own holders.
+# CASHKITTEN buys CASHCAT; others pay USDG, and a few pay tokenised equities
+# (MSFT, AAPL). cashkitten.fun tracks exactly one project this way -- this
+# tracks all of them.
+#
+# Discovery is by EVENT, not by name, which matters on a chain this polluted:
+# a contract either emitted DividendsDistributed or it did not, so there is no
+# copycat exposure and no name-matching to get wrong.
+#
+# The template is verified on Blockscout as "RewardsCoin" and exposes
+# rewardToken() + totalDividendsDistributed(). Reading those live over RPC is
+# authoritative and self-consistent: CASHKITTEN's event sum and its view
+# function agree to the wei, which is the cross-check for this whole section.
+DIVIDENDS_DISTRIBUTED = "0xa493a9229478c3fcd73f66d2cdeb7f94fd0f341da924d1054236d78454116511"
+DISTRIBUTOR_CACHE = OUT_DIR / "distributors.json"
+
+Q_DISTRIBUTORS = """
+select
+    contract_address as token,
+    count(*)         as distributions,
+    min(block_time)  as first_distribution,
+    max(block_time)  as last_distribution
+from robinhood.logs
+where topic0 = {topic}
+group by 1
+order by 2 desc
+limit 200
+"""
+
+
+def _eth_call(to, sig, ret="uint", tries=2):
+    """One read-only call, decoded. Returns None rather than raising -- an
+    address that does not implement the interface is the normal case here."""
+    sel = "0x" + keccak(sig.encode()).hex()[:8]
+    for _ in range(tries):
+        try:
+            r = _session.post(RPC_URL, json={"jsonrpc": "2.0", "id": 1, "method": "eth_call",
+                                             "params": [{"to": to, "data": sel}, "latest"]},
+                              timeout=25).json()
+            res = r.get("result")
+            if not res or res == "0x":
+                return None
+            if ret == "addr":
+                return "0x" + res[-40:]
+            if ret == "str":
+                b = bytes.fromhex(res[2:])
+                if len(b) >= 64:                     # dynamic string
+                    n = int.from_bytes(b[32:64], "big")
+                    return b[64:64 + n].decode("utf8", "replace").strip("\x00")
+                return b.decode("utf8", "replace").strip("\x00")   # bytes32 name
+            return int(res, 16)
+        except (requests.RequestException, ValueError):
+            time.sleep(0.4)
+    return None
+
+
+def discover_distributors():
+    """Find every contract that has ever emitted DividendsDistributed.
+
+    Uses Dune because the alternative -- replaying the topic over ~33M blocks
+    of eth_getLogs against a 10k-log cap -- is ~550 chunked calls for a few
+    thousand events. Falls back to the cached set when Dune is unavailable so
+    the nightly run degrades instead of losing the whole section.
+    """
+    key = os.environ.get(DUNE_API_KEY_ENV)
+    cached = (json.loads(DISTRIBUTOR_CACHE.read_text())
+              if DISTRIBUTOR_CACHE.exists() else [])
+    if not key:
+        return cached, "cache (no DUNE_API_KEY)"
+    try:
+        h = {"X-Dune-API-Key": key}
+        sql = Q_DISTRIBUTORS.format(topic=DIVIDENDS_DISTRIBUTED)
+        qid = None
+        meta = json.loads(DISTRIBUTOR_CACHE.with_name("dune_queries.json").read_text()) \
+            if DISTRIBUTOR_CACHE.with_name("dune_queries.json").exists() else {}
+        if "distributors" in meta:
+            qid = meta["distributors"]["id"]
+            requests.patch(f"https://api.dune.com/api/v1/query/{qid}", headers=h,
+                           json={"query_sql": sql}, timeout=60)
+        else:
+            r = requests.post("https://api.dune.com/api/v1/query", headers=h, timeout=60,
+                              json={"name": "hoodscout/distributors", "query_sql": sql,
+                                    "is_private": True})
+            r.raise_for_status()
+            qid = r.json()["query_id"]
+            meta["distributors"] = {"id": qid, "sql": sql}
+            DISTRIBUTOR_CACHE.with_name("dune_queries.json").write_text(json.dumps(meta, indent=2))
+
+        r = requests.post(f"https://api.dune.com/api/v1/query/{qid}/execute", headers=h,
+                          json={"performance": "medium"}, timeout=60)
+        r.raise_for_status()
+        eid = r.json()["execution_id"]
+        for _ in range(75):
+            time.sleep(4)
+            st = requests.get(f"https://api.dune.com/api/v1/execution/{eid}/status",
+                              headers=h, timeout=30).json().get("state")
+            if st in ("QUERY_STATE_COMPLETED", "QUERY_STATE_FAILED"):
+                break
+        if st != "QUERY_STATE_COMPLETED":
+            return cached, f"cache (dune {st})"
+        rows = requests.get(f"https://api.dune.com/api/v1/execution/{eid}/results",
+                            headers=h, timeout=60).json()["result"]["rows"]
+        DISTRIBUTOR_CACHE.write_text(json.dumps(rows, indent=2, default=str))
+        return rows, "dune"
+    except (requests.RequestException, KeyError, ValueError) as e:
+        print(f"        distributor discovery failed ({e}); using cache", flush=True)
+        return cached, "cache (dune error)"
+
+
+def fetch_reward_distributors(eth_price=None, min_usd=1.0):
+    """Which projects pay their holders, in what, and how much so far."""
+    candidates, source = discover_distributors()
+    print(f"        {len(candidates)} candidate contracts from {source}", flush=True)
+
+    price_cache = {}
+
+    def reward_price(addr):
+        if addr not in price_cache:
+            ds = fetch_dexscreener_token(addr) or {}
+            price_cache[addr] = _f(ds.get("price_usd"))
+            time.sleep(0.2)
+        return price_cache[addr]
+
+    out = []
+    for c in candidates:
+        addr = c["token"]
+        reward = _eth_call(addr, "rewardToken()", "addr")
+        if not reward or int(reward, 16) == 0:
+            continue                      # not a RewardsCoin, or misconfigured
+        total = _eth_call(addr, "totalDividendsDistributed()")
+        if not total:
+            continue
+        rdec = _eth_call(reward, "decimals()") or 18
+        amount = total / (10 ** rdec)
+        px = reward_price(reward)
+        usd = amount * px if px else None
+        if usd is not None and usd < min_usd:
+            continue                      # dust: a deployed template that never ran
+
+        # Half these contracts are satellite "DIVIDEND_TRACKER" instances, not
+        # the project itself -- listing those by their own symbol answers the
+        # wrong question. owner() points back at the token that deployed the
+        # tracker, which is the project a reader actually recognises
+        # (LOOT, $GIB, MACROHARD, HST).
+        symbol = _eth_call(addr, "symbol()", "str") or "?"
+        name = _eth_call(addr, "name()", "str") or ""
+        project_addr = addr
+        if "DIVIDEND" in (name or "").upper() or "DIVIDEND" in (symbol or "").upper():
+            owner = _eth_call(addr, "owner()", "addr")
+            if owner and int(owner, 16) != 0:
+                osym = _eth_call(owner, "symbol()", "str")
+                if osym:
+                    symbol, name, project_addr = osym, _eth_call(owner, "name()", "str") or "", owner
+
+        out.append({
+            "address": project_addr,
+            "tracker_address": addr if project_addr != addr else None,
+            "symbol": symbol,
+            "name": name,
+            "reward_address": reward,
+            "reward_symbol": _eth_call(reward, "symbol()", "str") or "?",
+            "reward_decimals": rdec,
+            "distributed": amount,
+            "distributed_usd": usd,
+            "reward_price_usd": px,
+            "distributions": c.get("distributions"),
+            "first_distribution": str(c.get("first_distribution") or "")[:10],
+            "last_distribution": str(c.get("last_distribution") or "")[:10],
+            "explorer_url": f"https://robinhoodchain.blockscout.com/token/{project_addr}",
+        })
+        time.sleep(0.05)
+
+    out.sort(key=lambda x: -(x["distributed_usd"] or 0))
+    return {
+        "projects": out,
+        "source": source,
+        "candidates_scanned": len(candidates),
+        "total_distributed_usd": sum(p["distributed_usd"] or 0 for p in out),
+        "reward_assets": sorted({p["reward_symbol"] for p in out}),
+    }
+
+
 def _token_decimals(addr, default=6):
     d = _get(f"{BLOCKSCOUT}/tokens/{addr}") or {}
     return _i(d.get("decimals")) or default
@@ -1103,30 +1291,39 @@ def _token_decimals(addr, default=6):
 # --------------------------------------------------------------------------- #
 def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
                 min_liquidity=MIN_LIQUIDITY_USD, skip_nfts=False,
-                nft_align="utc-day"):
+                nft_align="utc-day", skip_rewards=False):
     print("Robinhood Chain Pulse — pulling", flush=True)
 
-    print("  [1/4] Blockscout stats (DAU, gas fees)...", flush=True)
+    print("  [1/5] Blockscout stats (DAU, gas fees)...", flush=True)
     chain = fetch_blockscout(days=days)
 
-    print("  [2/4] DefiLlama (TVL, stablecoins, app fees)...", flush=True)
+    print("  [2/5] DefiLlama (TVL, stablecoins, app fees)...", flush=True)
     llama = fetch_defillama()
 
-    print("  [3/4] GeckoTerminal (memecoins)...", flush=True)
+    print("  [3/5] GeckoTerminal (memecoins)...", flush=True)
     memes = fetch_memecoins(min_liquidity=min_liquidity, top_n=top_n)
     print(f"        {len(memes['tokens'])} tokens kept, "
           f"{len(memes['excluded'])} excluded by the ${min_liquidity:,} floor", flush=True)
 
     nfts = {"collections": [], "skipped": True}
     if not skip_nfts:
-        print("  [4/4] Seaport NFT sales (RPC log scan)...", flush=True)
+        print("  [4/5] Seaport NFT sales (RPC log scan)...", flush=True)
         usdg_dec = _token_decimals(USDG)
         nfts = fetch_nft_collections(hours=nft_hours, top_n=top_n,
                                      eth_price=chain.get("eth_price_usd"),
                                      usdg_decimals=usdg_dec, align=nft_align)
         nfts["usdg_decimals"] = usdg_dec
     else:
-        print("  [4/4] Seaport scan SKIPPED (--skip-nfts)", flush=True)
+        print("  [4/5] Seaport scan SKIPPED (--skip-nfts)", flush=True)
+
+    print("  [5/5] Reward distributors (v4-hook holder payouts)...", flush=True)
+    rewards = {"projects": [], "skipped": True}
+    if not skip_rewards:
+        rewards = fetch_reward_distributors(eth_price=chain.get("eth_price_usd"))
+        print(f"        {len(rewards['projects'])} projects paying holders, "
+              f"${rewards['total_distributed_usd']:,.0f} distributed", flush=True)
+    else:
+        print("        SKIPPED (--skip-rewards)", flush=True)
 
     return {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
@@ -1135,6 +1332,7 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
         "defillama": llama,
         "memecoins": memes,
         "nfts": nfts,
+        "rewards": rewards,
     }
 
 
@@ -1151,13 +1349,15 @@ def main():
                          "(matches every other metric) or roll back from now")
     ap.add_argument("--skip-nfts", action="store_true",
                     help="skip the Seaport log scan (the slow step)")
+    ap.add_argument("--skip-rewards", action="store_true",
+                    help="skip the reward-distributor scan")
     ap.add_argument("--out", default=str(OUT_DIR / "pulse.json"))
     args = ap.parse_args()
 
     t0 = time.time()
     pulse = build_pulse(days=args.days, nft_hours=args.nft_hours, top_n=args.top,
                         min_liquidity=args.min_liquidity, skip_nfts=args.skip_nfts,
-                        nft_align=args.nft_align)
+                        nft_align=args.nft_align, skip_rewards=args.skip_rewards)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -1172,6 +1372,11 @@ def main():
     print(f"  App fees (24h)   ${l['app_fees_24h']:,.0f}" if l.get("app_fees_24h") else "  App fees n/a")
     print(f"  Memecoins        {len(pulse['memecoins']['tokens'])}")
     print(f"  NFT collections  {len(pulse['nfts'].get('collections', []))}")
+    rw = pulse.get("rewards") or {}
+    if rw.get("projects"):
+        print(f"  Reward payers    {len(rw['projects'])} "
+              f"(${rw['total_distributed_usd']:,.0f} to holders, "
+              f"in {', '.join(rw['reward_assets'][:5])})")
 
 
 if __name__ == "__main__":

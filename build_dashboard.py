@@ -218,16 +218,16 @@ def meme_rows(tokens):
         mc = t.get("market_cap")
         out.append(f"""          <tr>
             <td class="rank">{i}</td>
-            <td class="sym">
+            <td class="sym" data-v="{escape((t.get('symbol') or '?').lower())}">
               <span class="sym-name">{dot}{link(t.get('url'), t.get('symbol') or '?', 'ext strong')}{badge}</span>
               <span class="sym-sub">{escape(num(t.get('holders')))} holders
                 {trust_chip(t.get('trust_index'))}{ethos_chip(t.get('ethos'))}</span>
             </td>
-            <td class="n">{escape(price(t.get('price_usd')))}
+            <td class="n" data-v="{t.get('price_usd') or 0}">{escape(price(t.get('price_usd')))}
               <span class="alt {trend_class(chg)}">{escape(pct(chg))}</span></td>
-            <td class="n">{escape(usd(mc))}
+            <td class="n" data-v="{mc or 0}">{escape(usd(mc))}
               <span class="alt" title="Fully diluted valuation">fdv {escape(usd(fdv))}</span></td>
-            <td class="n strong">{escape(usd(t.get('volume_ranked')))}
+            <td class="n strong" data-v="{t.get('volume_ranked') or 0}">{escape(usd(t.get('volume_ranked')))}
               <span class="alt">liq {escape(usd(t.get('liquidity_effective')))}</span></td>
           </tr>""")
     return "\n".join(out)
@@ -260,23 +260,48 @@ def nft_rows(cols):
 
         out.append(f"""          <tr>
             <td class="rank">{i}</td>
-            <td class="sym">
+            <td class="sym" data-v="{escape(name.lower())}">
               <span class="sym-name">{link(c.get('opensea_url'), name, 'ext strong')}{badge}</span>
               <span class="sym-sub">{escape(num(supply))} items ·
                 {escape(num(c.get('holders')))} holders ·
                 {link(c.get('explorer_url'), short_addr(c.get('address')), 'ext dim')}</span>
             </td>
-            <td class="n" title="{escape(floor_tip)}">
+            <td class="n" data-v="{c.get('floor_price_usd') or c.get('min_sale_usd') or 0}" title="{escape(floor_tip)}">
               {escape(floor_val)}
               <span class="alt">{escape(floor_lbl)}</span></td>
-            <td class="n">{escape(usd(c.get('avg_price_usd')))}
+            <td class="n" data-v="{c.get('avg_price_usd') or 0}">{escape(usd(c.get('avg_price_usd')))}
               <span class="alt">{escape(num(c.get('buyers')))} buyers</span></td>
-            <td class="n strong">{escape(usd(c.get('volume_usd')))}
+            <td class="n strong" data-v="{c.get('volume_usd') or 0}">{escape(usd(c.get('volume_usd')))}
               <span class="alt">{escape(num(c.get('sales')))} sales</span></td>
           </tr>""")
     return "\n".join(out)
 
 
+
+
+
+def reward_rows(projects):
+    out = []
+    for i, p in enumerate(projects, 1):
+        amt = p.get("distributed") or 0
+        amt_s = f"{amt:,.2f}" if amt >= 0.01 else f"{amt:.4g}"
+        tracker = ('<span class="badge warn" title="Payouts run through a separate '
+                   'DIVIDEND_TRACKER contract owned by this token">via tracker</span>'
+                   if p.get("tracker_address") else "")
+        out.append(f"""          <tr>
+            <td class="rank">{i}</td>
+            <td class="sym" data-v="{escape((p.get('symbol') or '?').lower())}">
+              <span class="sym-name">{link(p.get('explorer_url'), p.get('symbol') or '?', 'ext strong')}{tracker}</span>
+              <span class="sym-sub">{escape((p.get('name') or '')[:40])}</span>
+            </td>
+            <td class="n" data-v="{escape((p.get('reward_symbol') or '').lower())}">
+              <span class="pays">{escape(p.get('reward_symbol') or '?')}</span></td>
+            <td class="n" data-v="{amt}">{escape(amt_s)}
+              <span class="alt">{escape(p.get('reward_symbol') or '')}</span></td>
+            <td class="n strong" data-v="{p.get('distributed_usd') or 0}">{escape(usd(p.get('distributed_usd')))}
+              <span class="alt">{escape(num(p.get('distributions')))} payouts</span></td>
+          </tr>""")
+    return "\n".join(out)
 
 
 def stable_rows(rows):
@@ -428,15 +453,23 @@ def render(p, logo=None):
     audit = ""
     if v:
         vchecks = v.get("checks") or []
+        # The Seaport check is pinned to one exact block range. If the verify
+        # step failed on this run (Dune outage, exhausted credits) we are
+        # holding a report from an EARLIER pulse, and that range no longer
+        # matches the scan on the page — it renders as a fake ~77% divergence.
+        # The daily series checks are keyed by date and stay valid, so only
+        # the range check is dropped when the snapshots do not correspond.
+        fresh = v.get("pulse_generated_at") == p.get("generated_at")
         sc = v.get("seaport_range_check") or {}
-        if sc.get("verdict"):
+        if sc.get("verdict") and fresh:
             vchecks = vchecks + [sc]
         agreed = sum(1 for c in vchecks if c.get("verdict") == "agree")
         worst = max((c.get("pct_diff") or 0) for c in vchecks) if vchecks else 0
         vday = (v.get("generated_at") or "")[:10]
+        stale_note = "" if fresh else " against an earlier snapshot"
         cls = "ok" if agreed == len(vchecks) else "part"
         audit = f"""
-  <div class="audit {cls}">
+  <div class="audit pixel {cls}">
     <span class="audit-k">Independently verified</span>
     <span class="audit-v">{agreed}/{len(vchecks)} checks agree</span>
     <span class="audit-d">
@@ -444,9 +477,16 @@ def render(p, logo=None):
       data on Dune and compared against the live sources — worst divergence
       {worst:.1f}%. Active users is <code>count(distinct sender)</code> per UTC
       day; it matches Blockscout exactly, which is what pins down that
-      provider's otherwise undocumented definition. Checked {escape(vday)}.
+      provider's otherwise undocumented definition. Checked {escape(vday)}{stale_note}.
     </span>
   </div>"""
+
+    rw = p.get("rewards") or {"projects": []}
+    rw_assets = rw.get("reward_assets") or []
+    rw_assets_note = (
+        f"{len(rw.get('projects', []))} projects paying in "
+        f"{', '.join(rw_assets)} — including tokenised equities."
+        if rw_assets else "None detected in this run.")
 
     n_verified = sum(1 for c in n.get("collections", [])
                      if c.get("safelist_status") in ("verified", "approved"))
@@ -556,18 +596,46 @@ h1 {{
 }}
 
 h2 {{
-  font-family:var(--mono); font-size:11.5px; letter-spacing:.2em; text-transform:uppercase;
-  color:var(--ink); font-weight:700; margin:0 0 6px;
-  display:flex; align-items:center; gap:12px;
+  font-family:var(--display); font-size:clamp(30px,4.4vw,48px); letter-spacing:-.04em;
+  color:var(--ink); font-weight:900; margin:0 0 10px; line-height:1;
+  display:flex; align-items:center; gap:16px;
 }}
 h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }}
+
+.pays {{
+  font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.08em;
+  background:var(--accent-soft); color:var(--accent-ink);
+  border:1px solid var(--accent-ink); padding:2px 7px; white-space:nowrap;
+}}
+
+/* ---- pixel frame ----
+   The logo is pixel art, so the containers are cut to match: clip-path notches
+   the four corners, and because the border is clipped along with the box the
+   outline reads as a stepped pixel edge rather than a rounded one. The offset
+   drop shadow is a ::before layer carrying the SAME clip, so the shadow steps
+   too -- a plain box-shadow would be clipped away entirely. */
+.pixel {{
+  --px:6px;
+  position:relative;
+  clip-path:polygon(
+    0 var(--px), var(--px) var(--px), var(--px) 0,
+    calc(100% - var(--px)) 0, calc(100% - var(--px)) var(--px), 100% var(--px),
+    100% calc(100% - var(--px)), calc(100% - var(--px)) calc(100% - var(--px)),
+    calc(100% - var(--px)) 100%, var(--px) 100%,
+    var(--px) calc(100% - var(--px)), 0 calc(100% - var(--px)));
+}}
+/* drop-shadow (not box-shadow) because it follows the CLIPPED alpha shape,
+   so the offset shadow inherits the same notched corners. A box-shadow or a
+   ::before layer is clipped away by the clip-path that makes the notches. */
+.pixel-shadow {{ filter:drop-shadow(9px 9px 0 var(--shadow)); }}
 
 /* ---- brand mark ---- */
 .brandmark {{
   display:inline-flex; align-items:center; color:var(--ink); flex:none;
 }}
 .brandmark svg, .brandmark img {{
-  height:clamp(46px,8vw,88px); width:auto; display:block;
+  height:clamp(54px,9vw,104px); width:auto; display:block;
+  image-rendering:pixelated;          /* never smooth pixel art */
 }}
 .masthead {{ align-items:center; }}
 .cardmark {{ display:inline-flex; align-items:center; margin-right:14px; }}
@@ -585,7 +653,6 @@ h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }
 .hero-card {{
   background:var(--accent); color:var(--on-accent);
   border:var(--rule-w) solid var(--on-accent);
-  box-shadow:10px 10px 0 var(--on-accent);
   padding:30px 30px 26px; display:flex; flex-direction:column; justify-content:center;
   min-height:230px;
 }}
@@ -659,7 +726,7 @@ section {{ margin-top:44px; }}
 /* ---- chart grid ---- */
 .charts {{ display:grid; grid-template-columns:1fr; gap:1px; background:var(--line);
   border:var(--rule-w) solid var(--rule); overflow:hidden;
-  box-shadow:8px 8px 0 var(--shadow); }}
+  }}
 @media (min-width:860px) {{ .charts {{ grid-template-columns:1fr 1fr; }} }}
 .chart {{ background:var(--panel); padding:16px 18px 12px; min-width:0; }}
 .chart-head {{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }}
@@ -699,7 +766,7 @@ section {{ margin-top:44px; }}
 /* ---- tiles ---- */
 .tiles {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px;
   background:var(--line); border:var(--rule-w) solid var(--rule);
-  overflow:hidden; margin-top:16px; box-shadow:8px 8px 0 var(--shadow); }}
+  overflow:hidden; margin-top:16px; }}
 .tile {{ background:var(--panel); padding:14px 18px; }}
 .tile-head {{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }}
 .tile h3 {{ font-family:var(--mono); font-size:10px; letter-spacing:.11em;
@@ -712,7 +779,7 @@ section {{ margin-top:44px; }}
 
 /* ---- stablecoin composition ---- */
 .comp {{ background:var(--panel); border:var(--rule-w) solid var(--rule);
-  padding:20px; box-shadow:8px 8px 0 var(--shadow); }}
+  padding:20px; }}
 .compbar {{ display:flex; height:15px; border-radius:2px; overflow:hidden; gap:2px; margin-bottom:16px; }}
 .compbar i {{ display:block; height:100%; }}
 ul.stables {{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:1px; }}
@@ -731,7 +798,7 @@ li.stable:last-child {{ border-bottom:none; }}
 
 /* ---- tables ---- */
 .board {{ background:var(--panel); border:var(--rule-w) solid var(--rule);
-  overflow:hidden; box-shadow:8px 8px 0 var(--shadow); }}
+  overflow:hidden; }}
 .scroll {{ overflow-x:auto; }}
 table {{ width:100%; border-collapse:collapse; font-size:13px; }}
 thead th {{
@@ -741,6 +808,14 @@ thead th {{
   white-space:nowrap; letter-spacing:.13em;
 }}
 thead th:first-child, thead th:nth-child(2) {{ text-align:left; }}
+thead th[data-sort] {{ cursor:pointer; user-select:none; position:relative; }}
+thead th[data-sort]:hover {{ color:var(--accent-ink); }}
+thead th[data-sort]::after {{
+  content:"↕"; opacity:.3; margin-left:7px; font-size:11px;
+}}
+thead th[aria-sort="descending"]::after {{ content:"↓"; opacity:1; }}
+thead th[aria-sort="ascending"]::after {{ content:"↑"; opacity:1; }}
+thead th[data-sort]:focus-visible {{ outline:2px solid var(--accent-ink); outline-offset:-2px; }}
 tbody td {{ padding:9px 14px; border-bottom:1px solid var(--line); vertical-align:middle; }}
 tbody tr:last-child td {{ border-bottom:none; }}
 tbody tr:hover {{ background:var(--panel-2); }}
@@ -852,7 +927,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
      rel="noopener noreferrer">View explorer <span aria-hidden="true">&#8599;</span></a>
 
   <div class="hero">
-    <div class="hero-card">
+    <div class="hero-card pixel pixel-shadow">
       <span class="hero-label">Total value locked</span>
       <span class="hero-value">{usd(l.get('tvl_current'))}</span>
       <span class="hero-meta">
@@ -860,7 +935,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         &middot; {pct(l.get('tvl_change_7d_pct'))} 7d
       </span>
     </div>
-    <div class="hero-side">
+    <div class="hero-side pixel">
 {hero_tiles}
     </div>
   </div>
@@ -868,15 +943,11 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
 
   <section>
     <h2>Chain vitals</h2>
-    <p class="sec-sub">
-      Hover any plot for exact values. Daily figures use the last complete day —
-      a bucket still filling is held out of the headline even when the calendar
-      says the day is over.
-    </p>
+    <p class="sec-sub">Last complete UTC day. Hover any plot for exact values.</p>
     <div class="ranges" id="ranges" role="group" aria-label="Time range"></div>
     <p class="range-note" id="rangeNote"></p>
-    <div class="charts" id="charts"></div>
-    <div class="tiles">
+    <div class="charts pixel pixel-shadow" id="charts"></div>
+    <div class="tiles pixel pixel-shadow">
 {tiles}
     </div>
   </section>
@@ -884,11 +955,9 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   <section>
     <h2>Stablecoins on the chain</h2>
     <p class="sec-sub">
-      Which assets make up the {usd(l.get('stables_current'))} of stablecoin supply.
-      There is no real USDC or USDT here — name-searching either returns only
-      copycats, so this list is the whole picture, not a top slice.
+      All {usd(l.get('stables_current'))} of it. No real USDC or USDT exists on this chain.
     </p>
-    <div class="comp">
+    <div class="comp pixel pixel-shadow">
       <div class="compbar" id="compbar"></div>
       <ul class="stables">
 {stable_rows(stables)}
@@ -900,16 +969,14 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <section>
       <h2>Top memecoins</h2>
       <p class="sec-sub">
-        DexScreener figures behind a {usd_exact(floor)} liquidity floor, cross-checked
-        against GeckoTerminal — {n_ok} of {n_shown} agree. Projects that link an X
-        account carry a Trust Index (Trust Capital Markets: 50% Ethos credibility,
-        50% log-scaled FDV) and the handle it was derived from — that scores
-        <em>the linked account</em>, which is self-declared, not the token.
+        By 24h volume, behind a {usd(floor)} liquidity floor. {n_ok}/{n_shown} corroborated
+        by a second indexer.
       </p>
-      <div class="board"><div class="scroll">
+      <div class="board pixel pixel-shadow"><div class="scroll">
         <table>
           <thead><tr>
-            <th></th><th>Token</th><th>Price</th><th>Mkt cap</th><th>Volume 24h</th>
+            <th></th><th data-sort="text">Token</th><th data-sort="num">Price</th>
+            <th data-sort="num">Mkt cap</th><th data-sort="num" data-default="1">Volume 24h</th>
           </tr></thead>
           <tbody>
 {meme_rows(m.get('tokens', []))}
@@ -927,13 +994,14 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <section>
       <h2>Top NFT collections</h2>
       <p class="sec-sub">
-        By real paid Seaport fills over {nft_window}h — a measure airdrops cannot
-        inflate. {nft_window_note} {os_note}
+        By paid Seaport fills, {escape(str(n.get('window_label') or ''))} UTC.
+        {n_verified}/{len(n.get('collections', []))} OpenSea-verified.
       </p>
-      <div class="board"><div class="scroll">
+      <div class="board pixel pixel-shadow"><div class="scroll">
         <table>
           <thead><tr>
-            <th></th><th>Collection</th><th>{floor_hdr}</th><th>Avg</th><th>Volume {nft_window}h</th>
+            <th></th><th data-sort="text">Collection</th><th data-sort="num">{floor_hdr}</th>
+            <th data-sort="num">Avg</th><th data-sort="num" data-default="1">Volume {nft_window}h</th>
           </tr></thead>
           <tbody>
 {nft_rows(n.get('collections', []))}
@@ -946,6 +1014,29 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </div></div>
     </section>
   </div>
+
+  <section>
+    <h2>Who pays their holders</h2>
+    <p class="sec-sub">
+      Projects routing Uniswap v4 hook fees into buying a different asset and paying it
+      to holders. {rw_assets_note}
+    </p>
+    <div class="board pixel pixel-shadow"><div class="scroll">
+      <table>
+        <thead><tr>
+          <th></th><th data-sort="text">Project</th><th data-sort="text">Pays in</th>
+          <th data-sort="num">Distributed</th><th data-sort="num" data-default="1">Value</th>
+        </tr></thead>
+        <tbody>
+{reward_rows(rw.get('projects', []))}
+        </tbody>
+      </table>
+    </div>
+    <div class="board-foot">
+      <span>{num(rw.get('candidates_scanned'))} contracts scanned</span>
+      <span class="foot-r">{escape(usd(rw.get('total_distributed_usd')))} paid out to date</span>
+    </div></div>
+  </section>
 
 
   <footer>
@@ -1228,6 +1319,47 @@ let rt; addEventListener('resize', () => {{ clearTimeout(rt); rt = setTimeout(re
 new MutationObserver(() => {{ renderAll(); compbar(); }})
   .observe(document.documentElement, {{attributes:true, attributeFilter:['data-theme']}});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {{ renderAll(); compbar(); }});
+
+/* ---- sortable leaderboards ----
+   Sort keys come from data-v on the cells rather than the rendered text: the
+   display strings are abbreviated ($1.2M, 12.75 ETH, <$0.01) and would sort
+   lexicographically into nonsense. Rank cells are renumbered after each sort
+   so the left column always reads 1..n for the current ordering. */
+function makeSortable(table) {{
+  const heads = [...table.tHead.rows[0].cells];
+  const body = table.tBodies[0];
+  heads.forEach((th, idx) => {{
+    if (!th.dataset.sort) return;
+    th.tabIndex = 0;
+    th.setAttribute('role', 'button');
+    const run = () => {{
+      const numeric = th.dataset.sort === 'num';
+      const cur = th.getAttribute('aria-sort');
+      const dir = cur === 'descending' ? 1 : -1;
+      heads.forEach(h => h.removeAttribute('aria-sort'));
+      th.setAttribute('aria-sort', dir === -1 ? 'descending' : 'ascending');
+      const rows = [...body.rows];
+      rows.sort((a, b) => {{
+        const av = a.cells[idx]?.dataset.v ?? '';
+        const bv = b.cells[idx]?.dataset.v ?? '';
+        if (numeric) return (parseFloat(av) - parseFloat(bv)) * dir;
+        return av.localeCompare(bv) * dir;
+      }});
+      rows.forEach((r, i) => {{
+        const rk = r.querySelector('td.rank');
+        if (rk) rk.textContent = i + 1;
+        body.appendChild(r);
+      }});
+    }};
+    th.addEventListener('click', run);
+    th.addEventListener('keydown', e => {{
+      if (e.key === 'Enter' || e.key === ' ') {{ e.preventDefault(); run(); }}
+    }});
+    if (th.dataset.default) th.setAttribute('aria-sort', 'descending');
+  }});
+}}
+document.querySelectorAll('.board table').forEach(makeSortable);
+
 </script>
 """
 
@@ -1235,7 +1367,18 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {{ r
 # Cloudflare appended -bv1 because the bare "hoodscout" project name was taken.
 SITE_URL = "https://hoodscout.pages.dev"
 
-LOGO_PATH = OUT_DIR.parent / "logo.svg"      # drop a logo here and it is picked up
+# Drop a logo beside the script and it is picked up. SVG first (it can inherit
+# currentColor), then raster.
+LOGO_CANDIDATES = ["logo.svg", "logo.png", "logo.webp", "logo.jpg"]
+LOGO_PATH = OUT_DIR.parent / "logo.svg"
+
+
+def _find_logo():
+    for n in LOGO_CANDIDATES:
+        p = OUT_DIR.parent / n
+        if p.exists():
+            return p
+    return None
 
 
 def load_logo(path=None):
@@ -1248,8 +1391,8 @@ def load_logo(path=None):
     as a data URI and has to already read on both surfaces.
     """
     import base64
-    p = Path(path) if path else LOGO_PATH
-    if not p.exists():
+    p = Path(path) if path else _find_logo()
+    if not p or not p.exists():
         return None
     raw = p.read_bytes()
     if p.suffix.lower() == ".svg":
@@ -1340,7 +1483,7 @@ body{{width:1200px;height:630px;background:#D2F53C;color:#0F100C;overflow:hidden
 .top{{display:flex;justify-content:space-between;align-items:flex-start}}
 .mark{{font-size:38px;font-weight:900;letter-spacing:-.035em;display:flex;align-items:center}}
 .cardmark{{display:inline-flex;align-items:center;margin-right:14px}}
-.cardmark svg,.cardmark img{{height:40px;width:auto;display:block}}
+.cardmark svg,.cardmark img{{height:52px;width:auto;display:block;image-rendering:pixelated}}
 .eyebrow{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:16px;
   letter-spacing:.22em;text-transform:uppercase;font-weight:700;padding-top:9px}}
 .label{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:19px;
