@@ -240,13 +240,11 @@ def nft_rows(cols):
         out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape(name.lower())}">
-              <span class="sym-name">{link(c.get('opensea_url'), name, 'ext strong')}{badge}</span>
-              <span class="sym-sub">{escape(num(supply))} items ·
-                {escape(num(c.get('holders')))} holders ·
-                {link(c.get('explorer_url'), short_addr(c.get('address')), 'ext dim')}</span>
+              <span class="sym-name" title="{escape(name)}">{link(c.get('opensea_url'), name, 'ext strong')}{badge}</span>
+              <span class="sym-sub">{link(c.get('explorer_url'), f"{num(supply)} items", 'ext dim')} ·
+                {escape(num(c.get('holders')))} holders</span>
             </td>
-            <td class="n" data-v="{c.get('floor_price_usd') or c.get('min_sale_usd') or 0}" title="{escape(floor_tip)}">
-              {escape(floor_val)}
+            <td class="n" data-v="{c.get('floor_price_usd') or c.get('min_sale_usd') or 0}" title="{escape(floor_tip)}">{escape(floor_val)}
               <span class="alt">{escape(floor_lbl)}</span></td>
             <td class="n" data-v="{c.get('avg_price_usd') or 0}">{escape(usd(c.get('avg_price_usd')))}
               <span class="alt">{escape(num(c.get('buyers')))} buyers</span></td>
@@ -869,8 +867,29 @@ td.dim {{ color:var(--muted); }}
 td.rank {{ font-family:var(--mono); font-size:11px; color:var(--muted); width:34px;
   font-variant-numeric:tabular-nums; }}
 td.sym {{ min-width:190px; }}
+/* The NFT board carries one more numeric column than the memecoin board and
+   overflowed its scroller by 21px, clipping Volume — the column the ranking
+   is based on. Tighter name column and padding in the two-up context only. */
+.two-col td.sym {{ min-width:162px; }}
+.two-col .sym-sub {{ white-space:nowrap; line-height:1.3; }}
+/* Every NFT row carries a verification badge and no memecoin row does, which
+   made the name line 2px taller and desynced the two boards. Pin both lines
+   so the row rhythm is identical regardless of what chips a row happens to
+   carry. */
+.two-col .sym-name {{ line-height:1.35; }}
+/* Pin the row box outright. Chasing individual contributors (badges, alt
+   lines, differing column counts) kept leaving a 2px drift between the two
+   boards; a fixed row height makes the rhythm identical by construction. */
+.two-col tbody td {{ vertical-align:middle; }}
+.two-col .badge {{ line-height:1.25; }}
+.two-col tbody td, .two-col thead th {{ padding-left:9px; padding-right:9px; }}
 td.sym > * {{ display:block; }}
-.sym-name {{ font-weight:600; font-size:13.5px; display:flex; align-items:center; }}
+.sym-name {{ font-weight:600; font-size:13.5px; display:flex; align-items:center; min-width:0; }}
+/* Long collection names ("Boomer Stockholders") wrapped to two lines and made
+   one row 74px against 53 everywhere else. Truncate instead so both boards
+   keep an identical row rhythm; the full name stays in the link title. */
+.sym-name > a {{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }}
+.sym-name .badge {{ flex:none; }}
 .sym-name.rejected {{ color:var(--reject); }}
 .sym-addr {{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }}
 td.sym .sym-name {{ margin-bottom:3px; }}
@@ -913,9 +932,17 @@ td.n {{ line-height:1.3; }}
 .pays.more-chip {{ background:transparent; color:var(--muted);
   border-color:color-mix(in srgb, var(--muted) 50%, transparent); }}   /* 2 lines at 1.55 — blurbs are one line now */
 @media (max-width:1039px) {{ .two-col .sec-sub {{ min-height:0; }} }}
+/* The shadow wrapper is now the flex child, so the stretch has to go through
+   it or the two boards end up different heights whenever their footers wrap. */
+.two-col .pixel-shadow {{ flex:1; display:flex; flex-direction:column; }}
 .two-col .board {{ flex:1; display:flex; flex-direction:column; }}
 .two-col .scroll {{ flex:1; }}
-.two-col table {{ height:100%; }}
+/* NOT height:100%. That stretched rows to fill the board, so each board
+   distributed ITS leftover height across ITS rows — the two boards differ
+   slightly (footer wrap), so the rows drifted 2px apart and no amount of
+   setting row/cell height could fix it. Rows now size to content, which is
+   identical in both tables. */
+.two-col table {{ height:auto; }}
 
 /* board footer keeps both cards the same shape and carries the key */
 .board-foot {{
