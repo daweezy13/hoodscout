@@ -350,7 +350,7 @@ def stable_rows(rows):
 def tile(label, value, sub, change=None):
     chg = f'<span class="chg {trend_class(change)}">{escape(pct(change))}</span>' if change is not None else ""
     return f"""      <article class="tile">
-        <div class="tile-head"><h3>{escape(label)}</h3>{chg}</div>
+        <div class="tile-head"><span class="tile-label">{escape(label)}</span>{chg}</div>
         <div class="tile-value">{escape(value)}</div>
         <div class="tile-sub">{escape(sub)}</div>
       </article>"""
@@ -416,12 +416,29 @@ def render(p, logo=None):
 
     tvl_pts = (charts.get("tvl") or {}).get("series") or []
     tvl_pts = tvl_pts[0]["points"] if tvl_pts else []
+    # tvl_current is a live reading that includes TODAY -- a partial UTC day.
+    # Pairing it with tvl_date (which clean_series() resolves to the last
+    # COMPLETE day) put $481.03M/"2026-08-10" in the hero while the chart 300px
+    # below correctly showed $471.36M for that same date. Two answers to one
+    # question destroys the page's whole premise, so the hero now headlines the
+    # same complete day the chart does.
     tvl_date = tvl_pts[-1][0] if tvl_pts else "latest"
+    tvl_headline = tvl_pts[-1][1] if tvl_pts else l.get("tvl_current")
+
+    stb_pts = (charts.get("stables") or {}).get("series") or []
+    stb_headline = None
+    if stb_pts and stb_pts[0].get("points"):
+        # stacked series: sum the assets at the last complete day
+        last_day = stb_pts[0]["points"][-1][0]
+        stb_headline = sum((s["points"][-1][1] or 0) for s in stb_pts
+                           if s.get("points") and s["points"][-1][0] == last_day)
+    if not stb_headline:
+        stb_headline = l.get("stables_current")
 
     # The three numbers that answer "is this chain alive right now", sat beside
     # the TVL hero. Stablecoin supply is a stock, the other two are daily flows.
     hero_tiles = "\n".join([
-        tile("Stablecoin supply", usd(l.get("stables_current")),
+        tile("Stablecoin supply", usd(stb_headline),
              f"{len(l.get('stables_breakdown') or [])} assets on-chain",
              l.get("stables_change_7d_pct")),
         tile("Daily active users", num(s.get("dau_current")),
@@ -594,7 +611,8 @@ body {{
   font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
 }}
 .wrap {{ max-width:1240px; margin:0 auto; padding:30px 24px 76px; }}
-a.ext {{ color:inherit; text-decoration:none; border-bottom:1px solid var(--accent-soft); }}
+a.ext {{ color:inherit; text-decoration:none;
+  border-bottom:1px solid color-mix(in srgb, var(--accent-ink) 45%, transparent); }}
 a.ext:hover {{ color:var(--accent-ink); border-bottom-color:var(--accent); }}
 a.ext:focus-visible, button:focus-visible {{
   outline:2px solid var(--accent); outline-offset:2px; border-radius:2px;
@@ -666,17 +684,21 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
     calc(100% - var(--px)) 100%, var(--px) 100%,
     var(--px) calc(100% - var(--px)), 0 calc(100% - var(--px)));
 }}
-/* drop-shadow (not box-shadow) because it follows the CLIPPED alpha shape,
-   so the offset shadow inherits the same notched corners. A box-shadow or a
-   ::before layer is clipped away by the clip-path that makes the notches. */
+/* The offset shadow MUST live on a wrapper, not on the clipped element.
+   CSS applies filter first and clip-path second, so a drop-shadow on the same
+   element is clipped away entirely -- the shadow lies outside the notch
+   polygon by definition. On a wrapper it survives AND inherits the stepped
+   corners from the child's alpha. (box-shadow and a ::before layer fail the
+   same way, for the same reason.) */
 .pixel-shadow {{ filter:drop-shadow(9px 9px 0 var(--shadow)); }}
+.pixel-shadow > .pixel {{ display:block; }}
 
 /* ---- brand mark ---- */
 .brandmark {{
   display:inline-flex; align-items:center; color:var(--ink); flex:none;
 }}
-.brandmark svg, .brandmark img {{
-  height:clamp(38px,5.6vw,62px); width:auto; display:block;
+.brandmark, .brandmark svg, .brandmark img {{
+  height:46px; width:auto; display:block;   /* integer 1:1 of the 46px source */
   image-rendering:pixelated;          /* never smooth pixel art */
 }}
 .masthead {{ align-items:center; }}
@@ -793,9 +815,9 @@ section {{ margin-top:52px; }}
 .hover-dot {{ opacity:0; }}
 .tip {{
   position:absolute; pointer-events:none; opacity:0; transform:translate(-50%,-100%);
-  background:var(--panel-2); border:1px solid var(--line); border-radius:3px;
+  background:var(--panel-2); border:2px solid var(--rule);
   padding:7px 10px; font-family:var(--mono); font-size:11px; white-space:nowrap;
-  color:var(--ink); z-index:5; box-shadow:0 4px 14px rgba(0,0,0,.22);
+  color:var(--ink); z-index:5; box-shadow:3px 3px 0 var(--shadow);
 }}
 .tip .tip-d {{ color:var(--muted); font-size:10px; display:block; margin-bottom:3px; }}
 .tip .tip-r {{ display:flex; align-items:center; gap:6px; }}
@@ -811,8 +833,8 @@ section {{ margin-top:52px; }}
   overflow:hidden; margin-top:16px; }}
 .tile {{ background:var(--panel); padding:14px 18px; }}
 .tile-head {{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }}
-.tile h3 {{ font-family:var(--mono); font-size:10px; letter-spacing:.11em;
-  text-transform:uppercase; color:var(--muted); font-weight:600; margin:0; }}
+.tile-label {{ font-family:var(--mono); font-size:10px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--muted); font-weight:600; display:block; }}
 .tile-value {{ font-family:var(--mono); font-size:21px; font-weight:600;
   font-variant-numeric:tabular-nums; letter-spacing:-.02em; margin-top:3px; }}
 .tile-sub {{ font-size:11.5px; color:var(--muted); }}
@@ -853,7 +875,8 @@ thead th:first-child, thead th:nth-child(2) {{ text-align:left; }}
 thead th[data-sort] {{ cursor:pointer; user-select:none; position:relative; }}
 thead th[data-sort]:hover {{ color:var(--accent-ink); }}
 thead th[data-sort]::after {{
-  content:"↕"; opacity:.3; margin-left:7px; font-size:11px;
+  content:"↕"; opacity:.5; margin-left:7px; font-size:11px;
+  display:inline-block; width:1em; text-align:center;
 }}
 thead th[aria-sort="descending"]::after {{ content:"↓"; opacity:1; }}
 thead th[aria-sort="ascending"]::after {{ content:"↑"; opacity:1; }}
@@ -866,7 +889,7 @@ td.n.strong {{ font-weight:600; }}
 td.dim {{ color:var(--muted); }}
 td.rank {{ font-family:var(--mono); font-size:11px; color:var(--muted); width:34px;
   font-variant-numeric:tabular-nums; }}
-td.sym {{ min-width:200px; }}
+td.sym {{ min-width:190px; }}
 td.sym > * {{ display:block; }}
 .sym-name {{ font-weight:600; font-size:13.5px; display:flex; align-items:center; }}
 .sym-name.rejected {{ color:var(--reject); }}
@@ -880,8 +903,9 @@ td.sym .sym-name {{ margin-bottom:3px; }}
 .badge.ok {{ color:var(--accent-ink); background:var(--accent-soft); }}
 .badge.warn {{ color:var(--muted); background:var(--panel-2); border:1px solid var(--line); }}
 td.reason {{ color:var(--muted); font-size:12px; }}
-.corrob {{ display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:7px; flex:none; }}
-.corrob.ok {{ background:var(--accent); }}
+.corrob {{ display:inline-block; width:7px; height:7px; border-radius:50%;
+  margin-right:7px; flex:none; box-shadow:0 0 0 1px var(--rule); }}
+.corrob.ok {{ background:var(--accent-ink); }}   /* lime on white is 1.25:1 */
 .corrob.part {{ background:var(--flag); }}
 .corrob.bad {{ background:var(--reject); }}
 .agrees {{ color:var(--accent-ink); font-size:11px; }}
@@ -892,7 +916,8 @@ td.reason {{ color:var(--muted); font-size:12px; }}
 .alt.up {{ color:var(--up); }} .alt.down {{ color:var(--down); }}
 td.n {{ line-height:1.3; }}
 
-.two-col {{ display:grid; grid-template-columns:1fr; gap:40px; align-items:stretch; }}
+.two-col {{ display:grid; grid-template-columns:1fr; gap:40px; align-items:stretch;
+  margin-top:52px; }}   /* section{{margin-top}} is cancelled by .two-col>section */
 @media (min-width:1040px) {{ .two-col {{ grid-template-columns:1fr 1fr; gap:28px; }} }}
 .two-col > section {{ margin-top:0; display:flex; flex-direction:column; min-width:0; }}
 /* keep both board headers on the same baseline even though the blurbs differ */
@@ -940,12 +965,22 @@ td.n {{ line-height:1.3; }}
   font-family:var(--mono); font-size:10.5px; color:var(--muted);
   display:flex; align-items:center; flex-wrap:wrap; gap:5px;
 }}
-footer {{ margin-top:56px; padding-top:20px; border-top:1px solid var(--line);
-  font-size:12.5px; color:var(--muted); max-width:78ch; }}
-footer h4 {{ font-family:var(--mono); font-size:10px; letter-spacing:.12em;
+footer {{ margin-top:56px; padding-top:20px; border-top:var(--rule-w) solid var(--rule);
+  font-size:12.5px; color:var(--muted); }}
+footer p, footer h2.foot-h {{ max-width:78ch; }}
+footer h2.foot-h {{ font-family:var(--mono); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-2); margin:0 0 8px; font-weight:600; }}
 footer p {{ margin:0 0 10px; }}
 footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
+/* Below ~700px the boards need ~560px in a ~468px scroller, which pushed
+   Volume -- the default sort and the whole basis of the ranking -- off the
+   right edge. Drop the secondary numerics so Token + Volume always fit. */
+@media (max-width:700px) {{
+  .board th:nth-child(3), .board td:nth-child(3),
+  .board th:nth-child(4), .board td:nth-child(4) {{ display:none; }}
+  td.sym {{ min-width:150px; }}
+  tbody td, thead th {{ padding-left:10px; padding-right:10px; }}
+}}
 @media (prefers-reduced-motion:reduce) {{ * {{ transition:none !important; }} }}
 </style>
 
@@ -970,14 +1005,14 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
      rel="noopener noreferrer">View explorer <span aria-hidden="true">&#8599;</span></a>
 
   <div class="hero">
-    <div class="hero-card pixel pixel-shadow">
+    <div class="pixel-shadow"><div class="hero-card pixel">
       <span class="hero-label">Total value locked</span>
-      <span class="hero-value">{usd(l.get('tvl_current'))}</span>
+      <span class="hero-value">{usd(tvl_headline)}</span>
       <span class="hero-meta">
         Robinhood Chain &middot; DefiLlama &middot; {escape(tvl_date)}
         &middot; {pct(l.get('tvl_change_7d_pct'))} 7d
       </span>
-    </div>
+    </div></div>
     <div class="hero-side pixel">
 {hero_tiles}
     </div>
@@ -989,18 +1024,18 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <p class="sec-sub">Last complete UTC day. Hover any plot for exact values.</p>
     <div class="ranges" id="ranges" role="group" aria-label="Time range"></div>
     <p class="range-note" id="rangeNote"></p>
-    <div class="charts pixel pixel-shadow" id="charts"></div>
-    <div class="tiles pixel pixel-shadow">
+    <div class="pixel-shadow"><div class="charts pixel" id="charts"></div></div>
+    <div class="pixel-shadow"><div class="tiles pixel">
 {tiles}
-    </div>
+    </div></div></div>
   </section>
 
   <section>
     <h2>Stablecoins on the chain</h2>
     <p class="sec-sub">
-      All {usd(l.get('stables_current'))} of it. No real USDC or USDT exists on this chain.
+      All {usd(stb_headline)} of it. No real USDC or USDT exists on this chain.
     </p>
-    <div class="comp pixel pixel-shadow">
+    <div class="pixel-shadow"><div class="comp pixel">
       <div class="compbar" id="compbar"></div>
       <ul class="stables">
 {stable_rows(stables)}
@@ -1015,7 +1050,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         By 24h volume, behind a {usd(floor)} liquidity floor. {n_ok}/{n_shown} corroborated
         by a second indexer.
       </p>
-      <div class="board pixel pixel-shadow"><div class="scroll">
+      <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
         <table>
           <thead><tr>
             <th></th><th data-sort="text">Token</th><th data-sort="num">Price</th>
@@ -1031,7 +1066,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         <span><i class="corrob part"></i>3–20x apart</span>
         <span><i class="corrob bad"></i>disputed</span>
         <span class="foot-r">{n_excl} more screened out below the {usd_exact(floor)} floor</span>
-      </div></div>
+      </div></div></div>
     </section>
 
     <section>
@@ -1040,7 +1075,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         By paid Seaport fills, {escape(str(n.get('window_label') or ''))} UTC.
         {n_verified}/{len(n.get('collections', []))} OpenSea-verified.
       </p>
-      <div class="board pixel pixel-shadow"><div class="scroll">
+      <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
         <table>
           <thead><tr>
             <th></th><th data-sort="text">Collection</th><th data-sort="num">{floor_hdr}</th>
@@ -1054,7 +1089,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       <div class="board-foot">
         <span>{num(n.get('logs_scanned'))} Seaport fills decoded</span>
         <span class="foot-r">{escape(usd(n.get('total_volume_usd')))} total</span>
-      </div></div>
+      </div></div></div>
     </section>
   </div>
 
@@ -1065,7 +1100,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       to holders. {rw_assets_note}
     </p>
     <h3 class="sub-head">Memecoins</h3>
-    <div class="board pixel pixel-shadow"><div class="scroll">
+    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
       <table>
         <thead><tr>
           <th></th><th data-sort="text">Project</th><th data-sort="text">Pays in</th>
@@ -1079,14 +1114,14 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="board-foot">
       <span>{num(rw.get('candidates_scanned'))} contracts scanned</span>
       <span class="foot-r">{escape(usd(rw.get('total_distributed_usd')))} paid out to date</span>
-    </div></div>
+    </div></div></div>
 
     <h3 class="sub-head">NFT collections</h3>
     <p class="sec-sub">
       A different mechanism, and the bigger one — boosters pay a basket of tokenised
       real-world assets to NFT holders. {bst_note}
     </p>
-    <div class="board pixel pixel-shadow"><div class="scroll">
+    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
       <table>
         <thead><tr>
           <th></th><th data-sort="text">Collection</th><th data-sort="num">Pays in</th>
@@ -1100,12 +1135,12 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="board-foot">
       <span>{len(bst.get('reward_assets', []))} distinct assets paid out</span>
       <span class="foot-r">{escape(usd(bst.get('total_distributed_usd')))} to NFT holders</span>
-    </div></div>
+    </div></div></div>
   </section>
 
 
   <footer>
-    <h4>Method &amp; caveats</h4>
+    <h2 class="foot-h">Method &amp; caveats</h2>
     <p>
       TVL, stablecoins and app-level fees come from DefiLlama's chain-level endpoints.
       Active users and gas fees come from Blockscout's stats service. Memecoins use
@@ -1329,7 +1364,8 @@ function renderChart(key, cfg) {{
     }});
     tip.innerHTML = `<span class="tip-d">${{s0date(series[0].pts[i][0])}}</span>${{rows}}`;
     tip.style.opacity = '1';
-    tip.style.left = (X(i)/W*bb.width) + 'px';
+    const tw = tip.offsetWidth / 2;
+    tip.style.left = Math.min(Math.max(tw, X(i)/W*bb.width), bb.width - tw) + 'px';
     tip.style.top = (Y(stacked?acc:series[0].pts[i][1])/H*bb.height - 10) + 'px';
   }};
   const leave = () => {{
@@ -1396,11 +1432,13 @@ function makeSortable(table) {{
   heads.forEach((th, idx) => {{
     if (!th.dataset.sort) return;
     th.tabIndex = 0;
-    th.setAttribute('role', 'button');
     const run = () => {{
       const numeric = th.dataset.sort === 'num';
+      // First click should be descending for numbers (biggest first) but
+      // ASCENDING for text (A-Z) -- a name column that opens on Z-A reads as
+      // broken. Subsequent clicks toggle.
       const cur = th.getAttribute('aria-sort');
-      const dir = cur === 'descending' ? 1 : -1;
+      const dir = cur ? (cur === 'descending' ? 1 : -1) : (numeric ? -1 : 1);
       heads.forEach(h => h.removeAttribute('aria-sort'));
       th.setAttribute('aria-sort', dir === -1 ? 'descending' : 'ascending');
       const rows = [...body.rows];
@@ -1597,7 +1635,7 @@ body{{width:1200px;height:630px;background:#D2F53C;color:#0F100C;overflow:hidden
 .top{{display:flex;justify-content:space-between;align-items:flex-start}}
 .mark{{font-size:38px;font-weight:900;letter-spacing:-.035em;display:flex;align-items:center}}
 .cardmark{{display:inline-flex;align-items:center;margin-right:14px}}
-.cardmark svg,.cardmark img{{height:52px;width:auto;display:block;image-rendering:pixelated}}
+.cardmark,.cardmark svg,.cardmark img{{height:46px;width:auto;display:block;image-rendering:pixelated}}
 .eyebrow{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:16px;
   letter-spacing:.22em;text-transform:uppercase;font-weight:700;padding-top:9px}}
 .label{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:19px;
