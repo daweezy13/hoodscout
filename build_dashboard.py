@@ -958,6 +958,7 @@ td.n {{ line-height:1.3; }}
 .reward-cols th:nth-child(3), .reward-cols td:nth-child(3) {{ width:36%; }}
 .reward-cols th:nth-child(4), .reward-cols td:nth-child(4) {{ width:27%; }}
 .reward-cols td.basket {{ white-space:normal; }}
+.reward-cols td.sym {{ min-width:0; }}
 .reward-cols td.sym {{ min-width:0; overflow-wrap:anywhere; }}
 .pays.more-chip {{ background:transparent; color:var(--muted);
   border-color:color-mix(in srgb, var(--muted) 50%, transparent); }}   /* 2 lines at 1.55 — blurbs are one line now */
@@ -1021,8 +1022,10 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
    Volume -- the default sort and the whole basis of the ranking -- off the
    right edge. Drop the secondary numerics so Token + Volume always fit. */
 @media (max-width:700px) {{
-  .board th:nth-child(3), .board td:nth-child(3),
-  .board th:nth-child(4), .board td:nth-child(4) {{ display:none; }}
+  .two-col:not(.reward-cols) .board th:nth-child(3),
+  .two-col:not(.reward-cols) .board td:nth-child(3),
+  .two-col:not(.reward-cols) .board th:nth-child(4),
+  .two-col:not(.reward-cols) .board td:nth-child(4) {{ display:none; }}
   td.sym {{ min-width:150px; }}
   tbody td, thead th {{ padding-left:10px; padding-right:10px; }}
 }}
