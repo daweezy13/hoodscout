@@ -280,10 +280,8 @@ def reward_rows(projects):
             </td>
             <td class="n" data-v="{escape((p.get('reward_symbol') or '').lower())}">
               <span class="pays">{escape(p.get('reward_symbol') or '?')}</span></td>
-            <td class="n" data-v="{amt}">{escape(amt_s)}
-              <span class="alt">{escape(p.get('reward_symbol') or '')}</span></td>
             <td class="n strong" data-v="{p.get('distributed_usd') or 0}">{escape(usd(p.get('distributed_usd')))}
-              <span class="alt">{escape(num(p.get('distributions')))} payouts</span></td>
+              <span class="alt">{escape(amt_s)} {escape(p.get('reward_symbol') or '')}</span></td>
           </tr>""")
     return "\n".join(out)
 
@@ -294,10 +292,19 @@ def booster_rows(projects, today=None):
     of chips with per-asset amount and value in the tooltip."""
     out = []
     for i, p in enumerate(projects, 1):
+        assets = p.get("assets") or []
+        # In the narrow two-up column 11 chips overflowed into the Value cell.
+        # Show the three largest by value and roll the rest into a count whose
+        # tooltip still names them, so nothing is silently dropped.
+        shown, rest = assets[:3], assets[3:]
         chips = "".join(
             f'<span class="pays" title="{escape(a["symbol"])}: {a["amount"]:,.2f} '
             f'= {escape(usd(a["usd"]))}">{escape(a["symbol"])}</span>'
-            for a in (p.get("assets") or [])[:8])
+            for a in shown)
+        if rest:
+            more = ", ".join(f'{a["symbol"]} {usd(a["usd"])}' for a in rest)
+            chips += (f'<span class="pays more-chip" title="{escape(more)}">'
+                      f'+{len(rest)}</span>')
         out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((p.get('name') or '').lower())}">
@@ -475,7 +482,7 @@ def render(p, logo=None):
     # opinion; verify_dune.py recomputes three of them from raw chain data with
     # an explicit definition. Rendered only when a report exists.
     v = p.get("_verify")
-    audit = ""
+    audit_line = ""
     if v:
         vchecks = v.get("checks") or []
         # The Seaport check is pinned to one exact block range. If the verify
@@ -493,18 +500,12 @@ def render(p, logo=None):
         vday = (v.get("generated_at") or "")[:10]
         stale_note = "" if fresh else " against an earlier snapshot"
         cls = "ok" if agreed == len(vchecks) else "part"
-        audit = f"""
-  <div class="audit pixel {cls}">
-    <span class="audit-k">Independently verified</span>
-    <span class="audit-v">{agreed}/{len(vchecks)} checks agree</span>
-    <span class="audit-d">
-      Daily active users, gas fees and Seaport fills recomputed from raw chain
-      data on Dune and compared against the live sources — worst divergence
-      {worst:.1f}%. Active users is <code>count(distinct sender)</code> per UTC
-      day; it matches Blockscout exactly, which is what pins down that
-      provider's otherwise undocumented definition. Checked {escape(vday)}{stale_note}.
-    </span>
-  </div>"""
+        audit_line = (
+            f"Independently cross-checked against Dune: {agreed} of {len(vchecks)} "
+            f"checks agree, worst divergence {worst:.1f}%. Active users is "
+            f"<code>count(distinct sender)</code> per UTC day and matches Blockscout "
+            f"exactly, which pins down that provider's otherwise undocumented "
+            f"definition. Checked {escape(vday)}.")
 
     rw = p.get("rewards") or {"projects": []}
     bst = rw.get("boosters") or {"projects": []}
@@ -899,7 +900,18 @@ td.n {{ line-height:1.3; }}
 @media (min-width:1040px) {{ .two-col {{ grid-template-columns:1fr 1fr; gap:28px; }} }}
 .two-col > section {{ margin-top:0; display:flex; flex-direction:column; min-width:0; }}
 /* keep both board headers on the same baseline even though the blurbs differ */
-.two-col .sec-sub {{ min-height:3.1em; }}   /* 2 lines at 1.55 — blurbs are one line now */
+.two-col .sec-sub {{ min-height:3.1em; }}
+.reward-cols .sub-head {{ margin-top:0; min-height:auto; }}
+/* max-width on a <td> is ignored unless the table is fixed-layout, which is
+   why the asset chips kept overflowing into the Value column. */
+.reward-cols table {{ table-layout:fixed; width:100%; }}
+.reward-cols th:nth-child(1), .reward-cols td:nth-child(1) {{ width:32px; }}
+.reward-cols th:nth-child(3), .reward-cols td:nth-child(3) {{ width:36%; }}
+.reward-cols th:nth-child(4), .reward-cols td:nth-child(4) {{ width:27%; }}
+.reward-cols td.basket {{ white-space:normal; }}
+.reward-cols td.sym {{ min-width:0; overflow-wrap:anywhere; }}
+.pays.more-chip {{ background:transparent; color:var(--muted);
+  border-color:color-mix(in srgb, var(--muted) 50%, transparent); }}   /* 2 lines at 1.55 — blurbs are one line now */
 @media (max-width:1039px) {{ .two-col .sec-sub {{ min-height:0; }} }}
 .two-col .board {{ flex:1; display:flex; flex-direction:column; }}
 .two-col .scroll {{ flex:1; }}
@@ -990,7 +1002,6 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
 {hero_tiles}
     </div>
   </div>
-{audit}
 
   <section>
     <h2>Chain vitals</h2>
@@ -1000,7 +1011,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="pixel-shadow"><div class="charts pixel" id="charts"></div></div>
     <div class="pixel-shadow"><div class="tiles pixel">
 {tiles}
-    </div></div></div>
+    </div></div>
   </section>
 
   <section>
@@ -1071,47 +1082,47 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   <section>
     <h2>Who pays their holders</h2>
     <p class="sec-sub">
-      Projects routing Uniswap v4 hook fees into buying a different asset and paying it
-      to holders. {rw_assets_note}
+      Projects routing fees into buying a different asset and paying it out. {rw_assets_note}
     </p>
-    <h3 class="sub-head">Memecoins</h3>
-    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
-      <table>
-        <thead><tr>
-          <th></th><th data-sort="text">Project</th><th data-sort="text">Pays in</th>
-          <th data-sort="num">Distributed</th><th data-sort="num" data-default="1">Value</th>
-        </tr></thead>
-        <tbody>
+    <div class="two-col reward-cols">
+      <section>
+        <h3 class="sub-head">Memecoins &middot; ERC-20 holders</h3>
+        <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
+          <table>
+            <thead><tr>
+              <th></th><th data-sort="text">Project</th><th data-sort="text">Pays in</th>
+              <th data-sort="num" data-default="1">Value</th>
+            </tr></thead>
+            <tbody>
 {reward_rows(rw.get('projects', []))}
-        </tbody>
-      </table>
-    </div>
-    <div class="board-foot">
-      <button class="more" type="button"></button>
-      <span>{num(rw.get('candidates_scanned'))} contracts scanned</span>
-      <span class="foot-r">{escape(usd(rw.get('total_distributed_usd')))} paid out to date</span>
-    </div></div></div>
+            </tbody>
+          </table>
+        </div>
+        <div class="board-foot">
+          <button class="more" type="button"></button>
+          <span class="foot-r">{escape(usd(rw.get('total_distributed_usd')))} paid out</span>
+        </div></div></div>
+      </section>
 
-    <h3 class="sub-head">NFT collections</h3>
-    <p class="sec-sub">
-      A different mechanism, and the bigger one — boosters pay a basket of tokenised
-      real-world assets to NFT holders. {bst_note}
-    </p>
-    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
-      <table>
-        <thead><tr>
-          <th></th><th data-sort="text">Collection</th><th data-sort="num">Pays in</th>
-          <th data-sort="num" data-default="1">Value</th>
-        </tr></thead>
-        <tbody>
+      <section>
+        <h3 class="sub-head">NFT collections &middot; the bigger half</h3>
+        <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
+          <table>
+            <thead><tr>
+              <th></th><th data-sort="text">Collection</th><th data-sort="num">Pays in</th>
+              <th data-sort="num" data-default="1">Value</th>
+            </tr></thead>
+            <tbody>
 {booster_rows(bst.get('projects', []))}
-        </tbody>
-      </table>
+            </tbody>
+          </table>
+        </div>
+        <div class="board-foot">
+          <span>{len(bst.get('reward_assets', []))} assets</span>
+          <span class="foot-r">{escape(usd(bst.get('total_distributed_usd')))} to NFT holders</span>
+        </div></div></div>
+      </section>
     </div>
-    <div class="board-foot">
-      <span>{len(bst.get('reward_assets', []))} distinct assets paid out</span>
-      <span class="foot-r">{escape(usd(bst.get('total_distributed_usd')))} to NFT holders</span>
-    </div></div></div>
   </section>
 
 
@@ -1133,6 +1144,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         resolution available. A matching contract name is not proof of authenticity —
         it is exactly what a copycat is built to have.
       </p>
+      <p>{audit_line}</p>
     </details>
     <p class="stamp">Snapshot {escape(gen_str)}.</p>
   </footer>
