@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent cross-check of HoodScan's headline numbers against Dune.
+"""Independent cross-check of HoodScout's headline numbers against Dune.
 
 Why this exists: every stat on the dashboard has exactly one source and no
 second opinion. Blockscout's `activeAccounts` methodology in particular is
@@ -207,7 +207,7 @@ def get_query(d, cache, name, sql, rebuild=False):
             cache[name]["sql"] = sql
             _save_cache(cache)
         return qid
-    qid = d.create(f"hoodscan/{name}", sql)
+    qid = d.create(f"hoodscout/{name}", sql)
     cache[name] = {"id": qid, "sql": sql}
     _save_cache(cache)
     return qid
@@ -267,7 +267,7 @@ def compare(pulse, dune_dau, dune_gas, eth_price):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Cross-check HoodScan against Dune")
+    ap = argparse.ArgumentParser(description="Cross-check HoodScout against Dune")
     ap.add_argument("--pulse", default=str(OUT_DIR / "pulse.json"))
     ap.add_argument("--days", type=int, default=10)
     ap.add_argument("--rebuild", action="store_true",

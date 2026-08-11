@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  HoodScan daily refresh.
+  HoodScout daily refresh.
 
-  Installed copy lives at ~/Library/LaunchAgents/com.hoodscan.daily.plist;
+  Installed copy lives at ~/Library/LaunchAgents/com.hoodscout.daily.plist;
   this one is the version-controlled original. To reinstall:
 
-    cp com.hoodscan.daily.plist ~/Library/LaunchAgents/
-    launchctl unload ~/Library/LaunchAgents/com.hoodscan.daily.plist 2>/dev/null
-    launchctl load  ~/Library/LaunchAgents/com.hoodscan.daily.plist
+    cp com.hoodscout.daily.plist ~/Library/LaunchAgents/
+    launchctl unload ~/Library/LaunchAgents/com.hoodscout.daily.plist 2>/dev/null
+    launchctl load  ~/Library/LaunchAgents/com.hoodscout.daily.plist
 
   Fires at 02:00 local. Every metric on the page is keyed to the last complete
   UTC day, so the run has to sit far enough past UTC midnight that the upstream
@@ -21,7 +21,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.hoodscan.daily</string>
+    <string>com.hoodscout.daily</string>
 
     <key>ProgramArguments</key>
     <array>

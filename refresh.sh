@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# HoodScan daily refresh: pull -> verify -> render -> republish.
+# HoodScout daily refresh: pull -> verify -> render -> republish.
 #
-# Run by launchd once a day (see com.hoodscan.daily.plist). launchd gives a job
+# Run by launchd once a day (see com.hoodscout.daily.plist). launchd gives a job
 # almost no environment, so everything here is an absolute path and nothing
 # relies on an interactive shell profile.
 #
@@ -19,7 +19,7 @@ PROJECT="/Users/raincityanalytics/projects/robinhood-chain-pulse"
 PYTHON="/Users/raincityanalytics/anaconda3/envs/node/bin/python3"
 CLAUDE="/Users/raincityanalytics/.local/bin/claude"
 ARTIFACT_URL="https://claude.ai/code/artifact/573d969c-d31d-442a-af07-521f41f4a757"
-SITE_URL="https://hoodscan-bv1.pages.dev"
+SITE_URL="https://hoodscout.pages.dev"
 LOG="$PROJECT/out/refresh.log"
 
 PUBLISH=1
@@ -81,7 +81,7 @@ fi
 #     Until then this step no-ops loudly rather than failing the run.
 if [ "${SKIP_DEPLOY:-0}" != "1" ]; then
     if npx --yes wrangler pages deploy "$PROJECT/out/site" \
-        --project-name=hoodscan --branch=main --commit-dirty=true >> "$LOG" 2>&1; then
+        --project-name=hoodscout --branch=main --commit-dirty=true >> "$LOG" 2>&1; then
         say "deployed to $SITE_URL"
     else
         say "WARN: Pages deploy failed — run 'npx wrangler login' once, then retry"

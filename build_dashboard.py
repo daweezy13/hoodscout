@@ -2,7 +2,7 @@
 """
 build_dashboard.py
 
-Render out/pulse.json into a self-contained dashboard page ("HoodScan").
+Render out/pulse.json into a self-contained dashboard page ("HoodScout").
 
 Kept separate from chain_pulse.py so the slow pull and the fast render are
 independent: iterate on layout without re-scanning ~96k Seaport logs, and
@@ -458,7 +458,7 @@ def render(p, logo=None):
     payload = json.dumps({"charts": charts, "spanDays": span_days},
                          separators=(",", ":")).replace("</", "<\\/")
 
-    return f"""<title>HoodScan — Robinhood Chain</title>
+    return f"""<title>HoodScout — Robinhood Chain</title>
 <style>
 :root {{
   --ground:#F6F5EF; --panel:#FFFFFF; --panel-2:#EFEEE4; --line:#DEDCCF;
@@ -841,7 +841,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   </div>
 
   <div class="masthead">
-    {logo_html(logo)}<h1>HoodScan</h1>
+    {logo_html(logo)}<h1>HoodScout</h1>
     <span class="kicker">Robinhood Chain, end to end</span>
   </div>
   <p class="lede">
@@ -1232,8 +1232,8 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {{ r
 """
 
 
-# Cloudflare appended -bv1 because the bare "hoodscan" project name was taken.
-SITE_URL = "https://hoodscan-bv1.pages.dev"
+# Cloudflare appended -bv1 because the bare "hoodscout" project name was taken.
+SITE_URL = "https://hoodscout.pages.dev"
 
 LOGO_PATH = OUT_DIR.parent / "logo.svg"      # drop a logo here and it is picked up
 
@@ -1268,8 +1268,8 @@ def logo_html(logo, cls="brandmark"):
     if not logo:
         return ""
     if logo["kind"] == "svg":
-        return f'<span class="{cls}" role="img" aria-label="HoodScan">{logo["markup"]}</span>'
-    return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScan">'
+        return f'<span class="{cls}" role="img" aria-label="HoodScout">{logo["markup"]}</span>'
+    return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScout">'
 
 
 def standalone(fragment, p, base_url=SITE_URL, public=False):
@@ -1294,14 +1294,14 @@ def standalone(fragment, p, base_url=SITE_URL, public=False):
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HoodScan — Robinhood Chain</title>
+<title>HoodScout — Robinhood Chain</title>
 <meta name="description" content="{escape(desc)}">
 <link rel="canonical" href="{escape(base_url)}/">
 {'' if public else '<meta name="robots" content="noindex,nofollow">'}
 
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="HoodScan">
-<meta property="og:title" content="HoodScan — Robinhood Chain">
+<meta property="og:site_name" content="HoodScout">
+<meta property="og:title" content="HoodScout — Robinhood Chain">
 <meta property="og:description" content="{escape(desc)}">
 <meta property="og:url" content="{escape(base_url)}/">
 <meta property="og:image" content="{escape(base_url)}/card.png">
@@ -1309,7 +1309,7 @@ def standalone(fragment, p, base_url=SITE_URL, public=False):
 <meta property="og:image:height" content="630">
 
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="HoodScan — Robinhood Chain">
+<meta name="twitter:title" content="HoodScout — Robinhood Chain">
 <meta name="twitter:description" content="{escape(desc)}">
 <meta name="twitter:image" content="{escape(base_url)}/card.png">
 
@@ -1354,7 +1354,7 @@ body{{width:1200px;height:630px;background:#D2F53C;color:#0F100C;overflow:hidden
   font-variant-numeric:tabular-nums}}
 </style></head><body>
   <div class="top">
-    <div class="mark">{logo_html(logo, "cardmark")}HoodScan</div>
+    <div class="mark">{logo_html(logo, "cardmark")}HoodScout</div>
     <div class="eyebrow">Robinhood Chain &middot; {gen.strftime('%d %b %Y')}</div>
   </div>
   <div>
@@ -1375,7 +1375,7 @@ body{{width:1200px;height:630px;background:#D2F53C;color:#0F100C;overflow:hidden
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Render the HoodScan dashboard")
+    ap = argparse.ArgumentParser(description="Render the HoodScout dashboard")
     ap.add_argument("--data", default=str(OUT_DIR / "pulse.json"))
     ap.add_argument("--out", default=str(OUT_DIR / "dashboard.html"))
     ap.add_argument("--verify", default=str(OUT_DIR / "dune_verify.json"),
