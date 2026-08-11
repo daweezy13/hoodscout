@@ -283,6 +283,11 @@ def nft_rows(cols):
 def reward_rows(projects):
     out = []
     for i, p in enumerate(projects, 1):
+        # A few of these contracts have no readable symbol(). Showing a bare
+        # "?" reads like a render failure; the short address is at least a
+        # thing the reader can click through and identify.
+        if not p.get("symbol") or p["symbol"] == "?":
+            p = dict(p, symbol=short_addr(p.get("address")) or "unnamed")
         amt = p.get("distributed") or 0
         amt_s = f"{amt:,.2f}" if amt >= 0.01 else f"{amt:.4g}"
         tracker = ('<span class="badge warn" title="Payouts run through a separate '
