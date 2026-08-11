@@ -1,0 +1,11 @@
+# API keys — OpenSea and Dune. Never commit.
+.env
+
+__pycache__/
+*.pyc
+
+# Generated outputs. The daily refresh rewrites all of these every night, so
+# tracking them would mean a permanently dirty tree that nobody commits. The
+# published Artifact is the record of the rendered page; pulse.json and the
+# verify report are reproducible by re-running the pipeline.
+out/
