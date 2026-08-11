@@ -305,7 +305,7 @@ def tile(label, value, sub, change=None):
 # --------------------------------------------------------------------------- #
 # Page
 # --------------------------------------------------------------------------- #
-def render(p):
+def render(p, logo=None):
     s, l = p["stats"], p["defillama"]
     m, n = p["memecoins"], p["nfts"]
 
@@ -401,8 +401,22 @@ def render(p):
     # enough to look comparable, but overlapping two UTC days and sliding
     # every run. It is now pinned to the same last-complete-UTC-day, and says so.
     if n.get("align") == "utc-day":
-        nft_window_note = (f"Window is {escape(str(n.get('window_label') or ''))} UTC, "
-                           "the same complete day the chain vitals above use.")
+        # Don't just assert the two agree -- check. The Seaport scan reads the
+        # chain directly and is always current, while Blockscout's daily series
+        # lag ingestion, so shortly after UTC midnight the vitals can still be
+        # a day behind. Claiming alignment when it isn't true is worse than the
+        # misalignment itself.
+        nft_day = str(n.get("window_label") or "")
+        vitals_day = str(s.get("dau_date") or "")
+        if nft_day and vitals_day and nft_day != vitals_day:
+            nft_window_note = (
+                f"Window is {escape(nft_day)} UTC. The chain vitals above headline "
+                f"{escape(vitals_day)} — Seaport fills are read straight off the chain, "
+                "so they are current, while the stats provider is still ingesting "
+                "the newer day.")
+        else:
+            nft_window_note = (f"Window is {escape(nft_day)} UTC, "
+                               "the same complete day the chain vitals above use.")
     else:
         nft_window_note = ("Window is a rolling 24h from the latest block, so it is "
                            "not aligned to the UTC days the chain vitals use.")
@@ -547,6 +561,17 @@ h2 {{
   display:flex; align-items:center; gap:12px;
 }}
 h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }}
+
+/* ---- brand mark ---- */
+.brandmark {{
+  display:inline-flex; align-items:center; color:var(--ink); flex:none;
+}}
+.brandmark svg, .brandmark img {{
+  height:clamp(46px,8vw,88px); width:auto; display:block;
+}}
+.masthead {{ align-items:center; }}
+.cardmark {{ display:inline-flex; align-items:center; margin-right:14px; }}
+.cardmark svg, .cardmark img {{ height:40px; width:auto; display:block; }}
 
 /* ---- hero ---- */
 .contract-link {{
@@ -816,7 +841,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   </div>
 
   <div class="masthead">
-    <h1>HoodScan</h1>
+    {logo_html(logo)}<h1>HoodScan</h1>
     <span class="kicker">Robinhood Chain, end to end</span>
   </div>
   <p class="lede">
@@ -1207,6 +1232,146 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {{ r
 """
 
 
+SITE_URL = "https://hoodscan.pages.dev"
+
+LOGO_PATH = OUT_DIR.parent / "logo.svg"      # drop a logo here and it is picked up
+
+
+def load_logo(path=None):
+    """Inline a logo so it survives the Artifact CSP, which blocks every
+    external host including image URLs.
+
+    SVG is inlined as markup rather than as a data URI on purpose: that lets
+    the mark inherit `currentColor`, so a single file works on both the cream
+    and the near-black ground. A raster file can't do that, so it is embedded
+    as a data URI and has to already read on both surfaces.
+    """
+    import base64
+    p = Path(path) if path else LOGO_PATH
+    if not p.exists():
+        return None
+    raw = p.read_bytes()
+    if p.suffix.lower() == ".svg":
+        svg = raw.decode("utf-8", "replace")
+        svg = svg[svg.index("<svg"):] if "<svg" in svg else svg
+        return {"kind": "svg", "markup": svg}
+    mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+            ".webp": "image/webp", ".gif": "image/gif"}.get(p.suffix.lower())
+    if not mime:
+        return None
+    return {"kind": "img",
+            "uri": f"data:{mime};base64,{base64.b64encode(raw).decode()}"}
+
+
+def logo_html(logo, cls="brandmark"):
+    if not logo:
+        return ""
+    if logo["kind"] == "svg":
+        return f'<span class="{cls}" role="img" aria-label="HoodScan">{logo["markup"]}</span>'
+    return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScan">'
+
+
+def standalone(fragment, p, base_url=SITE_URL):
+    """Wrap the artifact fragment in a real HTML document for public hosting.
+
+    The Artifact host supplies its own <!doctype>/<head> and injects the
+    fragment into <body>, so meta tags emitted there are inert. A page served
+    from our own domain has to carry its own head -- and for X specifically the
+    OG/Twitter tags ARE the product: a link with no card gets scrolled past.
+    og:image must be an absolute URL, which is why the domain had to be
+    settled before this could be written.
+    """
+    s, l = p["stats"], p["defillama"]
+    tvl = usd(l.get("tvl_current"))
+    dau = num(s.get("dau_current"))
+    desc = (f"Robinhood Chain at a glance — {tvl} TVL, {dau} daily active users, "
+            f"{usd(l.get('stables_current'))} in stablecoins. Memecoin and NFT "
+            f"leaderboards screened against two independent indexers, with every "
+            f"headline cross-checked against raw chain data.")
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HoodScan — Robinhood Chain</title>
+<meta name="description" content="{escape(desc)}">
+<link rel="canonical" href="{escape(base_url)}/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HoodScan">
+<meta property="og:title" content="HoodScan — Robinhood Chain">
+<meta property="og:description" content="{escape(desc)}">
+<meta property="og:url" content="{escape(base_url)}/">
+<meta property="og:image" content="{escape(base_url)}/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HoodScan — Robinhood Chain">
+<meta name="twitter:description" content="{escape(desc)}">
+<meta name="twitter:image" content="{escape(base_url)}/card.png">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230F100C'/><text y='.9em' x='50%' text-anchor='middle' font-size='78'>&#127993;</text></svg>">
+<style>*{{box-sizing:border-box}}html,body{{margin:0;padding:0}}</style>
+</head>
+<body>
+{fragment}
+</body>
+</html>"""
+
+
+def card_html(p, logo=None):
+    """A purpose-built 1200x630 social card.
+
+    Deliberately not a crop of the dashboard -- the page's proportions read
+    badly at 1.91:1, and the card's job is one number big enough to stop a
+    scroll, not a miniature of the whole site.
+    """
+    s, l = p["stats"], p["defillama"]
+    gen = dt.datetime.fromisoformat(p["generated_at"])
+    return f"""<!doctype html>
+<html><head><meta charset="utf-8"><style>
+*{{box-sizing:border-box;margin:0}}
+body{{width:1200px;height:630px;background:#D2F53C;color:#0F100C;overflow:hidden;
+  font-family:"Helvetica Neue","Arial Black",Helvetica,Arial,sans-serif;
+  display:flex;flex-direction:column;justify-content:space-between;padding:62px 66px;}}
+.top{{display:flex;justify-content:space-between;align-items:flex-start}}
+.mark{{font-size:38px;font-weight:900;letter-spacing:-.035em;display:flex;align-items:center}}
+.cardmark{{display:inline-flex;align-items:center;margin-right:14px}}
+.cardmark svg,.cardmark img{{height:40px;width:auto;display:block}}
+.eyebrow{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:16px;
+  letter-spacing:.22em;text-transform:uppercase;font-weight:700;padding-top:9px}}
+.label{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:19px;
+  letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:6px}}
+.big{{font-size:158px;font-weight:900;letter-spacing:-.05em;line-height:.84;
+  font-variant-numeric:tabular-nums}}
+.row{{display:flex;gap:64px;border-top:3px solid #0F100C;padding-top:24px}}
+.stat .k{{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;
+  letter-spacing:.16em;text-transform:uppercase;opacity:.72;margin-bottom:5px}}
+.stat .v{{font-size:40px;font-weight:900;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums}}
+</style></head><body>
+  <div class="top">
+    <div class="mark">{logo_html(logo, "cardmark")}HoodScan</div>
+    <div class="eyebrow">Robinhood Chain &middot; {gen.strftime('%d %b %Y')}</div>
+  </div>
+  <div>
+    <div class="label">Total value locked</div>
+    <div class="big">{usd(l.get('tvl_current'))}</div>
+  </div>
+  <div class="row">
+    <div class="stat"><div class="k">Daily active users</div>
+      <div class="v">{num(s.get('dau_current'))}</div></div>
+    <div class="stat"><div class="k">Stablecoins</div>
+      <div class="v">{usd(l.get('stables_current'))}</div></div>
+    <div class="stat"><div class="k">App fees 24h</div>
+      <div class="v">{usd(l.get('app_fees_24h'))}</div></div>
+    <div class="stat"><div class="k">Gas fees 24h</div>
+      <div class="v">{usd(s.get('gas_fees_usd_current'))}</div></div>
+  </div>
+</body></html>"""
+
+
 def main():
     ap = argparse.ArgumentParser(description="Render the HoodScan dashboard")
     ap.add_argument("--data", default=str(OUT_DIR / "pulse.json"))
@@ -1214,16 +1379,35 @@ def main():
     ap.add_argument("--verify", default=str(OUT_DIR / "dune_verify.json"),
                     help="optional verify_dune.py report; the audit strip is "
                          "omitted entirely when it is absent")
+    ap.add_argument("--site-dir", default=str(OUT_DIR / "site"),
+                    help="standalone site for public hosting (full HTML document "
+                         "with OG/Twitter tags, plus the social card source)")
+    ap.add_argument("--base-url", default=SITE_URL,
+                    help="absolute origin the OG tags point at")
+    ap.add_argument("--logo", default=None,
+                    help=f"logo file to inline; defaults to {LOGO_PATH.name} beside "
+                         "this script if present. SVG preferred — it inherits "
+                         "currentColor and so works on both themes from one file.")
     args = ap.parse_args()
 
     pulse = json.loads(Path(args.data).read_text())
     vp = Path(args.verify)
     pulse["_verify"] = json.loads(vp.read_text()) if vp.exists() else None
-    html = render(pulse)
+
+    # Fragment: what the Artifact host wants (it supplies its own head).
+    logo = load_logo(args.logo)
+    html = render(pulse, logo)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html)
     print(f"Wrote {out} ({len(html):,} bytes)")
+
+    # Standalone document + card source: what a real domain needs.
+    site = Path(args.site_dir)
+    site.mkdir(parents=True, exist_ok=True)
+    (site / "index.html").write_text(standalone(html, pulse, args.base_url))
+    (site / "card.html").write_text(card_html(pulse, logo))
+    print(f"Wrote {site / 'index.html'} and card.html (base {args.base_url})")
 
 
 if __name__ == "__main__":

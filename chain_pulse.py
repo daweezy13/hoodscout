@@ -481,7 +481,7 @@ def _stats_line(line_id, days=30):
     return out
 
 
-def _split_partial(series, sum_like=True, ratio=0.6, window=7):
+def _split_partial(series, sum_like=True, ratio=0.6, floor_ratio=0.35, window=7):
     """Separate still-filling buckets from complete days.
 
     Two distinct failure modes, and the calendar alone catches only the first:
@@ -494,11 +494,22 @@ def _split_partial(series, sum_like=True, ratio=0.6, window=7):
        it. A date-only rule happily reports that as a finished day.
 
     So sum-like series (fees, transaction counts -- quantities that accumulate
-    linearly through a day) additionally drop a trailing point that sits below
-    `ratio` of the trailing median. Distinct-count series like active accounts
-    must NOT use that test: a unique-address count saturates early in the day,
-    so a genuinely partial bucket still looks near-full, and a real drop in
-    activity would be wrongly suppressed. Those rely on the calendar alone.
+    linearly through a day) drop a trailing point that sits below `ratio` of
+    the trailing median.
+
+    Distinct-count series like active accounts must NOT use that same 0.6
+    test: a unique-address count saturates early in the day, so a genuinely
+    partial bucket still looks near-full and a real drop would be wrongly
+    suppressed. But "calendar alone" turned out to be too weak for them too --
+    on 2026-08-11T00:03Z the Aug 10 DAU bucket was calendar-complete and held
+    62,363 against a 225k-382k neighbourhood, because the provider had barely
+    begun ingesting the day. That shipped a headline reading a 75% collapse in
+    users that had not happened.
+
+    So distinct-count series get the same test at a much looser `floor_ratio`.
+    0.35 sits far below any plausible one-day swing (the observed 10-day range
+    bottoms out near 78% of median) while still catching an under-ingested
+    bucket sitting at 25%.
 
     The dropped point stays in the series for charting; it is only barred from
     driving a headline, and is returned separately so it can be labelled.
@@ -507,10 +518,11 @@ def _split_partial(series, sum_like=True, ratio=0.6, window=7):
     complete = [p for p in series if p["date"] < today]
     partial = next((p for p in series if p["date"] >= today), None)
 
-    if sum_like and len(complete) > window:
+    cutoff = ratio if sum_like else floor_ratio
+    if len(complete) > window:
         recent = sorted(p["value"] for p in complete[-(window + 1):-1])
         median = recent[len(recent) // 2] if recent else 0
-        if median > 0 and complete[-1]["value"] < ratio * median:
+        if median > 0 and complete[-1]["value"] < cutoff * median:
             partial = complete[-1]
             complete = complete[:-1]
     return complete, partial
