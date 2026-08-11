@@ -1232,7 +1232,8 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {{ r
 """
 
 
-SITE_URL = "https://hoodscan.pages.dev"
+# Cloudflare appended -bv1 because the bare "hoodscan" project name was taken.
+SITE_URL = "https://hoodscan-bv1.pages.dev"
 
 LOGO_PATH = OUT_DIR.parent / "logo.svg"      # drop a logo here and it is picked up
 

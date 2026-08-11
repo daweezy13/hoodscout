@@ -19,6 +19,7 @@ PROJECT="/Users/raincityanalytics/projects/robinhood-chain-pulse"
 PYTHON="/Users/raincityanalytics/anaconda3/envs/node/bin/python3"
 CLAUDE="/Users/raincityanalytics/.local/bin/claude"
 ARTIFACT_URL="https://claude.ai/code/artifact/573d969c-d31d-442a-af07-521f41f4a757"
+SITE_URL="https://hoodscan-bv1.pages.dev"
 LOG="$PROJECT/out/refresh.log"
 
 PUBLISH=1
@@ -53,11 +54,39 @@ else
 fi
 
 # 3. Render.
-if ! "$PYTHON" build_dashboard.py >> "$LOG" 2>&1; then
+if ! "$PYTHON" build_dashboard.py --base-url "$SITE_URL" >> "$LOG" 2>&1; then
     say "FAILED: build_dashboard.py"
     exit 1
 fi
 say "rendered dashboard.html"
+
+# 3b. Social card. This is the X link preview, so it is not optional cosmetics:
+#     a link with no card gets scrolled past. Rendering it also acts as a smoke
+#     test — the numbers are large enough that a bad one is obvious on sight,
+#     which is how the under-ingested DAU bucket got caught.
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+if [ -x "$CHROME" ]; then
+    "$CHROME" --headless --disable-gpu --hide-scrollbars \
+        --force-device-scale-factor=1 --virtual-time-budget=4000 \
+        --window-size=1200,630 --screenshot="$PROJECT/out/site/card.png" \
+        "file://$PROJECT/out/site/card.html" >> "$LOG" 2>&1 \
+        && say "rendered card.png" \
+        || say "WARN: card render failed — the previous card.png stays live"
+else
+    say "WARN: Chrome not found — card.png not regenerated"
+fi
+
+# 3c. Deploy the public site. Cloudflare Pages needs `wrangler login` once
+#     (interactive browser OAuth) or CLOUDFLARE_API_TOKEN in the environment.
+#     Until then this step no-ops loudly rather than failing the run.
+if [ "${SKIP_DEPLOY:-0}" != "1" ]; then
+    if npx --yes wrangler pages deploy "$PROJECT/out/site" \
+        --project-name=hoodscan --branch=main --commit-dirty=true >> "$LOG" 2>&1; then
+        say "deployed to $SITE_URL"
+    else
+        say "WARN: Pages deploy failed — run 'npx wrangler login' once, then retry"
+    fi
+fi
 
 # 4. Republish to the SAME artifact URL so the link never changes.
 #
