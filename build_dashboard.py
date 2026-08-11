@@ -167,22 +167,36 @@ def trust_chip(ti):
     return ""
 
 
-def ethos_chip(e):
-    """A LINK to the Ethos profile — deliberately no score.
+ETHOS_MARK = ('<svg viewBox="0 0 512 512" aria-hidden="true" focusable="false">'
+              '<path fill="currentColor" fill-rule="evenodd" d="M255.38 255.189a254.98 '
+              '254.98 0 0 1-1.935 31.411H101v62.2h136.447a251.522 251.522 0 0 1-35.932 '
+              '62.2H411v-62.2H237.447a250.584 250.584 0 0 0 15.998-62.2H411v-62.2H253.521a250.604 '
+              '250.604 0 0 0-15.826-62.2H411V100H202.003a251.526 251.526 0 0 1 35.692 '
+              '62.2H101v62.2h152.521a255 255 0 0 1 1.859 30.789Z" clip-rule="evenodd"/></svg>')
 
-    The scores proved too inconsistent to headline: most profiles sit at the
-    bare 1200 default with no reviews or vouches, and the handle is
-    self-declared anyway (SPCX on this chain links @elonmusk and would have
-    inherited a "reputable" 1945). Rendering a number implied a verdict the
-    data cannot support, so the page points at the profile and lets the reader
-    judge.
+X_MARK = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+          '<path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17'
+          'l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 '
+          '17.52h1.833L7.084 4.126H5.117z"/></svg>')
+
+
+def social_links(e):
+    """Ethos profile and X account as marks, not words.
+
+    Both point at the SAME self-declared handle, which is the caveat worth
+    keeping in the tooltip: a token claiming @elonmusk would show his X icon
+    just as readily as its own.
     """
     if not e or not e.get("handle"):
         return ""
-    return (f'<a class="ethos-link" href="{escape(e.get("profile_url") or "#")}" '
-            f'target="_blank" rel="noopener noreferrer" '
-            f'title="Ethos profile for @{escape(e["handle"])} — the X account this '
-            f'token declares. Self-declared, so not proof of anything.">ethos &#8599;</a>')
+    h = escape(e["handle"])
+    return (
+        f'<a class="sm" href="{escape(e.get("profile_url") or "#")}" target="_blank" '
+        f'rel="noopener noreferrer" aria-label="Ethos profile for @{h}" '
+        f'title="Ethos profile for @{h}">{ETHOS_MARK}</a>'
+        f'<a class="sm" href="https://x.com/{h}" target="_blank" rel="noopener noreferrer" '
+        f'aria-label="@{h} on X" title="@{h} on X — self-declared by the token, '
+        f'not verified">{X_MARK}</a>')
 
 
 def meme_rows(tokens):
@@ -200,7 +214,7 @@ def meme_rows(tokens):
             <td class="sym" data-v="{escape((t.get('symbol') or '?').lower())}">
               <span class="sym-name">{dot}{link(t.get('url'), t.get('symbol') or '?', 'ext strong')}{badge}</span>
               <span class="sym-sub">{escape(num(t.get('holders')))} holders
-                {ethos_chip(t.get('ethos'))}</span>
+                {social_links(t.get('ethos'))}</span>
             </td>
             <td class="n" data-v="{t.get('price_usd') or 0}">{escape(price(t.get('price_usd')))}
               <span class="alt {trend_class(chg)}">{escape(pct(chg))}</span></td>
@@ -702,8 +716,13 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
   text-transform:uppercase; font-weight:700; margin-bottom:14px;
 }}
 .hero-value {{
-  font-family:var(--grotesk); font-weight:900; letter-spacing:-.035em; line-height:.95;
-  font-size:clamp(44px,7vw,80px); font-variant-numeric:tabular-nums;
+  /* Silkscreen back on the headline number. It was pulled earlier because it
+     read badly cramped at 58px with zero tracking — a pixel face needs air
+     between glyphs, not tighter setting. Positive letter-spacing and a taller
+     line box fix the legibility; the digits are already fixed-width so the
+     number stays column-stable as it changes. */
+  font-family:var(--display); font-weight:700;
+  font-size:clamp(30px,4.6vw,54px); letter-spacing:.03em; line-height:1.18;
 }}
 .hero-meta {{
   font-family:var(--mono); font-size:10.5px; letter-spacing:.11em;
@@ -871,7 +890,14 @@ td.sym {{ min-width:190px; }}
    overflowed its scroller by 21px, clipping Volume — the column the ranking
    is based on. Tighter name column and padding in the two-up context only. */
 .two-col td.sym {{ min-width:162px; }}
-.two-col .sym-sub {{ white-space:nowrap; line-height:1.3; }}
+.two-col .sm {{
+  display:inline-flex; align-items:center; color:var(--muted);
+  margin-left:7px; text-decoration:none; border-bottom:none; flex:none;
+}}
+.sm svg {{ width:11px; height:11px; display:block; }}
+.sm:hover {{ color:var(--accent-ink); }}
+.sm:focus-visible {{ outline:2px solid var(--accent-ink); outline-offset:2px; }}
+.sym-sub {{ white-space:nowrap; line-height:1.3; }}
 /* Every NFT row carries a verification badge and no memecoin row does, which
    made the name line 2px taller and desynced the two boards. Pin both lines
    so the row rhythm is identical regardless of what chips a row happens to
@@ -1074,9 +1100,6 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </div>
       <div class="board-foot">
         <button class="more" type="button"></button>
-        <span><i class="corrob ok"></i>agree</span>
-        <span><i class="corrob part"></i>3–20x apart</span>
-        <span><i class="corrob bad"></i>disputed</span>
         <span class="foot-r">{n_excl} more screened out below the {usd_exact(floor)} floor</span>
       </div></div></div>
     </section>
