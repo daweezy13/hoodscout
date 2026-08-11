@@ -163,47 +163,26 @@ GRADE_CLS = {"A": "ok", "B": "ok", "C": "part", "D": "part", "F": "bad"}
 
 
 def trust_chip(ti):
-    """Trust Index from Trust Capital Markets — 50% Ethos, 50% log-scaled FDV.
-
-    Only rendered when the project has a real Ethos score; an unrated profile
-    would otherwise contribute a flat 1200 default and make the composite look
-    like a measurement of nothing.
-    """
-    if not ti:
-        return ""
-    cls = GRADE_CLS.get(ti.get("grade"), "part")
-    return (f'<span class="trust {cls}" title="Trust Index {ti["score"]} (grade '
-            f'{ti["grade"]}) — Trust Capital Markets composite: 50% Ethos '
-            f'({ti["trust_norm"]}) + 50% log-scaled FDV ({ti["fdv_norm"]})">'
-            f'<span class="t-grade">{escape(ti["grade"])}</span>'
-            f'<span class="t-score">{ti["score"]}</span></span>')
+    """Removed with the Ethos score it was 50% derived from."""
+    return ""
 
 
 def ethos_chip(e):
-    """Ethos credibility for the account a token CLAIMS, never for the token.
+    """A LINK to the Ethos profile — deliberately no score.
 
-    The handle is always rendered beside the score. A social link is
-    self-declared: SPCX on this chain points at @elonmusk and would otherwise
-    inherit 1945/"reputable". Showing "@elonmusk" next to a SpaceX knockoff is
-    what makes that visible instead of laundering it into a trust badge.
+    The scores proved too inconsistent to headline: most profiles sit at the
+    bare 1200 default with no reviews or vouches, and the handle is
+    self-declared anyway (SPCX on this chain links @elonmusk and would have
+    inherited a "reputable" 1945). Rendering a number implied a verdict the
+    data cannot support, so the page points at the profile and lets the reader
+    judge.
     """
-    if not e:
+    if not e or not e.get("handle"):
         return ""
-    if e.get("unrated"):
-        cls, shown = "part", "unrated"
-    else:
-        cls = ETHOS_LEVEL.get((e.get("level") or "").lower(), "part")
-        shown = str(e.get("score"))
-    rv = e.get("reviews_positive", 0), e.get("reviews_negative", 0)
-    detail = (f'{rv[0]}+ / {rv[1]}− reviews · {e.get("vouches", 0)} vouches · '
-              f'profile {(e.get("status") or "unknown").lower()}')
-    return (f'<a class="ethos {cls}" href="{escape(e.get("profile_url") or "#")}" '
+    return (f'<a class="ethos-link" href="{escape(e.get("profile_url") or "#")}" '
             f'target="_blank" rel="noopener noreferrer" '
-            f'title="Ethos {escape(e.get("level") or "")} — @{escape(e["handle"])}. '
-            f'{escape(detail)}. Scores the linked X account, which is self-declared, '
-            f'not the token.">'
-            f'<span class="e-score">{escape(shown)}</span>'
-            f'<span class="e-at">@{escape(e["handle"])}</span></a>')
+            f'title="Ethos profile for @{escape(e["handle"])} — the X account this '
+            f'token declares. Self-declared, so not proof of anything.">ethos &#8599;</a>')
 
 
 def meme_rows(tokens):
@@ -216,12 +195,12 @@ def meme_rows(tokens):
         chg = t.get("price_change_24h")
         fdv = t.get("fdv")
         mc = t.get("market_cap")
-        out.append(f"""          <tr>
+        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((t.get('symbol') or '?').lower())}">
               <span class="sym-name">{dot}{link(t.get('url'), t.get('symbol') or '?', 'ext strong')}{badge}</span>
               <span class="sym-sub">{escape(num(t.get('holders')))} holders
-                {trust_chip(t.get('trust_index'))}{ethos_chip(t.get('ethos'))}</span>
+                {ethos_chip(t.get('ethos'))}</span>
             </td>
             <td class="n" data-v="{t.get('price_usd') or 0}">{escape(price(t.get('price_usd')))}
               <span class="alt {trend_class(chg)}">{escape(pct(chg))}</span></td>
@@ -258,7 +237,7 @@ def nft_rows(cols):
             floor_lbl = "low sale"
             floor_tip = "Lowest paid sale in the window — not a listing floor"
 
-        out.append(f"""          <tr>
+        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape(name.lower())}">
               <span class="sym-name">{link(c.get('opensea_url'), name, 'ext strong')}{badge}</span>
@@ -293,7 +272,7 @@ def reward_rows(projects):
         tracker = ('<span class="badge warn" title="Payouts run through a separate '
                    'DIVIDEND_TRACKER contract owned by this token">via tracker</span>'
                    if p.get("tracker_address") else "")
-        out.append(f"""          <tr>
+        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((p.get('symbol') or '?').lower())}">
               <span class="sym-name">{link(p.get('explorer_url'), p.get('symbol') or '?', 'ext strong')}{tracker}</span>
@@ -319,7 +298,7 @@ def booster_rows(projects, today=None):
             f'<span class="pays" title="{escape(a["symbol"])}: {a["amount"]:,.2f} '
             f'= {escape(usd(a["usd"]))}">{escape(a["symbol"])}</span>'
             for a in (p.get("assets") or [])[:8])
-        out.append(f"""          <tr>
+        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((p.get('name') or '').lower())}">
               <span class="sym-name">{link(p.get('explorer_url'), p.get('name') or '?', 'ext strong')}</span>
@@ -610,7 +589,7 @@ body {{
   margin:0; background:var(--ground); color:var(--ink);
   font-family:var(--sans); line-height:1.55; -webkit-font-smoothing:antialiased;
 }}
-.wrap {{ max-width:1240px; margin:0 auto; padding:30px 24px 76px; }}
+.wrap {{ max-width:1240px; margin:0 auto; padding:26px 24px 48px; }}
 a.ext {{ color:inherit; text-decoration:none;
   border-bottom:1px solid color-mix(in srgb, var(--accent-ink) 45%, transparent); }}
 a.ext:hover {{ color:var(--accent-ink); border-bottom-color:var(--accent); }}
@@ -634,7 +613,7 @@ a.ext.dim:hover {{ color:var(--accent-ink); }}
 
 .masthead {{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 22px; margin-bottom:10px; }}
 h1 {{
-  font-family:var(--display); font-size:clamp(30px,5.2vw,56px); line-height:1.05;
+  font-family:var(--display); font-size:clamp(22px,3.4vw,38px); line-height:1.05;
   letter-spacing:0; font-weight:700; margin:0; text-wrap:balance;
   color:var(--ink);
 }}
@@ -644,20 +623,20 @@ h1 {{
 }}
 .lede {{
   max-width:60ch; color:var(--ink-2); margin:0 0 34px;
-  font-family:var(--grotesk); font-weight:600;
-  font-size:clamp(16px,1.9vw,20px); line-height:1.4; letter-spacing:-.012em;
+  font-family:var(--sans); font-weight:500;
+  font-size:15px; line-height:1.5; letter-spacing:0; color:var(--ink-2);
 }}
 
 h2 {{
-  font-family:var(--display); font-size:clamp(17px,2.4vw,27px); letter-spacing:0;
-  color:var(--ink); font-weight:700; margin:0 0 8px; line-height:1.15;
+  font-family:var(--display); font-size:clamp(14px,1.7vw,19px); letter-spacing:0;
+  color:var(--ink); font-weight:700; margin:0 0 6px; line-height:1.2;
   display:flex; align-items:center; gap:16px;
 }}
 h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }}
 
 .sub-head {{
-  font-family:var(--display); font-size:14px; font-weight:700; letter-spacing:0;
-  color:var(--ink); margin:26px 0 6px; text-transform:none;
+  font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink); margin:20px 0 6px;
 }}
 .sub-head:first-of-type {{ margin-top:10px; }}
 td.basket {{ text-align:right; white-space:normal; max-width:340px; }}
@@ -691,7 +670,7 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
    corners from the child's alpha. (box-shadow and a ::before layer fail the
    same way, for the same reason.) */
 .pixel-shadow {{ filter:drop-shadow(9px 9px 0 var(--shadow)); }}
-.pixel-shadow > .pixel {{ display:block; }}
+.pixel-shadow {{ display:block; }}
 
 /* ---- brand mark ---- */
 .brandmark {{
@@ -717,16 +696,15 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
 .hero-card {{
   background:var(--accent); color:var(--on-accent);
   border:var(--rule-w) solid var(--on-accent);
-  padding:30px 30px 26px; display:flex; flex-direction:column; justify-content:center;
-  min-height:230px;
+  padding:22px 24px 20px; display:flex; flex-direction:column; justify-content:center;
 }}
 .hero-label {{
   font-family:var(--mono); font-size:11.5px; letter-spacing:.2em;
   text-transform:uppercase; font-weight:700; margin-bottom:14px;
 }}
 .hero-value {{
-  font-family:var(--display); font-weight:700; letter-spacing:0; line-height:1;
-  font-size:clamp(30px,5.4vw,58px); font-variant-numeric:tabular-nums;
+  font-family:var(--grotesk); font-weight:900; letter-spacing:-.035em; line-height:.95;
+  font-size:clamp(44px,7vw,80px); font-variant-numeric:tabular-nums;
 }}
 .hero-meta {{
   font-family:var(--mono); font-size:10.5px; letter-spacing:.11em;
@@ -766,7 +744,7 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
   padding:1px 5px; color:var(--ink-2);
 }}
 .sec-sub {{ color:var(--muted); font-size:13px; margin:0 0 12px; max-width:74ch; }}
-section {{ margin-top:52px; }}
+section {{ margin-top:34px; }}
 
 /* ---- range selector ---- */
 .ranges {{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; }}
@@ -792,15 +770,15 @@ section {{ margin-top:52px; }}
   border:var(--rule-w) solid var(--rule); overflow:hidden;
   }}
 @media (min-width:860px) {{ .charts {{ grid-template-columns:1fr 1fr; }} }}
-.chart {{ background:var(--panel); padding:16px 18px 12px; min-width:0; }}
+.chart {{ background:var(--panel); padding:12px 14px 9px; min-width:0; }}
 .chart-head {{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }}
 .chart h3 {{
   font-family:var(--mono); font-size:10.5px; letter-spacing:.11em; text-transform:uppercase;
   color:var(--muted); font-weight:600; margin:0;
 }}
 .chart-val {{
-  font-family:var(--mono); font-size:25px; font-weight:600; letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums; margin:4px 0 2px;
+  font-family:var(--mono); font-size:19px; font-weight:600; letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums; margin:2px 0 1px;
 }}
 .chart-delta {{
   font-family:var(--mono); font-size:11px; font-variant-numeric:tabular-nums;
@@ -808,7 +786,7 @@ section {{ margin-top:52px; }}
 }}
 .agg-label {{ color:var(--muted); font-size:10px; letter-spacing:.04em; }}
 .plot {{ position:relative; margin-top:10px; }}
-.plot svg {{ display:block; width:100%; height:190px; overflow:visible; }}
+.plot svg {{ display:block; width:100%; height:132px; overflow:visible; }}
 .grid-line {{ stroke:var(--line); stroke-width:1; }}
 .axis-txt {{ fill:var(--muted); font-family:var(--mono); font-size:9.5px; }}
 .crosshair {{ stroke:var(--muted); stroke-width:1; stroke-dasharray:3 3; opacity:0; }}
@@ -831,7 +809,7 @@ section {{ margin-top:52px; }}
 .tiles {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1px;
   background:var(--line); border:var(--rule-w) solid var(--rule);
   overflow:hidden; margin-top:16px; }}
-.tile {{ background:var(--panel); padding:14px 18px; }}
+.tile {{ background:var(--panel); padding:10px 14px; }}
 .tile-head {{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }}
 .tile-label {{ font-family:var(--mono); font-size:10px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--muted); font-weight:600; display:block; }}
@@ -867,7 +845,7 @@ li.stable:last-child {{ border-bottom:none; }}
 table {{ width:100%; border-collapse:collapse; font-size:13px; }}
 thead th {{
   font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--ink); font-weight:700; text-align:right; padding:11px 14px;
+  color:var(--ink); font-weight:700; text-align:right; padding:8px 12px;
   border-bottom:var(--rule-w) solid var(--rule); background:var(--panel-2);
   white-space:nowrap; letter-spacing:.13em;
 }}
@@ -881,7 +859,7 @@ thead th[data-sort]::after {{
 thead th[aria-sort="descending"]::after {{ content:"↓"; opacity:1; }}
 thead th[aria-sort="ascending"]::after {{ content:"↑"; opacity:1; }}
 thead th[data-sort]:focus-visible {{ outline:2px solid var(--accent-ink); outline-offset:-2px; }}
-tbody td {{ padding:9px 14px; border-bottom:1px solid var(--line); vertical-align:middle; }}
+tbody td {{ padding:6px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }}
 tbody tr:last-child td {{ border-bottom:none; }}
 tbody tr:hover {{ background:var(--panel-2); }}
 td.n {{ text-align:right; font-family:var(--mono); font-variant-numeric:tabular-nums; white-space:nowrap; }}
@@ -916,8 +894,8 @@ td.reason {{ color:var(--muted); font-size:12px; }}
 .alt.up {{ color:var(--up); }} .alt.down {{ color:var(--down); }}
 td.n {{ line-height:1.3; }}
 
-.two-col {{ display:grid; grid-template-columns:1fr; gap:40px; align-items:stretch;
-  margin-top:52px; }}   /* section{{margin-top}} is cancelled by .two-col>section */
+.two-col {{ display:grid; grid-template-columns:1fr; gap:28px; align-items:stretch;
+  margin-top:34px; }}   /* section{{margin-top}} is cancelled by .two-col>section */
 @media (min-width:1040px) {{ .two-col {{ grid-template-columns:1fr 1fr; gap:28px; }} }}
 .two-col > section {{ margin-top:0; display:flex; flex-direction:column; min-width:0; }}
 /* keep both board headers on the same baseline even though the blurbs differ */
@@ -934,32 +912,16 @@ td.n {{ line-height:1.3; }}
   font-family:var(--mono); font-size:10px; letter-spacing:.05em; color:var(--muted);
 }}
 .board-foot span {{ display:inline-flex; align-items:center; gap:6px; }}
+tbody tr.over {{ display:none; }}
+.board.expanded tbody tr.over {{ display:table-row; }}
+button.more {{
+  font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase;
+  background:var(--panel); color:var(--ink); border:1.5px solid var(--rule);
+  padding:2px 8px; cursor:pointer; font-weight:700;
+}}
+button.more:hover {{ background:var(--accent); }}
 .board-foot .foot-r {{ margin-left:auto; }}
 
-/* Trust Index chip — grade + composite score */
-.trust {{
-  display:inline-flex; align-items:center; gap:4px; margin-left:8px;
-  padding:1px 6px; border-radius:2px; font-family:var(--mono); font-size:9.5px;
-  border:1px solid transparent;
-}}
-.trust .t-grade {{ font-weight:700; }}
-.trust .t-score {{ opacity:.75; }}
-.trust.ok {{ color:var(--accent-ink); background:var(--accent-soft); border-color:var(--accent-soft); }}
-.trust.part {{ color:var(--flag); background:var(--flag-soft); border-color:var(--flag-soft); }}
-.trust.bad {{ color:var(--reject); background:var(--reject-soft); border-color:var(--reject-soft); }}
-
-/* Ethos chip — score and handle are inseparable by design */
-.ethos {{
-  display:inline-flex; align-items:center; gap:5px; margin-left:8px;
-  padding:1px 6px 1px 5px; border-radius:2px; text-decoration:none;
-  font-family:var(--mono); font-size:9.5px; border:1px solid transparent;
-}}
-.ethos .e-score {{ font-weight:700; }}
-.ethos .e-at {{ color:var(--muted); }}
-.ethos.ok {{ color:var(--accent-ink); background:var(--accent-soft); border-color:var(--accent-soft); }}
-.ethos.part {{ color:var(--ink-2); background:var(--panel-2); border-color:var(--line); }}
-.ethos.bad {{ color:var(--reject); background:var(--reject-soft); border-color:var(--reject-soft); }}
-.ethos:hover {{ border-color:currentColor; }}
 
 .sym-sub {{
   font-family:var(--mono); font-size:10.5px; color:var(--muted);
@@ -967,7 +929,18 @@ td.n {{ line-height:1.3; }}
 }}
 footer {{ margin-top:56px; padding-top:20px; border-top:var(--rule-w) solid var(--rule);
   font-size:12.5px; color:var(--muted); }}
-footer p, footer h2.foot-h {{ max-width:78ch; }}
+footer p {{ max-width:78ch; }}
+.notes summary {{
+  font-family:var(--mono); font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted); cursor:pointer; padding:4px 0; list-style:none;
+}}
+.notes summary::-webkit-details-marker {{ display:none; }}
+.notes summary::before {{ content:"+ "; }}
+.notes[open] summary::before {{ content:"\2212 "; }}
+.notes summary:hover {{ color:var(--ink); }}
+.notes p {{ font-size:12px; margin:8px 0 0; }}
+.stamp {{ font-family:var(--mono); font-size:10px; letter-spacing:.06em;
+  color:var(--muted); margin:12px 0 0; }}
 footer h2.foot-h {{ font-family:var(--mono); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-2); margin:0 0 8px; font-weight:600; }}
 footer p {{ margin:0 0 10px; }}
@@ -1062,6 +1035,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         </table>
       </div>
       <div class="board-foot">
+        <button class="more" type="button"></button>
         <span><i class="corrob ok"></i>agree</span>
         <span><i class="corrob part"></i>3–20x apart</span>
         <span><i class="corrob bad"></i>disputed</span>
@@ -1087,6 +1061,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         </table>
       </div>
       <div class="board-foot">
+        <button class="more" type="button"></button>
         <span>{num(n.get('logs_scanned'))} Seaport fills decoded</span>
         <span class="foot-r">{escape(usd(n.get('total_volume_usd')))} total</span>
       </div></div></div>
@@ -1112,6 +1087,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </table>
     </div>
     <div class="board-foot">
+      <button class="more" type="button"></button>
       <span>{num(rw.get('candidates_scanned'))} contracts scanned</span>
       <span class="foot-r">{escape(usd(rw.get('total_distributed_usd')))} paid out to date</span>
     </div></div></div>
@@ -1140,32 +1116,25 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
 
 
   <footer>
-    <h2 class="foot-h">Method &amp; caveats</h2>
-    <p>
-      TVL, stablecoins and app-level fees come from DefiLlama's chain-level endpoints.
-      Active users and gas fees come from Blockscout's stats service. Memecoins use
-      DexScreener as the primary source, cross-checked against GeckoTerminal, which is
-      also what enumerates candidates in the first place. NFT volume is computed here by
-      decoding Seaport <code>OrderFulfilled</code> logs straight from the chain RPC.
-    </p>
-    <p>
-      <strong>Fees are two separate numbers.</strong> Gas fees are paid to the chain;
-      app fees are earned by protocols on it. They differ by roughly 30x and answer
-      different questions, so they are never summed.
-    </p>
-    <p>
-      <strong>The stablecoin composition chart is an approximation.</strong> DefiLlama
-      publishes per-chain stablecoin history only in aggregate and the per-asset split
-      only as of now, so the split is held constant backwards. The totals are measured;
-      the division between USDG and USDe on past dates is not.
-    </p>
-    <p>
-      Daily granularity is the finest the chain's stats API offers — there is no hourly
-      resolution, so ranges shorter than a week cannot be plotted. Contract names come
-      from Blockscout and are <em>not</em> proof of authenticity: a matching name is
-      exactly what a copycat is built to have.
-    </p>
-    <p>Snapshot taken {escape(gen_str)}. Figures are only as fresh as that.</p>
+    <details class="notes">
+      <summary>Method &amp; caveats</summary>
+      <p>
+        TVL, stablecoins and app fees from DefiLlama; active users and gas from
+        Blockscout; memecoins from DexScreener cross-checked against GeckoTerminal;
+        NFT volume by decoding Seaport <code>OrderFulfilled</code> logs off the chain
+        RPC; holder payouts from <code>DividendsDistributed</code> events and booster
+        transfers, both read on-chain.
+      </p>
+      <p>
+        <b>Gas fees and app fees are separate numbers</b> — paid to the chain versus
+        earned by protocols on it, ~30x apart, never summed. <b>The stablecoin split is
+        an approximation</b>: DefiLlama publishes per-chain history only in aggregate,
+        so the USDG/USDe division is held constant backwards. Daily is the finest
+        resolution available. A matching contract name is not proof of authenticity —
+        it is exactly what a copycat is built to have.
+      </p>
+    </details>
+    <p class="stamp">Snapshot {escape(gen_str)}.</p>
   </footer>
 </div>
 
@@ -1299,7 +1268,7 @@ function renderChart(key, cfg) {{
   series.forEach((s,si)=>{{ svg += `<circle class="hover-dot" id="hd-${{key}}-${{si}}" r="4" fill="${{cols[si]}}" stroke="var(--panel)" stroke-width="2"/>`; }});
   svg += `<rect x="${{PL}}" y="${{PT}}" width="${{W-PL-PR}}" height="${{H-PT-PB}}" fill="transparent" id="hit-${{key}}"/>`;
 
-  host.innerHTML = `<svg viewBox="0 0 ${{W}} ${{H}}" role="img" aria-label="${{cfg.title}}">${{svg}}</svg>`
+  host.innerHTML = `<svg viewBox="0 0 ${{W}} ${{H}}" preserveAspectRatio="none" role="img" aria-label="${{cfg.title}}">${{svg}}</svg>`
     + `<div class="tip" id="tip-${{key}}"></div>`;
 
   // Headline responds to the selected range, aggregated the way the metric
@@ -1462,6 +1431,20 @@ function makeSortable(table) {{
   }});
 }}
 document.querySelectorAll('.board table').forEach(makeSortable);
+
+
+/* Boards open at 10 rows. At 20 each board ran ~1,220px and the page passed
+   6,000px total, so the lower half was rarely reached. */
+document.querySelectorAll('.board').forEach(board => {{
+  const btn = board.querySelector('button.more');
+  if (!btn) return;
+  const total = board.querySelectorAll('tbody tr').length;
+  if (total <= 10) {{ btn.remove(); return; }}
+  const label = () => {{ btn.textContent = board.classList.contains('expanded')
+      ? 'show top 10' : 'show all ' + total; }};
+  label();
+  btn.addEventListener('click', () => {{ board.classList.toggle('expanded'); label(); }});
+}});
 
 </script>
 """
