@@ -180,30 +180,35 @@ X_MARK = ('<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
           '17.52h1.833L7.084 4.126H5.117z"/></svg>')
 
 
-def social_links(e):
-    """Ethos profile and X account as marks, not words.
+def social_links(ethos, handle=None):
+    """Ethos + X marks for a project.
 
-    Both point at the SAME self-declared handle, which is the caveat worth
-    keeping in the tooltip: a token claiming @elonmusk would show his X icon
-    just as readily as its own.
+    Takes the handle separately because NFT collections declare one on OpenSea
+    (`twitter_username`) even when no Ethos profile exists for it — in that
+    case the X link still renders and the Ethos mark is simply omitted, rather
+    than dropping both.
+
+    Either way the handle is SELF-DECLARED: it identifies a claim, not a
+    verified owner, which the tooltip says out loud.
     """
-    if not e or not e.get("handle"):
+    handle = handle or (ethos or {}).get("handle")
+    if not handle:
         return ""
-    h = escape(e["handle"])
-    return (
-        f'<a class="sm" href="{escape(e.get("profile_url") or "#")}" target="_blank" '
-        f'rel="noopener noreferrer" aria-label="Ethos profile for @{h}" '
-        f'title="Ethos profile for @{h}">{ETHOS_MARK}</a>'
-        f'<a class="sm" href="https://x.com/{h}" target="_blank" rel="noopener noreferrer" '
-        f'aria-label="@{h} on X" title="@{h} on X — self-declared by the token, '
-        f'not verified">{X_MARK}</a>')
+    h = escape(handle)
+    out = ""
+    if ethos and ethos.get("profile_url"):
+        out += (f'<a class="sm" href="{escape(ethos["profile_url"])}" target="_blank" '
+                f'rel="noopener noreferrer" aria-label="Ethos profile for @{h}" '
+                f'title="Ethos profile for @{h}">{ETHOS_MARK}</a>')
+    out += (f'<a class="sm" href="https://x.com/{h}" target="_blank" rel="noopener noreferrer" '
+            f'aria-label="@{h} on X" title="@{h} on X — declared by the project, '
+            f'not verified">{X_MARK}</a>')
+    return out
 
 
 def meme_rows(tokens):
     out = []
     for i, t in enumerate(tokens, 1):
-        cls, tip = CORROB.get(t.get("corroboration", "unchecked"), CORROB["unchecked"])
-        dot = f'<span class="corrob {cls}" title="{escape(tip)}"></span>'
         badge = ('<span class="badge flag" title="24h volume is more than 75x pool '
                  'liquidity — thin book">thin</span>' if t.get("flagged") else "")
         chg = t.get("price_change_24h")
@@ -212,7 +217,7 @@ def meme_rows(tokens):
         out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((t.get('symbol') or '?').lower())}">
-              <span class="sym-name">{dot}{link(t.get('url'), t.get('symbol') or '?', 'ext strong')}{badge}</span>
+              <span class="sym-name">{link(t.get('url'), t.get('symbol') or '?', 'ext strong')}{badge}</span>
               <span class="sym-sub">{escape(num(t.get('holders')))} holders
                 {social_links(t.get('ethos'))}</span>
             </td>
@@ -256,7 +261,7 @@ def nft_rows(cols):
             <td class="sym" data-v="{escape(name.lower())}">
               <span class="sym-name" title="{escape(name)}">{link(c.get('opensea_url'), name, 'ext strong')}{badge}</span>
               <span class="sym-sub">{link(c.get('explorer_url'), f"{num(supply)} items", 'ext dim')} ·
-                {escape(num(c.get('holders')))} holders</span>
+                {escape(num(c.get('holders')))} holders{social_links(c.get('ethos'), c.get('x_handle'))}</span>
             </td>
             <td class="n" data-v="{c.get('floor_price_usd') or c.get('min_sale_usd') or 0}" title="{escape(floor_tip)}">{escape(floor_val)}
               <span class="alt">{escape(floor_lbl)}</span></td>
@@ -716,13 +721,12 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
   text-transform:uppercase; font-weight:700; margin-bottom:14px;
 }}
 .hero-value {{
-  /* Silkscreen back on the headline number. It was pulled earlier because it
-     read badly cramped at 58px with zero tracking — a pixel face needs air
-     between glyphs, not tighter setting. Positive letter-spacing and a taller
-     line box fix the legibility; the digits are already fixed-width so the
-     number stays column-stable as it changes. */
-  font-family:var(--display); font-weight:700;
-  font-size:clamp(30px,4.6vw,54px); letter-spacing:.03em; line-height:1.18;
+  /* Grotesk, not the pixel face. Tried Silkscreen here twice; even with extra
+     tracking it does not hold up at headline size for a number people are
+     meant to read at a glance. The pixel face stays on section identity only,
+     where the strings are short and recognisable rather than parsed. */
+  font-family:var(--grotesk); font-weight:900; letter-spacing:-.035em; line-height:.95;
+  font-size:clamp(44px,7vw,80px); font-variant-numeric:tabular-nums;
 }}
 .hero-meta {{
   font-family:var(--mono); font-size:10.5px; letter-spacing:.11em;
@@ -991,6 +995,9 @@ button.more:hover {{ background:var(--accent); }}
 .sym-sub {{
   font-family:var(--mono); font-size:10.5px; color:var(--muted);
   display:flex; align-items:center; flex-wrap:wrap; gap:5px;
+  /* The 11px social marks make this line 15px tall; rows for projects with no
+     declared handle would otherwise sit at 14 and break the row rhythm. */
+  min-height:15px;
 }}
 footer {{ margin-top:56px; padding-top:20px; border-top:var(--rule-w) solid var(--rule);
   font-size:12.5px; color:var(--muted); }}

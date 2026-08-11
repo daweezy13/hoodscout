@@ -729,6 +729,8 @@ def fetch_opensea_safelist(address, chain=OPENSEA_CHAIN):
             "is_disabled": cj.get("is_disabled"),
             "is_nsfw": cj.get("is_nsfw"),
             "opensea_url": cj.get("opensea_url"),
+            "twitter_username": (cj.get("twitter_username") or "").strip() or None,
+            "project_url": (cj.get("project_url") or "").strip() or None,
             # Blockscout returns null total_supply for some ERC-721s here
             # (Zaibatsu Wagies, PitBoys). OpenSea carries it, so it backfills.
             "total_supply": _i(cj.get("total_supply")),
@@ -1077,6 +1079,14 @@ def fetch_nft_collections(hours=24, top_n=TOP_N, eth_price=None, usdg_decimals=6
         # Independent 24h volume reading for the same collection. Ours is
         # Seaport-only in ETH terms; OpenSea's covers its own order flow.
         c["os_volume_24h"] = (os_meta or {}).get("os_volume_24h")
+
+        # Collections declare an X handle on OpenSea; look up Ethos for it just
+        # as memecoins do. Same caveat applies -- the handle is self-declared,
+        # so it identifies a claim, not a verified owner.
+        handle = (os_meta or {}).get("twitter_username")
+        c["x_handle"] = handle
+        c["ethos"] = fetch_ethos(handle) if handle else None
+        c["project_url"] = (os_meta or {}).get("project_url")
         time.sleep(REQUEST_SLEEP)
 
     return {
