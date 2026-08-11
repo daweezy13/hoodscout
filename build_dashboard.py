@@ -1013,7 +1013,22 @@ footer p {{ max-width:78ch; }}
 .notes summary:hover {{ color:var(--ink); }}
 .notes p {{ font-size:12px; margin:8px 0 0; }}
 .stamp {{ font-family:var(--mono); font-size:10px; letter-spacing:.06em;
-  color:var(--muted); margin:12px 0 0; }}
+  color:var(--muted); margin:0; }}
+.foot-end {{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; flex-wrap:wrap; margin-top:18px;
+  border-top:1px solid var(--line); padding-top:14px;
+}}
+.byline {{ display:inline-flex; align-items:center; color:var(--muted);
+  text-decoration:none; border-bottom:none; }}
+.byline:hover {{ color:var(--accent-ink); }}
+.byline:focus-visible {{ outline:2px solid var(--accent-ink); outline-offset:3px; }}
+.byline-mark {{
+  display:block; width:82px; height:26px; background:currentColor;
+  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  -webkit-mask-size:contain; mask-size:contain;
+  -webkit-mask-position:center; mask-position:center;
+}}
 footer h2.foot-h {{ font-family:var(--mono); font-size:10px; letter-spacing:.12em;
   text-transform:uppercase; color:var(--ink-2); margin:0 0 8px; font-weight:600; }}
 footer p {{ margin:0 0 10px; }}
@@ -1206,7 +1221,10 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </p>
       <p>{audit_line}</p>
     </details>
-    <p class="stamp">Snapshot {escape(gen_str)}.</p>
+    <div class="foot-end">
+      <p class="stamp">Snapshot {escape(gen_str)}.</p>
+      {byline()}
+    </div>
   </footer>
 </div>
 
@@ -1602,6 +1620,26 @@ def logo_html(logo, cls="brandmark"):
         return f'<span class="{cls}" role="img" aria-label="HoodScout">{logo["markup"]}</span>'
     return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScout">'
 
+
+
+
+def byline(path=None):
+    """Dave's 0xdgw wordmark, linked to his X account.
+
+    Rendered as a CSS mask rather than an <img>: the source is solid black, so
+    an image would vanish against the near-black dark theme. As a mask it takes
+    background:currentColor and inherits whichever ink the theme is using.
+    """
+    import base64
+    p = Path(path) if path else (OUT_DIR.parent / "0xdgw_mark.png")
+    if not p.exists():
+        return ""
+    b64 = base64.b64encode(p.read_bytes()).decode()
+    return (f'<a class="byline" href="https://x.com/0xdgw" target="_blank" '
+            f'rel="noopener noreferrer" aria-label="Built by 0xdgw on X" '
+            f'title="Built by 0xdgw">'
+            f'<span class="byline-mark" style="-webkit-mask-image:url(data:image/png;base64,{b64});'
+            f'mask-image:url(data:image/png;base64,{b64})"></span></a>')
 
 
 def favicon_tags():
