@@ -322,12 +322,22 @@ def booster_rows(projects, today=None):
             more = ", ".join(f'{a["symbol"]} {usd(a["usd"])}' for a in rest)
             chips += (f'<span class="pays more-chip" title="{escape(more)}">'
                       f'+{len(rest)}</span>')
+        last = p.get("last") or ""
+        idle = ""
+        if last:
+            try:
+                days = (dt.date.today() - dt.date.fromisoformat(last)).days
+                if days >= 3:
+                    idle = (f'<span class="badge warn" title="Last payout {escape(last)} — '
+                            f'{days} days ago">idle {days}d</span>')
+            except ValueError:
+                pass
         out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((p.get('name') or '').lower())}">
-              <span class="sym-name">{link(p.get('explorer_url'), p.get('name') or '?', 'ext strong')}</span>
+              <span class="sym-name">{link(p.get('explorer_url'), p.get('name') or '?', 'ext strong')}{idle}</span>
               <span class="sym-sub">{escape(num(p.get('holders')))} holders ·
-                {escape(num(p.get('drops')))} drops · last {escape(p.get('last') or '')}</span>
+                {escape(num(p.get('drops')))} drops</span>
             </td>
             <td class="n basket" data-v="{len(p.get('assets') or [])}">{chips}</td>
             <td class="n strong" data-v="{p.get('distributed_usd') or 0}">{escape(usd(p.get('distributed_usd')))}
@@ -958,7 +968,18 @@ td.n {{ line-height:1.3; }}
 .reward-cols th:nth-child(3), .reward-cols td:nth-child(3) {{ width:36%; }}
 .reward-cols th:nth-child(4), .reward-cols td:nth-child(4) {{ width:27%; }}
 .reward-cols td.basket {{ white-space:normal; }}
-.reward-cols td.sym {{ min-width:0; }}
+.reward-cols td.sym {{ min-width:0; overflow:hidden; }}
+.reward-cols .sym-sub {{ overflow:hidden; text-overflow:ellipsis; }}
+/* td.sym > * {{display:block}} out-specifies .sym-name {{display:flex}}, so the
+   idle badge wrapped onto its own line and made that row a line taller than
+   its neighbour. Restate flex here and let the NAME truncate instead. */
+.reward-cols .sym-name {{
+  display:flex; align-items:center; gap:6px; flex-wrap:nowrap; overflow:hidden;
+}}
+.reward-cols .sym-name > a {{
+  min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}}
+.reward-cols .sym-name .badge {{ flex:none; margin-left:0; }}
 .reward-cols td.sym {{ min-width:0; overflow-wrap:anywhere; }}
 .pays.more-chip {{ background:transparent; color:var(--muted);
   border-color:color-mix(in srgb, var(--muted) 50%, transparent); }}   /* 2 lines at 1.55 — blurbs are one line now */
@@ -1019,8 +1040,10 @@ footer p {{ max-width:78ch; }}
   gap:16px; flex-wrap:wrap; margin-top:18px;
   border-top:1px solid var(--line); padding-top:14px;
 }}
-.byline {{ display:inline-flex; align-items:center; color:var(--muted);
+.byline {{ display:inline-flex; align-items:center; gap:9px; color:var(--muted);
   text-decoration:none; border-bottom:none; }}
+.byline-label {{ font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; }}
 .byline:hover {{ color:var(--accent-ink); }}
 .byline:focus-visible {{ outline:2px solid var(--accent-ink); outline-offset:3px; }}
 .byline-mark {{
@@ -1638,6 +1661,7 @@ def byline(path=None):
     return (f'<a class="byline" href="https://x.com/0xdgw" target="_blank" '
             f'rel="noopener noreferrer" aria-label="Built by 0xdgw on X" '
             f'title="Built by 0xdgw">'
+            f'<span class="byline-label">Built by</span>'
             f'<span class="byline-mark" style="-webkit-mask-image:url(data:image/png;base64,{b64});'
             f'mask-image:url(data:image/png;base64,{b64})"></span></a>')
 
