@@ -1272,7 +1272,7 @@ def logo_html(logo, cls="brandmark"):
     return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScan">'
 
 
-def standalone(fragment, p, base_url=SITE_URL):
+def standalone(fragment, p, base_url=SITE_URL, public=False):
     """Wrap the artifact fragment in a real HTML document for public hosting.
 
     The Artifact host supplies its own <!doctype>/<head> and injects the
@@ -1297,6 +1297,7 @@ def standalone(fragment, p, base_url=SITE_URL):
 <title>HoodScan — Robinhood Chain</title>
 <meta name="description" content="{escape(desc)}">
 <link rel="canonical" href="{escape(base_url)}/">
+{'' if public else '<meta name="robots" content="noindex,nofollow">'}
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="HoodScan">
@@ -1385,6 +1386,10 @@ def main():
                          "with OG/Twitter tags, plus the social card source)")
     ap.add_argument("--base-url", default=SITE_URL,
                     help="absolute origin the OG tags point at")
+    ap.add_argument("--public", action="store_true",
+                    help="drop the noindex guard. The site is a staging surface "
+                         "until launch: reachable by URL but barred from search "
+                         "indexes. Pass this only when it is meant to be found.")
     ap.add_argument("--logo", default=None,
                     help=f"logo file to inline; defaults to {LOGO_PATH.name} beside "
                          "this script if present. SVG preferred — it inherits "
@@ -1406,7 +1411,8 @@ def main():
     # Standalone document + card source: what a real domain needs.
     site = Path(args.site_dir)
     site.mkdir(parents=True, exist_ok=True)
-    (site / "index.html").write_text(standalone(html, pulse, args.base_url))
+    (site / "index.html").write_text(
+        standalone(html, pulse, args.base_url, public=args.public))
     (site / "card.html").write_text(card_html(pulse, logo))
     print(f"Wrote {site / 'index.html'} and card.html (base {args.base_url})")
 
