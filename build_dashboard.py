@@ -309,6 +309,30 @@ def reward_rows(projects):
     return "\n".join(out)
 
 
+
+def booster_rows(projects, today=None):
+    """NFT boosters pay a BASKET, not one asset, so the asset column is a set
+    of chips with per-asset amount and value in the tooltip."""
+    out = []
+    for i, p in enumerate(projects, 1):
+        chips = "".join(
+            f'<span class="pays" title="{escape(a["symbol"])}: {a["amount"]:,.2f} '
+            f'= {escape(usd(a["usd"]))}">{escape(a["symbol"])}</span>'
+            for a in (p.get("assets") or [])[:8])
+        out.append(f"""          <tr>
+            <td class="rank">{i}</td>
+            <td class="sym" data-v="{escape((p.get('name') or '').lower())}">
+              <span class="sym-name">{link(p.get('explorer_url'), p.get('name') or '?', 'ext strong')}</span>
+              <span class="sym-sub">{escape(num(p.get('holders')))} holders ·
+                {escape(num(p.get('drops')))} drops · last {escape(p.get('last') or '')}</span>
+            </td>
+            <td class="n basket" data-v="{len(p.get('assets') or [])}">{chips}</td>
+            <td class="n strong" data-v="{p.get('distributed_usd') or 0}">{escape(usd(p.get('distributed_usd')))}
+              <span class="alt">{len(p.get('assets') or [])} assets</span></td>
+          </tr>""")
+    return "\n".join(out)
+
+
 def stable_rows(rows):
     out = []
     for r in rows:
@@ -487,6 +511,10 @@ def render(p, logo=None):
   </div>"""
 
     rw = p.get("rewards") or {"projects": []}
+    bst = rw.get("boosters") or {"projects": []}
+    bst_note = (f"{len(bst.get('projects', []))} live, paying "
+                f"{', '.join(bst.get('reward_assets', [])[:8])}."
+                if bst.get("projects") else "None detected in this run.")
     rw_assets = rw.get("reward_assets") or []
     rw_assets_note = (
         f"{len(rw.get('projects', []))} projects paying in "
@@ -505,6 +533,7 @@ def render(p, logo=None):
 
     return f"""<title>HoodScout — Robinhood Chain</title>
 <style>
+{font_faces()}
 :root {{
   --ground:#F6F5EF; --panel:#FFFFFF; --panel-2:#EFEEE4; --line:#DEDCCF;
   --rule:#0F100C; --shadow:#0F100C; --rule-w:2px;
@@ -520,7 +549,8 @@ def render(p, logo=None):
   /* Grotesk display face. The CSP blocks font CDNs and inlining a Black
      weight as a data URI would add ~40KB to an already-large page, so this
      leans on faces that ship with the OS instead. */
-  --display:"Helvetica Neue","Helvetica Now Display","Arial Black",Helvetica,Arial,sans-serif;
+  --display:"Silkscreen","Courier New",monospace;      /* pixel face, inlined above */
+  --grotesk:"Helvetica Neue","Arial Black",Helvetica,Arial,sans-serif;
 }}
 @media (prefers-color-scheme: dark) {{
   :root:not([data-theme="light"]) {{
@@ -586,8 +616,8 @@ a.ext.dim:hover {{ color:var(--accent-ink); }}
 
 .masthead {{ display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px 22px; margin-bottom:10px; }}
 h1 {{
-  font-family:var(--display); font-size:clamp(52px,10vw,104px); line-height:.86;
-  letter-spacing:-.045em; font-weight:900; margin:0; text-wrap:balance;
+  font-family:var(--display); font-size:clamp(30px,5.2vw,56px); line-height:1.05;
+  letter-spacing:0; font-weight:700; margin:0; text-wrap:balance;
   color:var(--ink);
 }}
 .kicker {{
@@ -596,17 +626,24 @@ h1 {{
 }}
 .lede {{
   max-width:60ch; color:var(--ink-2); margin:0 0 34px;
-  font-family:var(--display); font-weight:600;
-  font-size:clamp(17px,2.1vw,22px); line-height:1.32; letter-spacing:-.014em;
+  font-family:var(--grotesk); font-weight:600;
+  font-size:clamp(16px,1.9vw,20px); line-height:1.4; letter-spacing:-.012em;
 }}
 
 h2 {{
-  font-family:var(--display); font-size:clamp(30px,4.4vw,48px); letter-spacing:-.04em;
-  color:var(--ink); font-weight:900; margin:0 0 10px; line-height:1;
+  font-family:var(--display); font-size:clamp(17px,2.4vw,27px); letter-spacing:0;
+  color:var(--ink); font-weight:700; margin:0 0 8px; line-height:1.15;
   display:flex; align-items:center; gap:16px;
 }}
 h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }}
 
+.sub-head {{
+  font-family:var(--display); font-size:14px; font-weight:700; letter-spacing:0;
+  color:var(--ink); margin:26px 0 6px; text-transform:none;
+}}
+.sub-head:first-of-type {{ margin-top:10px; }}
+td.basket {{ text-align:right; white-space:normal; max-width:340px; }}
+td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
 .pays {{
   font-family:var(--mono); font-size:11px; font-weight:700; letter-spacing:.08em;
   background:var(--accent-soft); color:var(--accent-ink);
@@ -639,7 +676,7 @@ h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }
   display:inline-flex; align-items:center; color:var(--ink); flex:none;
 }}
 .brandmark svg, .brandmark img {{
-  height:clamp(54px,9vw,104px); width:auto; display:block;
+  height:clamp(38px,5.6vw,62px); width:auto; display:block;
   image-rendering:pixelated;          /* never smooth pixel art */
 }}
 .masthead {{ align-items:center; }}
@@ -666,8 +703,8 @@ h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }
   text-transform:uppercase; font-weight:700; margin-bottom:14px;
 }}
 .hero-value {{
-  font-family:var(--display); font-weight:900; letter-spacing:-.045em; line-height:.88;
-  font-size:clamp(52px,8.5vw,92px); font-variant-numeric:tabular-nums;
+  font-family:var(--display); font-weight:700; letter-spacing:0; line-height:1;
+  font-size:clamp(30px,5.4vw,58px); font-variant-numeric:tabular-nums;
 }}
 .hero-meta {{
   font-family:var(--mono); font-size:10.5px; letter-spacing:.11em;
@@ -706,8 +743,8 @@ h2::after {{ content:""; flex:1; height:var(--rule-w); background:var(--rule); }
   font-family:var(--mono); font-size:11.5px; background:var(--panel-2);
   padding:1px 5px; color:var(--ink-2);
 }}
-.sec-sub {{ color:var(--muted); font-size:13px; margin:0 0 16px; max-width:74ch; }}
-section {{ margin-top:44px; }}
+.sec-sub {{ color:var(--muted); font-size:13px; margin:0 0 12px; max-width:74ch; }}
+section {{ margin-top:52px; }}
 
 /* ---- range selector ---- */
 .ranges {{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; }}
@@ -829,11 +866,12 @@ td.n.strong {{ font-weight:600; }}
 td.dim {{ color:var(--muted); }}
 td.rank {{ font-family:var(--mono); font-size:11px; color:var(--muted); width:34px;
   font-variant-numeric:tabular-nums; }}
-td.sym {{ display:flex; flex-direction:column; gap:1px; min-width:200px; }}
+td.sym {{ min-width:200px; }}
+td.sym > * {{ display:block; }}
 .sym-name {{ font-weight:600; font-size:13.5px; display:flex; align-items:center; }}
 .sym-name.rejected {{ color:var(--reject); }}
 .sym-addr {{ font-family:var(--mono); font-size:10.5px; color:var(--muted); }}
-td.sym {{ gap:3px; }}
+td.sym .sym-name {{ margin-bottom:3px; }}
 .badge {{
   font-family:var(--mono); font-size:9px; letter-spacing:.07em; text-transform:uppercase;
   padding:2px 5px; border-radius:2px; margin-left:7px; font-weight:600; white-space:nowrap;
@@ -858,7 +896,7 @@ td.n {{ line-height:1.3; }}
 @media (min-width:1040px) {{ .two-col {{ grid-template-columns:1fr 1fr; gap:28px; }} }}
 .two-col > section {{ margin-top:0; display:flex; flex-direction:column; min-width:0; }}
 /* keep both board headers on the same baseline even though the blurbs differ */
-.two-col .sec-sub {{ min-height:6.2em; }}   /* 4 lines at 1.55 line-height */
+.two-col .sec-sub {{ min-height:3.1em; }}   /* 2 lines at 1.55 — blurbs are one line now */
 @media (max-width:1039px) {{ .two-col .sec-sub {{ min-height:0; }} }}
 .two-col .board {{ flex:1; display:flex; flex-direction:column; }}
 .two-col .scroll {{ flex:1; }}
@@ -1026,6 +1064,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       Projects routing Uniswap v4 hook fees into buying a different asset and paying it
       to holders. {rw_assets_note}
     </p>
+    <h3 class="sub-head">Memecoins</h3>
     <div class="board pixel pixel-shadow"><div class="scroll">
       <table>
         <thead><tr>
@@ -1040,6 +1079,27 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="board-foot">
       <span>{num(rw.get('candidates_scanned'))} contracts scanned</span>
       <span class="foot-r">{escape(usd(rw.get('total_distributed_usd')))} paid out to date</span>
+    </div></div>
+
+    <h3 class="sub-head">NFT collections</h3>
+    <p class="sec-sub">
+      A different mechanism, and the bigger one — boosters pay a basket of tokenised
+      real-world assets to NFT holders. {bst_note}
+    </p>
+    <div class="board pixel pixel-shadow"><div class="scroll">
+      <table>
+        <thead><tr>
+          <th></th><th data-sort="text">Collection</th><th data-sort="num">Pays in</th>
+          <th data-sort="num" data-default="1">Value</th>
+        </tr></thead>
+        <tbody>
+{booster_rows(bst.get('projects', []))}
+        </tbody>
+      </table>
+    </div>
+    <div class="board-foot">
+      <span>{len(bst.get('reward_assets', []))} distinct assets paid out</span>
+      <span class="foot-r">{escape(usd(bst.get('total_distributed_usd')))} to NFT holders</span>
     </div></div>
   </section>
 
@@ -1370,6 +1430,36 @@ document.querySelectorAll('.board table').forEach(makeSortable);
 
 
 # Cloudflare appended -bv1 because the bare "hoodscout" project name was taken.
+
+FONT_DIR = OUT_DIR.parent / "fonts"
+
+
+def font_faces():
+    """Inline Silkscreen as data URIs.
+
+    The Artifact CSP blocks font CDNs outright, so a linked webfont would fail
+    silently to a system fallback. The build has network access even though the
+    page does not, so the woff2 is fetched once into fonts/ and embedded here --
+    6.7KB for both weights, which is cheaper than the fallback being wrong.
+    """
+    import base64
+    out = []
+    for weight in (400, 700):
+        p = FONT_DIR / f"Silkscreen-{weight}.woff2"
+        if not p.exists():
+            continue
+        b64 = base64.b64encode(p.read_bytes()).decode()
+        # Single braces: this string is the RETURN VALUE spliced into the
+        # already-formatted stylesheet, not part of the f-string template.
+        # Doubling them emitted "@font-face{{...}}", an unclosed block that
+        # swallowed the entire rest of the CSS.
+        out.append(
+            "@font-face{font-family:'Silkscreen';font-style:normal;"
+            f"font-weight:{weight};font-display:block;"
+            f"src:url(data:font/woff2;base64,{b64}) format('woff2');""}")
+    return "\n".join(out)
+
+
 SITE_URL = "https://hoodscout.pages.dev"
 
 # Drop a logo beside the script and it is picked up. SVG first (it can inherit
@@ -1420,6 +1510,25 @@ def logo_html(logo, cls="brandmark"):
     return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScout">'
 
 
+
+def favicon_tags():
+    """The pixel mark as the site favicon, inlined.
+
+    Note this only applies to the self-hosted page. The Artifact publish tool
+    accepts an emoji favicon and nothing else, so the artifact keeps the bow.
+    """
+    import base64
+    out = []
+    for size, rel in ((32, "icon"), (180, "apple-touch-icon")):
+        p = OUT_DIR.parent / f"favicon-{size}.png"
+        if not p.exists():
+            continue
+        b64 = base64.b64encode(p.read_bytes()).decode()
+        out.append(f'<link rel="{rel}" sizes="{size}x{size}" '
+                   f'href="data:image/png;base64,{b64}">')
+    return "\n".join(out)
+
+
 def standalone(fragment, p, base_url=SITE_URL, public=False):
     """Wrap the artifact fragment in a real HTML document for public hosting.
 
@@ -1461,7 +1570,7 @@ def standalone(fragment, p, base_url=SITE_URL, public=False):
 <meta name="twitter:description" content="{escape(desc)}">
 <meta name="twitter:image" content="{escape(base_url)}/card.png">
 
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230F100C'/><text y='.9em' x='50%' text-anchor='middle' font-size='78'>&#127993;</text></svg>">
+{favicon_tags()}
 <style>*{{box-sizing:border-box}}html,body{{margin:0;padding:0}}</style>
 </head>
 <body>

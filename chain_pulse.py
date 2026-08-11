@@ -1155,6 +1155,61 @@ def _eth_call(to, sig, ret="uint", tries=2):
     return None
 
 
+def dune_query(sql, name, performance="large", timeout=400):
+    """Run one Dune query, reusing a saved query id per logical name.
+
+    Recreating queries every night would leak hundreds of saved queries into
+    the account, so ids are cached in out/dune_queries.json and the SQL is
+    PATCHed when it changes. Returns [] on any failure -- every caller must
+    degrade rather than take the whole run down.
+    """
+    key = os.environ.get(DUNE_API_KEY_ENV)
+    if not key:
+        return []
+    h = {"X-Dune-API-Key": key}
+    cache_f = OUT_DIR / "dune_queries.json"
+    meta = json.loads(cache_f.read_text()) if cache_f.exists() else {}
+    try:
+        if name in meta:
+            qid = meta[name]["id"]
+            if meta[name].get("sql") != sql:
+                requests.patch(f"https://api.dune.com/api/v1/query/{qid}", headers=h,
+                               json={"query_sql": sql}, timeout=60)
+                meta[name]["sql"] = sql
+        else:
+            r = requests.post("https://api.dune.com/api/v1/query", headers=h, timeout=60,
+                              json={"name": f"hoodscout/{name}", "query_sql": sql,
+                                    "is_private": True})
+            r.raise_for_status()
+            qid = r.json()["query_id"]
+            meta[name] = {"id": qid, "sql": sql}
+        OUT_DIR.mkdir(parents=True, exist_ok=True)
+        cache_f.write_text(json.dumps(meta, indent=2))
+
+        r = requests.post(f"https://api.dune.com/api/v1/query/{qid}/execute", headers=h,
+                          json={"performance": performance}, timeout=60)
+        r.raise_for_status()
+        eid = r.json()["execution_id"]
+        waited = 0
+        while waited < timeout:
+            time.sleep(4)
+            waited += 4
+            st = requests.get(f"https://api.dune.com/api/v1/execution/{eid}/status",
+                              headers=h, timeout=30).json().get("state")
+            if st == "QUERY_STATE_COMPLETED":
+                break
+            if st in ("QUERY_STATE_FAILED", "QUERY_STATE_CANCELLED"):
+                print(f"        dune {name}: {st}", flush=True)
+                return []
+        else:
+            return []
+        return requests.get(f"https://api.dune.com/api/v1/execution/{eid}/results",
+                            headers=h, timeout=120).json()["result"]["rows"]
+    except (requests.RequestException, KeyError, ValueError) as e:
+        print(f"        dune {name} failed: {e}", flush=True)
+        return []
+
+
 def discover_distributors():
     """Find every contract that has ever emitted DividendsDistributed.
 
@@ -1281,6 +1336,126 @@ def fetch_reward_distributors(eth_price=None, min_usd=1.0):
     }
 
 
+# --------------------------------------------------------------------------- #
+# NFT boosters -- the second, larger reward family
+# --------------------------------------------------------------------------- #
+# The RewardsCoin family above pays ERC-20 holders. A separate family pays NFT
+# holders, and it is BIGGER: StonkBrokers' StockBooster alone has sent ~$294k
+# of tokenised AAPL/AMZN/NVDA to 2,051 holders, against ~$66k across every
+# RewardsCoin project combined.
+#
+# It is a completely different contract shape -- no rewardToken(), no
+# totalDividendsDistributed() -- so the ERC-20 probe cannot see it. These
+# expose getStockTokens() and emit DropFinished, and pay in a basket rather
+# than a single asset (OvertimeBooster pays SLV, MSFT, COST and USAR).
+#
+# Value distributed is measured as ERC-20 Transfers OUT of the booster, which
+# is the money actually leaving the contract rather than an announced figure.
+DROP_FINISHED = "0xf37cd5e9c8e09ef905b10bb36512f016d147a88e3a5d850289ec0b41fb20eae8"
+TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+BOOSTER_CACHE = OUT_DIR / "boosters.json"
+
+Q_BOOSTERS = """
+select contract_address as booster, count(*) as drops,
+       min(block_time) as first_drop, max(block_time) as last_drop
+from robinhood.logs
+where topic0 = {topic}
+group by 1 having count(*) >= {min_drops}
+order by 2 desc
+limit 50
+"""
+
+Q_BOOSTER_PAYOUTS = """
+select
+    bytearray_substring(topic1, 13, 20) as booster,
+    contract_address                    as asset,
+    count(*)                            as transfers,
+    count(distinct bytearray_substring(topic2, 13, 20)) as recipients,
+    sum(bytearray_to_uint256(bytearray_substring(data, greatest(1,length(data)-31), 32))) as raw
+from robinhood.logs
+where topic0 = {transfer}
+  and bytearray_substring(topic1, 13, 20) in ({boosters})
+group by 1, 2
+"""
+
+
+def _decode_address_array(hexdata):
+    """getStockTokens() is address[3] on one booster and address[] on another,
+    so sniff which: a dynamic array starts with a 0x20 offset word."""
+    if not hexdata or hexdata == "0x":
+        return []
+    body = hexdata[2:]
+    words = [body[i:i + 64] for i in range(0, len(body), 64)]
+    if words and int(words[0], 16) == 32:
+        n = int(words[1], 16) if len(words) > 1 else 0
+        words = words[2:2 + n]
+    return [a for a in ("0x" + w[24:] for w in words) if int(a, 16) > 0xFFFF]
+
+
+def fetch_nft_boosters(dune_run, min_usd=1.0):
+    """Which NFT projects pay their holders, in which real-world assets."""
+    rows = dune_run(Q_BOOSTERS.format(topic=DROP_FINISHED, min_drops=2), "boosters")
+    if not rows:
+        return {"projects": [], "skipped": "discovery failed"}
+    BOOSTER_CACHE.write_text(json.dumps(rows, indent=2, default=str))
+
+    boosters = [r["booster"] for r in rows]
+    lst = ", ".join(b if b.startswith("0x") else "0x" + b for b in boosters)
+    pay = dune_run(Q_BOOSTER_PAYOUTS.format(transfer=TRANSFER_TOPIC, boosters=lst),
+                   "booster_payouts")
+
+    by_booster = defaultdict(list)
+    for p in pay:
+        by_booster[(p["booster"] or "").lower()].append(p)
+
+    price_cache = {}
+
+    def px(addr):
+        if addr not in price_cache:
+            ds = fetch_dexscreener_token(addr) or {}
+            price_cache[addr] = _f(ds.get("price_usd")) or 0.0
+            time.sleep(0.2)
+        return price_cache[addr]
+
+    out = []
+    for r in rows:
+        b = (r["booster"] or "").lower()
+        name = (_get(f"{BLOCKSCOUT}/smart-contracts/{b}") or {}).get("name") or "booster"
+        assets, total, holders = [], 0.0, 0
+        for p in by_booster.get(b, []):
+            a = (p["asset"] or "").lower()
+            if a in (WETH, USDG, NATIVE):
+                continue          # refunds / funding legs, not the reward basket
+            dec = _eth_call(a, "decimals()") or 18
+            amt = float(p["raw"] or 0) / (10 ** dec)
+            usd = amt * px(a)
+            if usd < min_usd:
+                continue
+            assets.append({"address": a, "symbol": _eth_call(a, "symbol()", "str") or "?",
+                           "amount": amt, "usd": usd,
+                           "recipients": p.get("recipients")})
+            total += usd
+            holders = max(holders, p.get("recipients") or 0)
+        if not assets:
+            continue
+        assets.sort(key=lambda x: -x["usd"])
+        out.append({
+            "address": b, "name": name, "kind": "nft-booster",
+            "assets": assets,
+            "asset_symbols": [a["symbol"] for a in assets],
+            "distributed_usd": total,
+            "holders": holders,
+            "drops": r.get("drops"),
+            "first": str(r.get("first_drop") or "")[:10],
+            "last": str(r.get("last_drop") or "")[:10],
+            "explorer_url": f"https://robinhoodchain.blockscout.com/address/{b}",
+        })
+    out.sort(key=lambda x: -x["distributed_usd"])
+    return {"projects": out,
+            "total_distributed_usd": sum(p["distributed_usd"] for p in out),
+            "reward_assets": sorted({s for p in out for s in p["asset_symbols"]})}
+
+
 def _token_decimals(addr, default=6):
     d = _get(f"{BLOCKSCOUT}/tokens/{addr}") or {}
     return _i(d.get("decimals")) or default
@@ -1320,8 +1495,16 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
     rewards = {"projects": [], "skipped": True}
     if not skip_rewards:
         rewards = fetch_reward_distributors(eth_price=chain.get("eth_price_usd"))
-        print(f"        {len(rewards['projects'])} projects paying holders, "
-              f"${rewards['total_distributed_usd']:,.0f} distributed", flush=True)
+        print(f"        {len(rewards['projects'])} token projects, "
+              f"${rewards['total_distributed_usd']:,.0f} to ERC-20 holders", flush=True)
+        boosters = fetch_nft_boosters(dune_query)
+        rewards["boosters"] = boosters
+        rewards["combined_usd"] = (rewards.get("total_distributed_usd", 0)
+                                   + boosters.get("total_distributed_usd", 0))
+        rewards["all_assets"] = sorted(set(rewards.get("reward_assets", []))
+                                       | set(boosters.get("reward_assets", [])))
+        print(f"        {len(boosters.get('projects', []))} NFT boosters, "
+              f"${boosters.get('total_distributed_usd', 0):,.0f} to NFT holders", flush=True)
     else:
         print("        SKIPPED (--skip-rewards)", flush=True)
 
@@ -1374,9 +1557,11 @@ def main():
     print(f"  NFT collections  {len(pulse['nfts'].get('collections', []))}")
     rw = pulse.get("rewards") or {}
     if rw.get("projects"):
-        print(f"  Reward payers    {len(rw['projects'])} "
-              f"(${rw['total_distributed_usd']:,.0f} to holders, "
-              f"in {', '.join(rw['reward_assets'][:5])})")
+        nb = rw.get("boosters") or {}
+        print(f"  Reward payers    {len(rw['projects'])} tokens + "
+              f"{len(nb.get('projects', []))} NFT boosters = "
+              f"${rw.get('combined_usd', 0):,.0f} to holders")
+        print(f"                   assets: {', '.join(rw.get('all_assets', [])[:10])}")
 
 
 if __name__ == "__main__":
