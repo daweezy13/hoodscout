@@ -151,6 +151,94 @@ def poll(pages=DEFAULT_PAGES):
     return obs
 
 
+
+# GeckoTerminal drops a pool from new_pools once ~53 minutes of newer launches
+# have arrived, so the feed alone cannot follow a pool through its first hour.
+# tokens/multi takes 30 addresses per call and keeps returning price/FDV/reserve
+# after that, which is what lets a trace run to 60 minutes and beyond.
+MULTI_BATCH = 30
+EXTEND_MIN_AGE = 12       # below this the pool is still in the feed
+EXTEND_MAX_AGE = 180      # stop following after 3h
+
+
+def extend_ages(ledger=LEDGER, now=None):
+    """Pools we already know that are past the feed window but inside the
+    follow-up window, newest launch first."""
+    if not Path(ledger).exists():
+        return {}
+    now = now or dt.datetime.now(dt.timezone.utc)
+    born, tok = {}, {}
+    for line in Path(ledger).read_text().splitlines():
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not r.get("token") or not r.get("created_at"):
+            continue
+        born[r["token"]] = r["created_at"]
+        tok[r["token"]] = r
+    out = {}
+    for addr, created in born.items():
+        try:
+            age = (now - dt.datetime.fromisoformat(created.replace("Z", "+00:00"))).total_seconds() / 60
+        except ValueError:
+            continue
+        if EXTEND_MIN_AGE <= age <= EXTEND_MAX_AGE:
+            out[addr] = tok[addr]
+    return out
+
+
+def poll_extended(ledger=LEDGER, max_batches=4):
+    """Re-read known tokens that have aged out of new_pools."""
+    pending = extend_ages(ledger)
+    if not pending:
+        return []
+    now = dt.datetime.now(dt.timezone.utc)
+    addrs = list(pending)[: MULTI_BATCH * max_batches]
+    obs = []
+    for i in range(0, len(addrs), MULTI_BATCH):
+        chunk = addrs[i:i + MULTI_BATCH]
+        d = _get(f"{GECKOTERMINAL}/networks/{GT_NETWORK}/tokens/multi/{','.join(chunk)}")
+        if not d:
+            break
+        for item in d.get("data") or []:
+            a = item.get("attributes") or {}
+            addr = (a.get("address") or "").lower()
+            prev = pending.get(addr)
+            if not prev:
+                continue
+            obs.append({
+                "ts": now.isoformat(),
+                "pool": prev["pool"],
+                "created_at": prev["created_at"],
+                "name": prev.get("name"),
+                "token": addr,
+                "symbol": a.get("symbol") or prev.get("symbol"),
+                "token_name": a.get("name"),
+                "decimals": a.get("decimals"),
+                "supply": _f(a.get("normalized_total_supply")),
+                "quote": prev.get("quote"),
+                "dex": prev.get("dex"),
+                "liq": _f(a.get("total_reserve_in_usd")),
+                "price": _f(a.get("price_usd")),
+                "fdv": _f(a.get("fdv_usd")),
+                "mcap": _f(a.get("market_cap_usd")),
+                "vol_h24": _f((a.get("volume_usd") or {}).get("h24")),
+                # tokens/multi carries no tx breakdown -- carry the last known
+                # counts forward so the verdict rules still have a value, and
+                # mark the row so they can be excluded if that matters.
+                "vol_m5": None, "vol_h1": None,
+                "buys_m5": prev.get("buys_m5"), "sells_m5": prev.get("sells_m5"),
+                "buyers_m5": prev.get("buyers_m5"), "sellers_m5": prev.get("sellers_m5"),
+                "buys_h1": prev.get("buys_h1"), "sells_h1": prev.get("sells_h1"),
+                "buyers_h1": prev.get("buyers_h1"), "sellers_h1": prev.get("sellers_h1"),
+                "chg_m5": None, "chg_h1": None,
+                "src": "multi",
+            })
+        time.sleep(PAGE_SLEEP)
+    return obs
+
+
 def coverage_gap(obs, ledger=LEDGER):
     """Did we miss any launches between polls?
 
@@ -181,10 +269,13 @@ def main():
     ap.add_argument("--pages", type=int, default=DEFAULT_PAGES)
     ap.add_argument("--out", default=str(LEDGER))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--no-extend", action="store_true",
+                    help="skip the tokens/multi follow-up for aged-out pools")
     args = ap.parse_args()
 
     t0 = time.time()
     obs = poll(pages=args.pages)
+    ext = [] if args.no_extend else poll_extended(Path(args.out))
     if not obs:
         print("no pools returned (upstream down or rate-limited); nothing written")
         return 1
@@ -202,9 +293,10 @@ def main():
         out = Path(args.out)
         out.parent.mkdir(parents=True, exist_ok=True)
         with out.open("a") as fh:
-            for o in obs:
+            for o in obs + ext:
                 fh.write(json.dumps(o, separators=(",", ":")) + "\n")
-        print(f"appended {len(obs)} observations to {out} in {time.time()-t0:.1f}s")
+        print(f"appended {len(obs)} new + {len(ext)} followed observations "
+              f"to {out} in {time.time()-t0:.1f}s")
 
     if gap:
         note = "  ** GAP SUSPECTED: raise --pages **" if gap["gap_suspected"] else ""

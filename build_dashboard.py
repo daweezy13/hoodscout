@@ -542,8 +542,8 @@ def render(p, logo=None):
         if lxc.get("pads") else "")
     launch_note = (
         f"{len(lxc.get('traces', []))} pools tracked over the last "
-        f"{lxc.get('window_hours', 6)}h &mdash; {_lc.get('drained', 0)} already drained "
-        f"\u226570% off their peak, {_lc.get('young', 0)} still too young to judge. "
+        f"{lxc.get('window_hours', 6)}h &mdash; {_lc.get('rugged', 0)} already rugged "
+        f"\u226570% off their peak, {_lc.get('early', 0)} still early. "
         "Each pool plotted as a multiple of its own value at first sight, so a small "
         "launch that ran and a big one that died sit on the same scale. "
         + pad_note
@@ -926,12 +926,14 @@ td.sym {{ min-width:190px; }}
 .launch {{ background:var(--panel); border:var(--rule-w) solid var(--rule); padding:14px 16px 10px; }}
 .launch-head {{ display:flex; flex-wrap:wrap; align-items:flex-start;
   justify-content:space-between; gap:10px 18px; margin-bottom:8px; }}
-.launch-k {{ display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.16em;
+.launch-k {{ display:inline-block; font-family:var(--mono); font-size:10.5px; letter-spacing:.16em;
   text-transform:uppercase; color:var(--ink); font-weight:700; }}
 .launch-sub {{ display:block; font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:3px; }}
 .lx-legend {{ margin-top:0; align-items:center; }}
 .lx-legend i.i-mute {{ background:var(--muted); opacity:.55; }}
 .lx-legend button.more {{ margin-left:4px; }}
+.lx-shape {{ color:var(--muted); }}
+.lx-shape b {{ color:var(--ink-2); margin-right:3px; font-weight:400; }}
 .launch-plot {{ position:relative; }}
 .launch-plot canvas {{ display:block; width:100%; height:300px; }}
 @media (max-width:700px) {{ .launch-plot canvas {{ height:230px; }} }}
@@ -1148,20 +1150,23 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   </section>
 
   <section>
-    <h2>Just launched</h2>
+    <h2>Memecoin vitals</h2>
     <p class="sec-sub">
       Every new pool's value from its own first minute. {launch_note}
     </p>
     <div class="launch pixel">
       <div class="launch-head">
         <div>
-          <span class="launch-k">Value vs launch &middot; minutes since launch</span>
+          <span class="launch-k">VALUE VS LAUNCH &middot; MINUTES SINCE LAUNCH</span>
           <span class="launch-sub" id="lxSub"></span>
         </div>
         <div class="legend lx-legend">
-          <span><i style="background:{TRACE_DRAINED}"></i>drained &ge;70% off peak</span>
-          <span><i style="background:{TRACE_ALIVE}"></i>holding</span>
-          <span><i class="i-mute"></i>under 30 min &mdash; too early to judge</span>
+          <span><i style="background:{TRACE_DRAINED}"></i>rugged</span>
+          <span><i style="background:{TRACE_ALIVE}"></i>stable</span>
+          <span><i class="i-mute"></i>early</span>
+          <span class="lx-shape"><b>&#9679;</b> Pons</span>
+          <span class="lx-shape"><b>&#9632;</b> Uniswap</span>
+          <span class="lx-shape"><b>&#9650;</b> other</span>
           <button class="more" id="lxReplay" type="button">replay</button>
         </div>
       </div>
@@ -1639,7 +1644,7 @@ document.querySelectorAll('.board').forEach(board => {{
   const tip = document.getElementById('lxTip');
   const sub = document.getElementById('lxSub');
   const ctx = cv.getContext('2d');
-  const COL = {{ drained: '#d03b3b', holding: '#0F86C4' }};
+  const COL = {{ rugged: '#d03b3b', stable: '#0F86C4' }};
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let W = 0, H = 0, dpr = 1;
@@ -1708,21 +1713,21 @@ document.querySelectorAll('.board').forEach(board => {{
 
     /* trails, then dots — young first so decided traces sit on top */
     const order = traces.slice().sort((a, b) =>
-      (a.st === 'young' ? 0 : 1) - (b.st === 'young' ? 0 : 1));
+      (a.st === 'early' ? 0 : 1) - (b.st === 'early' ? 0 : 1));
     const live = [];
 
     order.forEach(tr => {{
       const now = at(tr, cut);
       if (!now) return;
-      const col = tr.st === 'young' ? muted : COL[tr.st];
+      const col = tr.st === 'early' ? muted : COL[tr.st];
       const seg = tr.mx.filter(p => p[0] <= now.x && p[0] >= now.x - TRAIL);
       if (seg.length > 1) {{
         ctx.beginPath();
         seg.forEach((p, i) => i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
         ctx.lineTo(X(now.x), Y(now.v));
         ctx.strokeStyle = col;
-        ctx.globalAlpha = tr.st === 'young' ? 0.18 : 0.42;
-        ctx.lineWidth = tr.st === 'young' ? 1 : 1.75;
+        ctx.globalAlpha = tr.st === 'early' ? 0.18 : 0.42;
+        ctx.lineWidth = tr.st === 'early' ? 1 : 1.75;
         ctx.stroke();
       }}
       live.push({{ tr, now, col }});
@@ -1730,18 +1735,28 @@ document.querySelectorAll('.board').forEach(board => {{
 
     live.forEach(({{ tr, now, col }}) => {{
       const x = X(now.x), y = Y(now.v);
-      if (tr.st !== 'young') {{                       // glow only on decided dots
+      if (tr.st !== 'early') {{                       // glow only on decided dots
         ctx.globalAlpha = 0.22; ctx.fillStyle = col;
         ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 6.284); ctx.fill();
       }}
-      ctx.globalAlpha = tr.st === 'young' ? 0.5 : 1;
+      ctx.globalAlpha = tr.st === 'early' ? 0.5 : 1;
       ctx.fillStyle = col;
-      ctx.beginPath(); ctx.arc(x, y, tr.st === 'young' ? 1.8 : 3.2, 0, 6.284); ctx.fill();
+      const r0 = tr.st === 'early' ? 1.9 : 3.4;
+      ctx.beginPath();
+      if (tr.pk === 1) {{                       // Uniswap - square
+        ctx.rect(x - r0, y - r0, r0 * 2, r0 * 2);
+      }} else if (tr.pk === 2) {{               // other pads - triangle
+        ctx.moveTo(x, y - r0 * 1.2); ctx.lineTo(x + r0 * 1.1, y + r0 * 0.9);
+        ctx.lineTo(x - r0 * 1.1, y + r0 * 0.9); ctx.closePath();
+      }} else {{                                // Pons - circle
+        ctx.arc(x, y, r0, 0, 6.284);
+      }}
+      ctx.fill();
     }});
     ctx.globalAlpha = 1;
 
     /* label chips on the biggest movers, euphoria-style */
-    const chips = live.filter(l => l.tr.st !== 'young')
+    const chips = live.filter(l => l.tr.st !== 'early')
       .sort((a, b) => Math.abs(Math.log10(b.now.v)) - Math.abs(Math.log10(a.now.v)))
       .slice(0, 5);
     ctx.font = '10px ui-monospace, Menlo, monospace';
@@ -1915,6 +1930,17 @@ LAUNCHPADS = {
 }
 
 
+def pad_key(pad):
+    """Shape slot for a launchpad. Colour is already carrying status, and shade
+    within a hue fails the normal-vision separation floor, so provenance rides
+    on mark SHAPE instead — an independent channel."""
+    if pad == "Pons":
+        return 0                      # circle
+    if pad.startswith("Uniswap"):
+        return 1                      # square
+    return 2                          # triangle
+
+
 def launchpad_of(dex):
     if not dex:
         return "unknown"
@@ -1961,7 +1987,7 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
 
     now = dt.datetime.now(dt.timezone.utc)
     cutoff = now - dt.timedelta(hours=hours)
-    traces, counts = [], {"drained": 0, "holding": 0, "young": 0}
+    traces, counts = [], {"rugged": 0, "stable": 0, "early": 0}
 
     for pool, obs in by.items():
         try:
@@ -1992,11 +2018,11 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
         # that FALLS off its own peak is. This is the H2 shape, applied to FDV
         # purely for colour here — the real verdict engine lands in Phase 1.
         if peak > 0 and last <= 0.30 * peak and age >= 10:
-            state = "drained"
+            state = "rugged"
         elif age < 30:
-            state = "young"
+            state = "early"
         else:
-            state = "holding"
+            state = "stable"
         counts[state] += 1
 
         if len(pts) > max_points:                       # keep first and last
@@ -2012,6 +2038,7 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
         traces.append({
             "s": (obs[-1].get("symbol") or "?")[:14],
             "pad": launchpad_of(obs[-1].get("dex")),
+            "pk": pad_key(launchpad_of(obs[-1].get("dex"))),
             "p": pool,
             "st": state,
             "pts": pts,
