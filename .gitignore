@@ -15,6 +15,13 @@ out/*
 !out/nft_registry.json
 !out/nft_names.json
 
+# The RENDERED SITE is committed so Cloudflare Pages can deploy straight from
+# the repo with no build step and no API token: GitHub Actions builds it, Pages
+# watches the branch. Build artifacts in git is normally a smell; here it is the
+# thing that removes a secret from the pipeline entirely.
+!out/site/
+!out/site/**
+
 # wrangler caches the Cloudflare account id and the account owner email.
 # Harmless locally, unnecessary exposure in a public repo.
 .wrangler/

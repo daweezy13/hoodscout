@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box;margin:0}
+body{width:1200px;height:630px;background:#D2F53C;color:#0F100C;overflow:hidden;
+  font-family:"Helvetica Neue","Arial Black",Helvetica,Arial,sans-serif;
+  display:flex;flex-direction:column;justify-content:space-between;padding:62px 66px;}
+.top{display:flex;justify-content:space-between;align-items:flex-start}
+.mark{font-size:38px;font-weight:900;letter-spacing:-.035em;display:flex;align-items:center}
+.cardmark{display:inline-flex;align-items:center;margin-right:14px}
+.cardmark,.cardmark svg,.cardmark img{height:46px;width:auto;display:block;image-rendering:pixelated}
+.eyebrow{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:16px;
+  letter-spacing:.22em;text-transform:uppercase;font-weight:700;padding-top:9px}
+.label{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:19px;
+  letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.big{font-size:158px;font-weight:900;letter-spacing:-.05em;line-height:.84;
+  font-variant-numeric:tabular-nums}
+.row{display:flex;gap:64px;border-top:3px solid #0F100C;padding-top:24px}
+.stat .k{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:14px;
+  letter-spacing:.16em;text-transform:uppercase;opacity:.72;margin-bottom:5px}
+.stat .v{font-size:40px;font-weight:900;letter-spacing:-.03em;
+  font-variant-numeric:tabular-nums}
+</style></head><body>
+  <div class="top">
+    <div class="mark"><img class="cardmark" src="data:image/png;base64,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" alt="HoodScout">HoodScout</div>
+    <div class="eyebrow">Robinhood Chain &middot; 12 Aug 2026</div>
+  </div>
+  <div>
+    <div class="label">Total value locked</div>
+    <div class="big">$498.84M</div>
+  </div>
+  <div class="row">
+    <div class="stat"><div class="k">Daily active users</div>
+      <div class="v">1.87M</div></div>
+    <div class="stat"><div class="k">Stablecoins</div>
+      <div class="v">$619.31M</div></div>
+    <div class="stat"><div class="k">App fees 24h</div>
+      <div class="v">$2.09M</div></div>
+    <div class="stat"><div class="k">Gas fees 24h</div>
+      <div class="v">$118.6K</div></div>
+  </div>
+</body></html>

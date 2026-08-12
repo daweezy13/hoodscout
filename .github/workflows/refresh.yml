@@ -64,20 +64,22 @@ jobs:
             echo "no chromium; keeping the previous card.png"
           fi
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy out/site --project-name=hoodscout --branch=main --commit-dirty=true
-
-      - name: Commit refreshed ledger state
+      # Cloudflare Pages is connected to this repo and deploys on push, so the
+      # built site is committed rather than uploaded. That removes the need for
+      # a Cloudflare API token from the pipeline entirely.
+      #
+      # NOTE: no [skip ci] here — this commit is exactly what should trigger a
+      # Pages deploy. The ledger commits in poll.yml keep [skip ci] so routine
+      # observations do not redeploy the site.
+      - name: Commit built site
         run: |
           git config user.name  "hoodscout-bot"
           git config user.email "bot@hoodscout.local"
-          git add -f out/nft_names.json out/nft_registry.json 2>/dev/null || true
-          git diff --cached --quiet || {
-            git commit -m "refresh: $(date -u '+%Y-%m-%d') [skip ci]"
+          git add -f out/site out/nft_names.json out/nft_registry.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "nothing changed"
+          else
+            git commit -m "refresh: $(date -u '+%Y-%m-%d %H:%MZ')"
             git pull --rebase --autostash origin main || true
             git push
-          }
+          fi
