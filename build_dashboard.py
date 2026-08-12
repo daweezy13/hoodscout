@@ -1683,19 +1683,28 @@ document.querySelectorAll('.board').forEach(board => {{
 
   let W = 0, H = 0, dpr = 1;
   const PAD = {{ l: 46, r: 92, t: 10, b: 22 }};
-  let maxT = 0, loX = Infinity, hiX = -Infinity;
+  // The axis is set by PERCENTILES, never by the extremes. One trace running
+  // 20x compresses the ~98% of pools that live between 0.05x and 2x into a flat
+  // smear. Anything beyond the bounds is pinned to the edge with a caret and
+  // still carries its true multiple in the label, so the outlier is reported
+  // without being allowed to set the scale.
+  let maxT = 0;
+  const allV = [];
   traces.forEach(tr => tr.mx.forEach(p => {{
     if (p[0] > maxT) maxT = p[0];
-    if (p[1] < loX) loX = p[1];
-    if (p[1] > hiX) hiX = p[1];
+    allV.push(p[1]);
   }}));
+  allV.sort((a, b) => a - b);
+  const pct = q => allV[Math.min(Math.floor(allV.length * q), allV.length - 1)] || 1;
   maxT = Math.min(Math.max(Math.ceil(maxT / 5) * 5, 15), 60);
-  loX = Math.max(Math.min(loX, 0.5), 0.005);
-  hiX = Math.max(hiX, 2);
+  const loX = Math.min(Math.max(pct(0.01) * 0.8, 0.02), 0.5);
+  const hiX = Math.max(Math.min(pct(0.99) * 1.6, 25), 3);
+  const clampV = v => Math.min(Math.max(v, loX), hiX);
+  let clipped = 0;
 
   const lg = v => Math.log10(Math.max(v, 0.001));
   const X = m => PAD.l + Math.min(m / maxT, 1) * (W - PAD.l - PAD.r);
-  const Y = v => H - PAD.b - ((lg(v) - lg(loX)) / Math.max(lg(hiX) - lg(loX), 0.0001))
+  const Y = v => H - PAD.b - ((lg(clampV(v)) - lg(loX)) / Math.max(lg(hiX) - lg(loX), 0.0001))
                     * (H - PAD.t - PAD.b);
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -1729,7 +1738,7 @@ document.querySelectorAll('.board').forEach(board => {{
     /* gridlines at decades of multiple */
     ctx.font = '9.5px ui-monospace, Menlo, monospace';
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    [0.01, 0.1, 1, 10, 100, 1000].forEach(v => {{
+    [0.02, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10, 25].forEach(v => {{
       if (v < loX || v > hiX) return;
       const y = Y(v);
       ctx.strokeStyle = (v === 1) ? muted : line;
@@ -1767,8 +1776,11 @@ document.querySelectorAll('.board').forEach(board => {{
       live.push({{ tr, now, col }});
     }});
 
+    clipped = 0;
     live.forEach(({{ tr, now, col }}) => {{
       const x = X(now.x), y = Y(now.v);
+      const over = now.v > hiX, under = now.v < loX;
+      if (over || under) clipped++;
       if (tr.st !== 'early') {{                       // glow only on decided dots
         ctx.globalAlpha = 0.22; ctx.fillStyle = col;
         ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 6.284); ctx.fill();
@@ -1786,6 +1798,12 @@ document.querySelectorAll('.board').forEach(board => {{
         ctx.arc(x, y, r0, 0, 6.284);
       }}
       ctx.fill();
+      if (over || under) {{                    // caret: this one is off-scale
+        ctx.beginPath();
+        const d = over ? -1 : 1, ty = y + d * 8;
+        ctx.moveTo(x, ty); ctx.lineTo(x - 4, ty + d * -5); ctx.lineTo(x + 4, ty + d * -5);
+        ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+      }}
     }});
     ctx.globalAlpha = 1;
 
@@ -1810,7 +1828,9 @@ document.querySelectorAll('.board').forEach(board => {{
       ctx.fillText(label, x + 6, y + 1);
     }});
 
-    if (sub) sub.textContent = traces.length + ' pools · ' + Math.round(cut) + ' min in';
+    if (sub) sub.textContent = traces.length + ' pools · ' + Math.round(cut) + ' min in'
+      + ' · axis ' + (loX < 0.1 ? loX.toFixed(2) : loX.toFixed(1)) + 'x-' + hiX.toFixed(0) + 'x'
+      + (clipped ? ' · ' + clipped + ' beyond it' : '');
   }}
 
   let raf = 0, paused = false;
@@ -2043,7 +2063,19 @@ def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
         if len(pts) < 2:
             continue
 
-        base = pts[0][1]                     # first value we ever saw
+        # The base cannot be "the first value we ever saw". EAGLE's first tick
+        # read $2.42 of FDV (price 2.4e-11) while its pool already held $39,899
+        # of liquidity -- a mispriced first quote. Dividing every later reading
+        # by that produced a fake 115,747x that stretched the axis across six
+        # orders of magnitude and flattened all 150 other traces.
+        #
+        # Median of the first three observations is robust to exactly one bad
+        # tick, which is the failure mode seen. A base still below $50 means the
+        # pool had no meaningful price yet, so the trace is left unnormalised
+        # rather than inventing a multiple.
+        head = sorted(v for _, v in pts[:3])
+        base = head[len(head) // 2]
+        base_ok = base >= 50
         peak = max(v for _, v in pts)
         last = pts[-1][1]
         age = (now - born).total_seconds() / 60.0
@@ -2068,7 +2100,7 @@ def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
         # Normalise to a multiple of the pool's OWN first observation. Absolute
         # FDV buries a $3k launch that 40x'd under a $90k launch that died; as a
         # multiple both read on one scale and the shape is the whole point.
-        mult = [[m, (v / base) if base > 0 else 1.0] for m, v in pts]
+        mult = [[m, (v / base) if base_ok else 1.0] for m, v in pts]
         traces.append({
             "s": (obs[-1].get("symbol") or "?")[:14],
             "pad": launchpad_of(obs[-1].get("dex")),
@@ -2078,6 +2110,7 @@ def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
             "pts": pts,
             "mx": mult,
             "base": base,
+            "base_ok": base_ok,
             "peakx": round(max(x for _, x in mult), 2),
             "lastx": round(mult[-1][1], 3),
             "peak": peak,
