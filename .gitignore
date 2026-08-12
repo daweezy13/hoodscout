@@ -14,3 +14,7 @@ out/*
 !out/nft_launches.jsonl
 !out/nft_registry.json
 !out/nft_names.json
+
+# wrangler caches the Cloudflare account id and the account owner email.
+# Harmless locally, unnecessary exposure in a public repo.
+.wrangler/
