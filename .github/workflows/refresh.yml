@@ -1,0 +1,83 @@
+name: daily refresh
+
+# The full pull + render + deploy, once a day at 09:00 UTC.
+#
+# 09:00 UTC is deliberate, not arbitrary: every headline on the page is keyed to
+# the last complete UTC day, and Blockscout publishes a calendar-complete bucket
+# hours before it stops filling. Nine hours past UTC midnight is the margin that
+# stops a partial day being reported as finished.
+#
+# This replaces the launchd job that ran on Dave's laptop, which fired late on
+# wake and once wrote a pulse with null stats because the network was not up.
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install --quiet requests eth-abi eth-hash[pycryptodome] pillow
+
+      - name: Pull chain data
+        env:
+          OPENSEA_API_KEY: ${{ secrets.OPENSEA_API_KEY }}
+          DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+        # chain_pulse exits non-zero and keeps the previous pulse.json if core
+        # stats are missing, so a bad upstream cannot publish a zeroed page.
+        run: python3 chain_pulse.py
+
+      - name: Cross-check against Dune
+        env:
+          DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+        continue-on-error: true      # a Dune outage must not block the refresh
+        run: python3 verify_dune.py --days 10
+
+      - name: Render
+        run: python3 build_dashboard.py --base-url https://hoodscout.pages.dev
+
+      - name: Render social card
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq chromium-browser || true
+          BIN=$(command -v chromium-browser || command -v chromium || echo "")
+          if [ -n "$BIN" ]; then
+            "$BIN" --headless --disable-gpu --no-sandbox --hide-scrollbars \
+              --virtual-time-budget=5000 --window-size=1200,630 \
+              --screenshot=out/site/card.png "file://$PWD/out/site/card.html"
+          else
+            echo "no chromium; keeping the previous card.png"
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy out/site --project-name=hoodscout --branch=main --commit-dirty=true
+
+      - name: Commit refreshed ledger state
+        run: |
+          git config user.name  "hoodscout-bot"
+          git config user.email "bot@hoodscout.local"
+          git add -f out/nft_names.json out/nft_registry.json 2>/dev/null || true
+          git diff --cached --quiet || {
+            git commit -m "refresh: $(date -u '+%Y-%m-%d') [skip ci]"
+            git pull --rebase --autostash origin main || true
+            git push
+          }

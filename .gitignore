@@ -1,11 +1,16 @@
-# API keys — OpenSea and Dune. Never commit.
+# API keys — never commit. In CI these live in GitHub Secrets.
 .env
 
 __pycache__/
 *.pyc
 
-# Generated outputs. The daily refresh rewrites all of these every night, so
-# tracking them would mean a permanently dirty tree that nobody commits. The
-# published Artifact is the record of the rendered page; pulse.json and the
-# verify report are reproducible by re-running the pipeline.
-out/
+# Generated outputs are rebuilt every run, so tracking them would mean a
+# permanently dirty tree. The LEDGERS are the exception: they are append-only
+# observation history that cannot be reconstructed afterwards (GeckoTerminal
+# only exposes the last ~53 minutes), so they are the one thing in out/ worth
+# version control.
+out/*
+!out/launches.jsonl
+!out/nft_launches.jsonl
+!out/nft_registry.json
+!out/nft_names.json

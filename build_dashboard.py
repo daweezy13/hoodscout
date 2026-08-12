@@ -537,6 +537,16 @@ def render(p, logo=None):
     rw = p.get("rewards") or {"projects": []}
     lxc = load_launch_traces()
     _lc = lxc.get("counts") or {}
+    nftl = load_nft_launches()
+    _nc = nftl.get("counts") or {}
+    nft_note = (
+        f"{_nc.get('public', 0)} reached a real spread of wallets, "
+        f"{_nc.get('farm', 0)} were minted almost entirely by a handful, "
+        f"{_nc.get('thin', 0)} are still thin. Ranked by distinct minters, not "
+        "mint count &mdash; mint count alone cannot tell a public launch from a farm."
+        if nftl.get("collections") else
+        "The mint scanner is warming up.")
+
     pad_note = ("Launchpads: " + " &middot; ".join(
         f"{escape(k)} {v}" for k, v in (lxc.get("pads") or [])[:5]) + "."
         if lxc.get("pads") else "")
@@ -1174,6 +1184,30 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
         <div class="tip" id="lxTip"></div>
       </div>
     </div>
+
+  </section>
+
+  <section>
+    <h2>NFT launches</h2>
+    <p class="sec-sub">
+      New ERC-721 contracts over the last {nftl.get('window_hours', 6)} hours, found by watching
+      mints straight off the chain. {nft_note}
+    </p>
+    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
+      <table>
+        <thead><tr>
+          <th></th><th data-sort="text">Collection</th><th data-sort="num">Minters</th>
+          <th data-sort="num" data-default="1">Mints</th>
+        </tr></thead>
+        <tbody>
+{nft_launch_rows(nftl.get('collections', []))}
+        </tbody>
+      </table>
+    </div>
+    <div class="board-foot">
+      <button class="more" type="button"></button>
+      <span class="foot-r">{nftl.get('total', 0)} collections in the window</span>
+    </div></div></div>
   </section>
 
   <section>
@@ -1239,7 +1273,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   </div>
 
   <section>
-    <h2>Who pays their holders</h2>
+    <h2>Holder payouts</h2>
     <p class="sec-sub">
       Projects routing fees into buying a different asset and paying it out. {rw_assets_note}
     </p>
@@ -1960,7 +1994,7 @@ TRACE_ALIVE = "#0F86C4"
 TRACE_DRAINED = "#d03b3b"
 
 
-def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
+def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
     """Turn the append-only ledger into per-pool FDV trajectories.
 
     Aligned at each pool's OWN launch (t=0 = pool_created_at), not wall clock,
@@ -2060,6 +2094,134 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
     return {"traces": kept, "counts": counts, "window_hours": hours,
             "total_pools": len(by),
             "pads": sorted(pads.items(), key=lambda kv: -kv[1])}
+
+
+
+NFT_LEDGER = OUT_DIR / "nft_launches.jsonl"
+
+
+def load_nft_launches(path=None, hours=6, top_n=12):
+    """New ERC-721 collections from the incremental mint scan.
+
+    A longer window than the memecoin feed (6h vs 24h of trajectory) because
+    mints play out slower than pool trading, and a collection's shape is only
+    legible once a few hundred wallets have had the chance to mint.
+
+    Ranked by DISTINCT MINTERS, never mint count. Measured separation is wide:
+    genuine public mints run 2.6-5.1 mints per minter across 537-945 minters,
+    while self-mint farms run 20-150 across 1-7 wallets. Mint count alone cannot
+    tell those apart; distinct minters can.
+    """
+    p = Path(path) if path else NFT_LEDGER
+    if not p.exists():
+        return {"collections": [], "window_hours": hours}
+    latest = {}
+    for line in p.read_text().splitlines():
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        c = r.get("c")
+        if not c:
+            continue
+        prev = latest.get(c)
+        if not prev or r["ts"] > prev["ts"]:
+            latest[c] = r
+
+    now = dt.datetime.now(dt.timezone.utc)
+    cutoff = now - dt.timedelta(hours=hours)
+    out = []
+    for c, r in latest.items():
+        try:
+            born = dt.datetime.fromisoformat(r["first_seen"])
+        except (ValueError, KeyError):
+            continue
+        if born < cutoff:
+            continue
+        minters = r.get("minters") or 0
+        mints = r.get("mints") or 0
+        per = mints / minters if minters else 0
+        # Same shape of judgement as the token side: a farm is not "small", it
+        # is concentrated. Stated as a fact, not an accusation.
+        if minters <= 2:
+            verdict, why = "farm", "one wallet took every mint"
+        elif per >= 15 and minters < 50:
+            verdict, why = "farm", f"{per:.0f} mints per wallet across {minters}"
+        elif minters < 25:
+            verdict, why = "thin", f"only {minters} wallets minted"
+        else:
+            verdict, why = "public", f"{minters} wallets, {per:.1f} each"
+        out.append({"address": c, "mints": mints, "minters": minters,
+                    "per": round(per, 2), "verdict": verdict, "why": why,
+                    "age_min": round((now - born).total_seconds() / 60),
+                    "explorer_url": f"https://robinhoodchain.blockscout.com/token/{c}"})
+    out.sort(key=lambda x: (-x["minters"], -x["mints"]))
+    counts = {}
+    for o in out:
+        counts[o["verdict"]] = counts.get(o["verdict"], 0) + 1
+    return {"collections": out[:top_n], "total": len(out),
+            "counts": counts, "window_hours": hours}
+
+
+NFT_NAMES = OUT_DIR / "nft_names.json"
+
+
+def resolve_nft_names(addrs):
+    """Blockscout name lookup, cached on disk so a name is fetched once ever.
+
+    Only the handful of collections actually rendered are resolved, so this is
+    ~12 calls on a cold cache and zero thereafter.
+    """
+    import urllib.request
+    cache = {}
+    if NFT_NAMES.exists():
+        try:
+            cache = json.loads(NFT_NAMES.read_text())
+        except json.JSONDecodeError:
+            cache = {}
+    missing = [a for a in addrs if a not in cache]
+    for a in missing:
+        try:
+            with urllib.request.urlopen(
+                    f"https://robinhoodchain.blockscout.com/api/v2/tokens/{a}", timeout=15) as r:
+                j = json.loads(r.read().decode())
+            cache[a] = (j.get("name") or "")[:28]
+        except Exception:
+            cache[a] = ""
+    if missing:
+        NFT_NAMES.parent.mkdir(parents=True, exist_ok=True)
+        NFT_NAMES.write_text(json.dumps(cache, indent=0))
+    return cache
+
+
+NFT_VERDICT = {
+    "public": ("ok", "many separate wallets minted"),
+    "thin": ("warn", "few wallets have minted so far"),
+    "farm": ("flag", "mints concentrated in very few wallets"),
+}
+
+
+def nft_launch_rows(cols):
+    names = resolve_nft_names([c["address"] for c in cols])
+    out = []
+    for i, c in enumerate(cols, 1):
+        nm = names.get(c["address"]) or short_addr(c["address"])
+        cls, tip = NFT_VERDICT.get(c["verdict"], ("warn", ""))
+        age = c["age_min"]
+        age_s = f"{age}m" if age < 90 else f"{age // 60}h{age % 60:02d}"
+        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
+            <td class="rank">{i}</td>
+            <td class="sym" data-v="{escape(nm.lower())}">
+              <span class="sym-name">{link(c['explorer_url'], nm, 'ext strong')}<span
+                class="badge {cls}" title="{escape(tip)}">{escape(c['verdict'])}</span></span>
+              <span class="sym-sub">first seen {escape(age_s)} ago &middot; {escape(c['why'])}</span>
+            </td>
+            <td class="n" data-v="{c['minters']}">{escape(num(c['minters']))}
+              <span class="alt">wallets</span></td>
+            <td class="n strong" data-v="{c['mints']}">{escape(num(c['mints']))}
+              <span class="alt">{c['per']:.1f} each</span></td>
+          </tr>""")
+    return "\n".join(out)
 
 
 def byline(path=None):

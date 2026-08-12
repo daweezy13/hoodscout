@@ -1,0 +1,57 @@
+name: poll launches
+
+# Every 10 minutes, 24/7 — the point of moving this off the laptop.
+#
+# WHY THIS CADENCE. GeckoTerminal's new_pools feed only reaches back ~53
+# minutes, so a slow poll does not "catch up" — it loses launches permanently.
+# 10 minutes gives roughly 6 observations per pool in its first hour, which is
+# what the delta-based rug detection needs. Actions cron has a 5-minute floor
+# and routinely runs late under load, so treat 10 as a target, not a guarantee;
+# the poller's own gap check reports when the window was missed.
+#
+# The two API calls here are key-free (GeckoTerminal) plus one public RPC call
+# for the NFT mint scan, so this workflow needs no secrets at all.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: poll-ledger
+  cancel-in-progress: false      # never drop an observation to a newer run
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deps
+        run: pip install --quiet requests
+
+      - name: Poll
+        run: python3 launch_watch.py --prune-days 7
+
+      - name: Commit ledger
+        run: |
+          git config user.name  "hoodscout-bot"
+          git config user.email "bot@hoodscout.local"
+          git add -f out/launches.jsonl out/nft_launches.jsonl out/nft_registry.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "no new observations"
+          else
+            # [skip ci] so a ledger commit never triggers the deploy workflow
+            git commit -m "ledger: $(date -u '+%Y-%m-%dT%H:%MZ') [skip ci]"
+            # rebase rather than force: two runs can overlap and both hold
+            # observations that are not reconstructible afterwards
+            git pull --rebase --autostash origin main || true
+            git push
+          fi

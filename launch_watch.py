@@ -239,6 +239,144 @@ def poll_extended(ledger=LEDGER, max_batches=4):
     return obs
 
 
+
+# --------------------------------------------------------------------------- #
+# NFT mint scanner
+# --------------------------------------------------------------------------- #
+# Same restrictions as the memecoin side: free sources only, bounded call count.
+# Discovery is one incremental eth_getLogs per poll against a stored watermark,
+# so cost is O(1) per run rather than O(window).
+#
+# MEASURED: a 3-minute span returns ~6,830 mint logs (1,890 ERC-721) and a
+# 6-minute span EXCEEDS the RPC's 10,000-log cap outright. So the per-run span
+# is capped near 3 minutes and the watermark catches up over successive polls
+# instead of widening the query.
+#
+# ERC-721 is discriminated from ERC-20 by topic count: a 721 Transfer indexes
+# three params (from, to, tokenId) so it carries topic3; an ERC-20 Transfer
+# indexes two and does not.
+RPC_URL = "https://rpc.mainnet.chain.robinhood.com"
+TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+ZERO_TOPIC = "0x" + "0" * 64
+NFT_REGISTRY = OUT_DIR / "nft_registry.json"
+NFT_LEDGER = OUT_DIR / "nft_launches.jsonl"
+MAX_SPAN_BLOCKS = 1700          # ~2.9 min at ~101ms blocks, under the 10k cap
+MINTER_CAP = 4000               # per-collection minter set ceiling, keeps the file bounded
+
+
+def _rpc(method, params, tries=3, timeout=60):
+    for attempt in range(tries):
+        try:
+            r = requests.post(RPC_URL, timeout=timeout,
+                              json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
+            j = r.json()
+            if "error" in j:
+                return None
+            return j.get("result")
+        except (requests.RequestException, ValueError):
+            if attempt == tries - 1:
+                return None
+            time.sleep(1.2 * (attempt + 1))
+    return None
+
+
+def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6):
+    """One incremental sweep of ERC-721 mints. Returns a short summary."""
+    reg = {}
+    if Path(registry_path).exists():
+        try:
+            reg = json.loads(Path(registry_path).read_text())
+        except json.JSONDecodeError:
+            reg = {}
+
+    head_hex = _rpc("eth_blockNumber", [])
+    if not head_hex:
+        return {"ok": False, "reason": "no head block"}
+    head = int(head_hex, 16)
+    last = int(reg.get("_watermark") or 0)
+    if not last:
+        last = head - MAX_SPAN_BLOCKS          # cold start: one span back
+    frm = last + 1
+    to = min(head, frm + MAX_SPAN_BLOCKS - 1)
+    if to <= frm:
+        return {"ok": True, "scanned": 0, "collections": 0, "behind": 0}
+
+    logs = _rpc("eth_getLogs", [{"fromBlock": hex(frm), "toBlock": hex(to),
+                                 "topics": [TRANSFER_TOPIC, ZERO_TOPIC]}])
+    if logs is None:
+        return {"ok": False, "reason": "getLogs failed", "behind": head - last}
+
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    touched = set()
+    for lg in logs:
+        topics = lg.get("topics") or []
+        if len(topics) != 4:                    # ERC-20 Transfer, not 721
+            continue
+        addr = (lg.get("address") or "").lower()
+        to_addr = "0x" + topics[2][-40:]
+        e = reg.setdefault(addr, {"first_block": int(lg["blockNumber"], 16),
+                                  "first_seen": now, "mints": 0, "minters": [],
+                                  "last_seen": now})
+        e["mints"] += 1
+        e["last_seen"] = now
+        if len(e["minters"]) < MINTER_CAP and to_addr not in e["minters"]:
+            e["minters"].append(to_addr)
+        touched.add(addr)
+
+    reg["_watermark"] = to
+    Path(registry_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(registry_path).write_text(json.dumps(reg, separators=(",", ":")))
+
+    # snapshot only collections born inside the window -- that is the feed
+    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(hours=window_hours)
+    rows = []
+    for addr in touched:
+        e = reg[addr]
+        try:
+            born = dt.datetime.fromisoformat(e["first_seen"])
+        except ValueError:
+            continue
+        if born < cutoff:
+            continue
+        rows.append({"ts": now, "c": addr, "first_seen": e["first_seen"],
+                     "mints": e["mints"], "minters": len(e["minters"]),
+                     "first_block": e["first_block"]})
+    if rows:
+        with Path(ledger).open("a") as fh:
+            for r in rows:
+                fh.write(json.dumps(r, separators=(",", ":")) + "\n")
+
+    return {"ok": True, "scanned": to - frm + 1, "logs": len(logs),
+            "collections": len(rows), "behind": head - to}
+
+
+
+def prune_ledger(path, days=7):
+    """Trim the ledger to the last N days.
+
+    Committing this file every 10 minutes would otherwise grow the repo without
+    bound (~1.5MB/day at the measured launch rate). Seven days is well past the
+    24h the chart reads and the 48h the thresholds calibrate on, while keeping
+    the repo small enough that a clone stays fast.
+    """
+    p = Path(path)
+    if not p.exists():
+        return 0
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+    kept, dropped = [], 0
+    for line in p.read_text().splitlines():
+        try:
+            if json.loads(line).get("ts", "") >= cutoff:
+                kept.append(line)
+            else:
+                dropped += 1
+        except json.JSONDecodeError:
+            dropped += 1
+    if dropped:
+        p.write_text("\n".join(kept) + ("\n" if kept else ""))
+    return dropped
+
+
 def coverage_gap(obs, ledger=LEDGER):
     """Did we miss any launches between polls?
 
@@ -269,6 +407,9 @@ def main():
     ap.add_argument("--pages", type=int, default=DEFAULT_PAGES)
     ap.add_argument("--out", default=str(LEDGER))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--prune-days", type=int, default=0,
+                    help="drop ledger rows older than N days (0 = keep all)")
+    ap.add_argument("--no-nft", action="store_true", help="skip the ERC-721 mint scan")
     ap.add_argument("--no-extend", action="store_true",
                     help="skip the tokens/multi follow-up for aged-out pools")
     args = ap.parse_args()
@@ -280,6 +421,7 @@ def main():
         print("no pools returned (upstream down or rate-limited); nothing written")
         return 1
 
+    nft = None if args.no_nft else scan_nft_mints()
     gap = coverage_gap(obs, Path(args.out))
 
     if args.dry_run:
@@ -298,6 +440,16 @@ def main():
         print(f"appended {len(obs)} new + {len(ext)} followed observations "
               f"to {out} in {time.time()-t0:.1f}s")
 
+    if nft and nft.get("ok"):
+        print(f"  nft: {nft['scanned']:,} blocks, {nft.get('logs',0):,} mint logs, "
+              f"{nft['collections']} new collections, {nft['behind']:,} blocks behind")
+    elif nft:
+        print(f"  nft: skipped ({nft.get('reason')})")
+    if args.prune_days:
+        d1 = prune_ledger(Path(args.out), args.prune_days)
+        d2 = prune_ledger(NFT_LEDGER, args.prune_days)
+        if d1 or d2:
+            print(f"  pruned {d1:,} + {d2:,} rows older than {args.prune_days}d")
     if gap:
         note = "  ** GAP SUSPECTED: raise --pages **" if gap["gap_suspected"] else ""
         print(f"  {gap['new_to_us']}/{gap['polled']} pools new to the ledger{note}")

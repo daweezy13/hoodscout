@@ -1552,7 +1552,21 @@ def main():
                         min_liquidity=args.min_liquidity, skip_nfts=args.skip_nfts,
                         nft_align=args.nft_align, skip_rewards=args.skip_rewards)
 
+    # A degraded pull must NEVER overwrite a good one. On 2026-08-12 the
+    # nightly job fired on wake before the network was up: every Blockscout
+    # call failed DNS, and the run still wrote a pulse.json with null price,
+    # block time and DAU -- which then rendered as "0 ms" and "$0" and was
+    # republished to the artifact. Silent degradation is worse than a stale
+    # page, because a stale page is still true as of its timestamp.
+    core = pulse.get("stats") or {}
+    missing = [k for k in ("eth_price_usd", "dau_current", "total_transactions")
+               if not core.get(k)]
     out = Path(args.out)
+    if missing and out.exists():
+        print(f"\nREFUSING TO WRITE: core stats missing ({', '.join(missing)}) -- "
+              f"upstream probably unreachable. Keeping the previous {out.name}.",
+              flush=True)
+        return 1
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(pulse, indent=2, default=str))
     print(f"\nWrote {out} in {time.time() - t0:.1f}s", flush=True)
@@ -1575,4 +1589,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)
