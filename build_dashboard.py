@@ -537,11 +537,16 @@ def render(p, logo=None):
     rw = p.get("rewards") or {"projects": []}
     lxc = load_launch_traces()
     _lc = lxc.get("counts") or {}
+    pad_note = ("Launchpads: " + " &middot; ".join(
+        f"{escape(k)} {v}" for k, v in (lxc.get("pads") or [])[:5]) + "."
+        if lxc.get("pads") else "")
     launch_note = (
         f"{len(lxc.get('traces', []))} pools tracked over the last "
         f"{lxc.get('window_hours', 6)}h &mdash; {_lc.get('drained', 0)} already drained "
         f"\u226570% off their peak, {_lc.get('young', 0)} still too young to judge. "
-        "Aligned at each pool's own launch, not wall clock, so trajectories compare."
+        "Each pool plotted as a multiple of its own value at first sight, so a small "
+        "launch that ran and a big one that died sit on the same scale. "
+        + pad_note
         if lxc.get("traces") else
         "The poller is warming up &mdash; trajectories appear once pools have been "
         "observed more than once.")
@@ -1150,7 +1155,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="launch pixel">
       <div class="launch-head">
         <div>
-          <span class="launch-k">Fully diluted value &middot; minutes since launch</span>
+          <span class="launch-k">Value vs launch &middot; minutes since launch</span>
           <span class="launch-sub" id="lxSub"></span>
         </div>
         <div class="legend lx-legend">
@@ -1612,18 +1617,23 @@ document.querySelectorAll('.board').forEach(board => {{
 
 
 /* ---- launch trajectories ----
-   Canvas, not SVG: 120 animated paths as DOM nodes would crawl.
-   X is minutes since EACH pool's own launch, so a rug's cliff and a survivor's
-   climb line up for comparison. Y is log — the range runs $100 to $millions.
-   Colour is status (validated blue/red, dE 21.5 CVD); the line SHAPE is the
-   real signal and works without colour at all. */
+   Moving dots, not static lines: each pool is a glowing dot travelling its own
+   path, trailing a fading tail, looping continuously so the section reads as
+   live rather than as a finished chart.
+
+   Y is a LOG MULTIPLE OF EACH POOL'S OWN FIRST VALUE, not absolute FDV. On an
+   absolute axis a $3k launch that 40x'd is invisible beneath a $90k launch that
+   died; as a multiple both sit on one scale and the shape is the whole point.
+   1.0x is drawn as the reference line — above it is up, below is down.
+
+   Canvas because 120 animated dots + trails as DOM nodes would crawl. */
 (function () {{
   const LX = (D.launch || {{}});
-  const traces = LX.traces || [];
+  const traces = (LX.traces || []).filter(t => (t.mx || []).length > 1);
   const cv = document.getElementById('lxCanvas');
   if (!cv || !traces.length) {{
     if (cv) cv.closest('.launch-plot').innerHTML =
-      '<p class="range-note">No trajectories yet — the poller needs to see a pool more than once.</p>';
+      '<p class="range-note">No trajectories yet - the poller needs to see a pool more than once.</p>';
     return;
   }}
   const tip = document.getElementById('lxTip');
@@ -1633,21 +1643,36 @@ document.querySelectorAll('.board').forEach(board => {{
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let W = 0, H = 0, dpr = 1;
-  const PAD = {{ l: 52, r: 12, t: 8, b: 22 }};
-  // Fit the axis to what the ledger actually holds (min 15m so a fresh
-  // ledger is not absurdly zoomed), growing toward 60 as history builds.
-  let maxT = 0, minV = Infinity, maxV = -Infinity;
-  traces.forEach(tr => tr.pts.forEach(p => {{
+  const PAD = {{ l: 46, r: 92, t: 10, b: 22 }};
+  let maxT = 0, loX = Infinity, hiX = -Infinity;
+  traces.forEach(tr => tr.mx.forEach(p => {{
     if (p[0] > maxT) maxT = p[0];
-    if (p[1] < minV) minV = p[1];
-    if (p[1] > maxV) maxV = p[1];
+    if (p[1] < loX) loX = p[1];
+    if (p[1] > hiX) hiX = p[1];
   }}));
   maxT = Math.min(Math.max(Math.ceil(maxT / 5) * 5, 15), 60);
-  minV = Math.max(minV, 1);
-  const lg = v => Math.log10(Math.max(v, 1));
-  const X = m => PAD.l + (m / maxT) * (W - PAD.l - PAD.r);
-  const Y = v => H - PAD.b - ((lg(v) - lg(minV)) / Math.max(lg(maxV) - lg(minV), 0.0001))
+  loX = Math.max(Math.min(loX, 0.5), 0.005);
+  hiX = Math.max(hiX, 2);
+
+  const lg = v => Math.log10(Math.max(v, 0.001));
+  const X = m => PAD.l + Math.min(m / maxT, 1) * (W - PAD.l - PAD.r);
+  const Y = v => H - PAD.b - ((lg(v) - lg(loX)) / Math.max(lg(hiX) - lg(loX), 0.0001))
                     * (H - PAD.t - PAD.b);
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  /* value of a trace at replay-minute m, linearly interpolated */
+  function at(tr, m) {{
+    const p = tr.mx;
+    if (m <= p[0][0]) return null;
+    for (let i = 1; i < p.length; i++) {{
+      if (p[i][0] >= m) {{
+        const a = p[i - 1], b = p[i], k = (m - a[0]) / Math.max(b[0] - a[0], 1e-6);
+        return {{ x: a[0] + (b[0] - a[0]) * k, v: a[1] + (b[1] - a[1]) * k, done: false }};
+      }}
+    }}
+    const last = p[p.length - 1];
+    return {{ x: last[0], v: last[1], done: true }};
+  }}
 
   function resize() {{
     dpr = Math.min(devicePixelRatio || 1, 2);
@@ -1656,59 +1681,102 @@ document.querySelectorAll('.board').forEach(board => {{
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }}
 
-  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const TRAIL = 9;   // minutes of tail behind each dot
 
   function frame(cut) {{
+    const line = css('--line'), muted = css('--muted'), ink = css('--ink');
     ctx.clearRect(0, 0, W, H);
-    const line = css('--line'), muted = css('--muted');
 
-    ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.font = '9.5px ui-monospace, Menlo, monospace';
-    ctx.fillStyle = muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    const decades = [];
-    for (let d = Math.floor(lg(minV)); d <= Math.ceil(lg(maxV)); d++) decades.push(Math.pow(10, d));
-    decades.forEach(v => {{
-      const y = Y(v); if (y < PAD.t || y > H - PAD.b) return;
+    /* gridlines at decades of multiple */
+    ctx.font = '9.5px ui-monospace, Menlo, monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    [0.01, 0.1, 1, 10, 100, 1000].forEach(v => {{
+      if (v < loX || v > hiX) return;
+      const y = Y(v);
+      ctx.strokeStyle = (v === 1) ? muted : line;
+      ctx.lineWidth = 1;
+      ctx.setLineDash(v === 1 ? [4, 4] : []);
       ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
-      const lab = v >= 1e6 ? '$' + (v / 1e6) + 'M' : v >= 1e3 ? '$' + (v / 1e3) + 'K' : '$' + v;
-      ctx.fillText(lab, PAD.l - 6, y);
+      ctx.setLineDash([]);
+      ctx.fillStyle = (v === 1) ? ink : muted;
+      ctx.fillText(v >= 1 ? v + 'x' : v + 'x', PAD.l - 6, y);
     }});
-    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    for (let m = 0; m <= maxT; m += Math.max(10, Math.round(maxT / 6 / 10) * 10)) {{
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = muted;
+    for (let m = 0; m <= maxT; m += Math.max(5, Math.round(maxT / 6 / 5) * 5)) {{
       ctx.fillText(m + 'm', X(m), H - PAD.b + 5);
     }}
 
-    // young traces first and recessive, so the decided ones paint on top
+    /* trails, then dots — young first so decided traces sit on top */
     const order = traces.slice().sort((a, b) =>
       (a.st === 'young' ? 0 : 1) - (b.st === 'young' ? 0 : 1));
+    const live = [];
+
     order.forEach(tr => {{
-      const pts = tr.pts.filter(p => p[0] <= cut);
-      if (pts.length < 2) return;
-      ctx.beginPath();
-      pts.forEach((p, i) => i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
-      if (tr.st === 'young') {{ ctx.strokeStyle = muted; ctx.globalAlpha = 0.35; ctx.lineWidth = 1.25; }}
-      else {{ ctx.strokeStyle = COL[tr.st]; ctx.globalAlpha = 0.9; ctx.lineWidth = 2; }}
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      const last = pts[pts.length - 1];
-      if (tr.st !== 'young') {{
-        ctx.beginPath(); ctx.arc(X(last[0]), Y(last[1]), 2.6, 0, 6.284);
-        ctx.fillStyle = COL[tr.st]; ctx.fill();
+      const now = at(tr, cut);
+      if (!now) return;
+      const col = tr.st === 'young' ? muted : COL[tr.st];
+      const seg = tr.mx.filter(p => p[0] <= now.x && p[0] >= now.x - TRAIL);
+      if (seg.length > 1) {{
+        ctx.beginPath();
+        seg.forEach((p, i) => i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
+        ctx.lineTo(X(now.x), Y(now.v));
+        ctx.strokeStyle = col;
+        ctx.globalAlpha = tr.st === 'young' ? 0.18 : 0.42;
+        ctx.lineWidth = tr.st === 'young' ? 1 : 1.75;
+        ctx.stroke();
       }}
+      live.push({{ tr, now, col }});
     }});
-    if (sub) sub.textContent = cut >= maxT
-      ? traces.length + ' pools · ' + Math.round(maxT) + ' min of trajectory'
-      : 'replaying · ' + Math.round(cut) + ' min';
+
+    live.forEach(({{ tr, now, col }}) => {{
+      const x = X(now.x), y = Y(now.v);
+      if (tr.st !== 'young') {{                       // glow only on decided dots
+        ctx.globalAlpha = 0.22; ctx.fillStyle = col;
+        ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 6.284); ctx.fill();
+      }}
+      ctx.globalAlpha = tr.st === 'young' ? 0.5 : 1;
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(x, y, tr.st === 'young' ? 1.8 : 3.2, 0, 6.284); ctx.fill();
+    }});
+    ctx.globalAlpha = 1;
+
+    /* label chips on the biggest movers, euphoria-style */
+    const chips = live.filter(l => l.tr.st !== 'young')
+      .sort((a, b) => Math.abs(Math.log10(b.now.v)) - Math.abs(Math.log10(a.now.v)))
+      .slice(0, 5);
+    ctx.font = '10px ui-monospace, Menlo, monospace';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    const used = [];
+    chips.forEach(({{ tr, now, col }}) => {{
+      let x = X(now.x) + 10, y = Y(now.v);
+      while (used.some(u => Math.abs(u - y) < 15)) y += 15;
+      if (y > H - PAD.b - 4) return;
+      used.push(y);
+      const label = tr.s + '  ' + (now.v >= 1 ? now.v.toFixed(1) + 'x'
+                                              : now.v.toFixed(2).replace(/^0/, '') + 'x');
+      const w = ctx.measureText(label).width + 12;
+      ctx.globalAlpha = 0.92; ctx.fillStyle = col;
+      ctx.fillRect(x, y - 8, Math.min(w, W - x - 4), 16);
+      ctx.globalAlpha = 1; ctx.fillStyle = '#0F100C';
+      ctx.fillText(label, x + 6, y + 1);
+    }});
+
+    if (sub) sub.textContent = traces.length + ' pools · ' + Math.round(cut) + ' min in';
   }}
 
-  let raf = 0;
-  function play() {{
+  let raf = 0, paused = false;
+  function loop() {{
     cancelAnimationFrame(raf);
-    if (reduce) {{ frame(maxT); return; }}
-    const t0 = performance.now(), dur = 2600;
+    if (reduce) {{ frame(maxT); return; }}             // no motion: show the end state
+    const dur = 9000, hold = 1400;
+    let t0 = performance.now();
     const step = now => {{
-      const k = Math.min((now - t0) / dur, 1);
-      frame(k * maxT);
-      if (k < 1) raf = requestAnimationFrame(step);
+      if (!paused) {{
+        const e = now - t0;
+        if (e > dur + hold) {{ t0 = now; }}
+        else frame(Math.min(e / dur, 1) * maxT);
+      }}
+      raf = requestAnimationFrame(step);
     }};
     raf = requestAnimationFrame(step);
   }}
@@ -1717,25 +1785,28 @@ document.querySelectorAll('.board').forEach(board => {{
     const r = cv.getBoundingClientRect();
     const mx = e.clientX - r.left, my = e.clientY - r.top;
     let best = null, bd = 1e9;
-    traces.forEach(tr => tr.pts.forEach(p => {{
+    traces.forEach(tr => tr.mx.forEach((p, i) => {{
       const d = Math.hypot(X(p[0]) - mx, Y(p[1]) - my);
-      if (d < bd) {{ bd = d; best = {{ tr, p }}; }}
+      if (d < bd) {{ bd = d; best = {{ tr, p, i }}; }}
     }}));
-    if (!best || bd > 26) {{ tip.style.opacity = '0'; return; }}
-    const t = best.tr;
-    tip.innerHTML = '<span class="tip-d">' + t.s + ' · ' + Math.round(best.p[0]) + ' min old</span>'
-      + '$' + Math.round(best.p[1]).toLocaleString()
-      + (t.drop > 0 ? '<br><span class="tip-d">peak $' + Math.round(t.peak).toLocaleString()
-        + ' · −' + t.drop + '%</span>' : '');
+    if (!best || bd > 24) {{ tip.style.opacity = '0'; paused = false; return; }}
+    paused = true;
+    const tr = best.tr, abs = (tr.pts[best.i] || [])[1];
+    tip.innerHTML = '<span class="tip-d">' + tr.s + ' · ' + tr.pad + ' · '
+      + Math.round(best.p[0]) + ' min old</span>'
+      + best.p[1].toFixed(2) + 'x'
+      + (abs ? ' · $' + Math.round(abs).toLocaleString() : '')
+      + '<br><span class="tip-d">from $' + Math.round(tr.base).toLocaleString()
+      + ' at first sight</span>';
     tip.style.opacity = '1';
-    tip.style.left = Math.min(Math.max(60, X(best.p[0])), W - 60) + 'px';
-    tip.style.top = (Y(best.p[1]) - 12) + 'px';
+    tip.style.left = Math.min(Math.max(70, X(best.p[0])), W - 70) + 'px';
+    tip.style.top = (Y(best.p[1]) - 14) + 'px';
   }});
-  cv.addEventListener('mouseleave', () => {{ tip.style.opacity = '0'; }});
-  document.getElementById('lxReplay').addEventListener('click', play);
+  cv.addEventListener('mouseleave', () => {{ tip.style.opacity = '0'; paused = false; }});
+  document.getElementById('lxReplay').addEventListener('click', loop);
   let rz; addEventListener('resize', () => {{ clearTimeout(rz);
-    rz = setTimeout(() => {{ resize(); frame(maxT); }}, 120); }});
-  resize(); play();
+    rz = setTimeout(() => {{ resize(); }}, 120); }});
+  resize(); loop();
 }})();
 
 </script>
@@ -1831,6 +1902,26 @@ def logo_html(logo, cls="brandmark"):
 # --------------------------------------------------------------------------- #
 LEDGER = OUT_DIR / "launches.jsonl"
 
+# GeckoTerminal's dex id already names the launchpad. Pons is dominant on this
+# chain (~45% of new pools across its three ids); the rest are the generic AMM
+# tiers plus a few smaller pads.
+LAUNCHPADS = {
+    "pons-dot-family": "Pons", "pons-v2": "Pons", "pons-v2-dex": "Pons",
+    "uniswap-v4-robinhood": "Uniswap v4", "uniswap-v3-robinhood": "Uniswap v3",
+    "uniswap-v2-robinhood": "Uniswap v2", "uniswap-pools-trade": "Uniswap",
+    "bankr-robinhood": "Bankr", "clanker-robinhood": "Clanker",
+    "virtuals-robinhood": "Virtuals", "sushiswap-v3-robinhood": "SushiSwap",
+    "ramses-v3-robinhood": "Ramses", "up-v3": "Up",
+}
+
+
+def launchpad_of(dex):
+    if not dex:
+        return "unknown"
+    return LAUNCHPADS.get(dex, dex.replace("-robinhood", "").replace("-", " ").title())
+
+
+
 # Status colours, NOT categorical identity — there are far more pools than any
 # categorical ramp allows, so hue encodes state and the line SHAPE carries the
 # story (a cliff vs a climb). Validated with the dataviz palette checker on both
@@ -1892,6 +1983,7 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
         if len(pts) < 2:
             continue
 
+        base = pts[0][1]                     # first value we ever saw
         peak = max(v for _, v in pts)
         last = pts[-1][1]
         age = (now - born).total_seconds() / 60.0
@@ -1913,11 +2005,20 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
             keep.update(int(i * step) for i in range(max_points))
             pts = [pts[i] for i in sorted(keep) if i < len(pts)]
 
+        # Normalise to a multiple of the pool's OWN first observation. Absolute
+        # FDV buries a $3k launch that 40x'd under a $90k launch that died; as a
+        # multiple both read on one scale and the shape is the whole point.
+        mult = [[m, (v / base) if base > 0 else 1.0] for m, v in pts]
         traces.append({
             "s": (obs[-1].get("symbol") or "?")[:14],
+            "pad": launchpad_of(obs[-1].get("dex")),
             "p": pool,
             "st": state,
             "pts": pts,
+            "mx": mult,
+            "base": base,
+            "peakx": round(max(x for _, x in mult), 2),
+            "lastx": round(mult[-1][1], 3),
             "peak": peak,
             "last": last,
             "drop": round((1 - last / peak) * 100, 1) if peak else 0,
@@ -1925,8 +2026,13 @@ def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
 
     # Most-moved first so the interesting traces survive the cap and paint last
     traces.sort(key=lambda t: -abs(t["drop"]))
-    return {"traces": traces[:max_traces], "counts": counts,
-            "window_hours": hours, "total_pools": len(by)}
+    kept = traces[:max_traces]
+    pads = {}
+    for tr in kept:
+        pads[tr["pad"]] = pads.get(tr["pad"], 0) + 1
+    return {"traces": kept, "counts": counts, "window_hours": hours,
+            "total_pools": len(by),
+            "pads": sorted(pads.items(), key=lambda kv: -kv[1])}
 
 
 def byline(path=None):
