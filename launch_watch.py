@@ -89,6 +89,39 @@ def _tx(block, window):
             w.get("buyers") or 0, w.get("sellers") or 0)
 
 
+
+# --------------------------------------------------------------------------- #
+# Observation quality
+# --------------------------------------------------------------------------- #
+# The ledger records everything faithfully and NEVER discards -- an observation
+# that looks wrong now may be the evidence later. Judgement lives here instead,
+# so every consumer inherits one definition rather than re-deriving it.
+#
+# The failure this exists for: EAGLE's opening quote read $2.42 of FDV at a
+# price of 2.4e-11 while its pool already held $39,899 of liquidity. Anything
+# dividing by that -- a multiple, a percent change, a rug threshold -- produces
+# nonsense (it showed as 115,747x and flattened the whole chart).
+#
+# MEASURED over 4,250 observations, fdv/liquidity is a remarkably tight ratio:
+#   p0.1 0.236 | p1 0.633 | p25 0.992 | MEDIAN 1.001 | p75 1.406
+# The lowest plausible reading in the whole ledger is 0.078. A floor of 0.02 is
+# ~4x below that and ~300x above EAGLE, so it separates cleanly with no real
+# launch caught. The HIGH side is deliberately not gated: a huge fdv/liq ratio
+# just means a large nominal supply, which is odd but not wrong, and it cancels
+# out when a pool is measured against its own base.
+FDV_LIQ_FLOOR = 0.02
+
+
+def observation_quality(r):
+    """None if the row is usable, else a short human reason it is not."""
+    fdv, liq = r.get("fdv"), r.get("liq")
+    if fdv is None or fdv <= 0:
+        return "no fdv"
+    if liq is not None and liq > 0 and (fdv / liq) < FDV_LIQ_FLOOR:
+        return f"fdv ${fdv:,.2f} vs ${liq:,.0f} liquidity — mispriced quote"
+    return None
+
+
 def poll(pages=DEFAULT_PAGES):
     """One sweep of new_pools. Returns a list of observation dicts."""
     now = dt.datetime.now(dt.timezone.utc)

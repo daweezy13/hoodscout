@@ -1971,6 +1971,15 @@ def logo_html(logo, cls="brandmark"):
 # --------------------------------------------------------------------------- #
 LEDGER = OUT_DIR / "launches.jsonl"
 
+# One definition of a usable observation, owned by the module that owns the
+# ledger schema. Imported rather than re-implemented so the chart and any later
+# verdict engine can never drift apart on what counts as bad data.
+try:
+    from launch_watch import observation_quality
+except ImportError:                       # renderer must still work standalone
+    def observation_quality(_r):
+        return None
+
 # GeckoTerminal's dex id already names the launchpad. Pons is dominant on this
 # chain (~45% of new pools across its three ids); the rest are the generic AMM
 # tiers plus a few smaller pads.
@@ -2051,8 +2060,11 @@ def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
         if born < cutoff:
             continue
         obs.sort(key=lambda r: r["ts"])
-        pts = []
+        pts, rejected = [], 0
         for r in obs:
+            if observation_quality(r):
+                rejected += 1             # a mispriced quote poisons every ratio
+                continue
             v = r.get("fdv")
             if not v or v <= 0:
                 continue
@@ -2063,6 +2075,9 @@ def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
         if len(pts) < 2:
             continue
 
+        # With bad quotes already filtered above, the base is far less likely to
+        # be poisoned -- but a median of the first three still costs nothing and
+        # covers a bad tick that passes the ratio gate.
         # The base cannot be "the first value we ever saw". EAGLE's first tick
         # read $2.42 of FDV (price 2.4e-11) while its pool already held $39,899
         # of liquidity -- a mispriced first quote. Dividing every later reading
