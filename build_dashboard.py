@@ -535,6 +535,17 @@ def render(p, logo=None):
             f"definition. Checked {escape(vday)}.")
 
     rw = p.get("rewards") or {"projects": []}
+    lxc = load_launch_traces()
+    _lc = lxc.get("counts") or {}
+    launch_note = (
+        f"{len(lxc.get('traces', []))} pools tracked over the last "
+        f"{lxc.get('window_hours', 6)}h &mdash; {_lc.get('drained', 0)} already drained "
+        f"\u226570% off their peak, {_lc.get('young', 0)} still too young to judge. "
+        "Aligned at each pool's own launch, not wall clock, so trajectories compare."
+        if lxc.get("traces") else
+        "The poller is warming up &mdash; trajectories appear once pools have been "
+        "observed more than once.")
+
     bst = rw.get("boosters") or {"projects": []}
     bst_note = (f"{len(bst.get('projects', []))} live, paying "
                 f"{', '.join(bst.get('reward_assets', [])[:8])}."
@@ -552,7 +563,8 @@ def render(p, logo=None):
                if has_opensea else
                "OpenSea verification badges appear here once an API key is configured.")
 
-    payload = json.dumps({"charts": charts, "spanDays": span_days},
+    lx = load_launch_traces()
+    payload = json.dumps({"charts": charts, "spanDays": span_days, "launch": lx},
                          separators=(",", ":")).replace("</", "<\\/")
 
     return f"""<title>HoodScout — Robinhood Chain</title>
@@ -904,7 +916,22 @@ td.sym {{ min-width:190px; }}
    overflowed its scroller by 21px, clipping Volume — the column the ranking
    is based on. Tighter name column and padding in the two-up context only. */
 .two-col td.sym {{ min-width:162px; }}
-.two-col .sm {{
+.two-col /* No .pixel-shadow on this panel: drop-shadow ghosts every glyph and
+   canvas stroke inside it. The notched border carries the frame. */
+.launch {{ background:var(--panel); border:var(--rule-w) solid var(--rule); padding:14px 16px 10px; }}
+.launch-head {{ display:flex; flex-wrap:wrap; align-items:flex-start;
+  justify-content:space-between; gap:10px 18px; margin-bottom:8px; }}
+.launch-k {{ display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ink); font-weight:700; }}
+.launch-sub {{ display:block; font-family:var(--mono); font-size:10px; color:var(--muted); margin-top:3px; }}
+.lx-legend {{ margin-top:0; align-items:center; }}
+.lx-legend i.i-mute {{ background:var(--muted); opacity:.55; }}
+.lx-legend button.more {{ margin-left:4px; }}
+.launch-plot {{ position:relative; }}
+.launch-plot canvas {{ display:block; width:100%; height:300px; }}
+@media (max-width:700px) {{ .launch-plot canvas {{ height:230px; }} }}
+
+.sm {{
   display:inline-flex; align-items:center; color:var(--muted);
   margin-left:7px; text-decoration:none; border-bottom:none; flex:none;
 }}
@@ -1113,6 +1140,30 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="pixel-shadow"><div class="tiles pixel">
 {tiles}
     </div></div>
+  </section>
+
+  <section>
+    <h2>Just launched</h2>
+    <p class="sec-sub">
+      Every new pool's value from its own first minute. {launch_note}
+    </p>
+    <div class="launch pixel">
+      <div class="launch-head">
+        <div>
+          <span class="launch-k">Fully diluted value &middot; minutes since launch</span>
+          <span class="launch-sub" id="lxSub"></span>
+        </div>
+        <div class="legend lx-legend">
+          <span><i style="background:{TRACE_DRAINED}"></i>drained &ge;70% off peak</span>
+          <span><i style="background:{TRACE_ALIVE}"></i>holding</span>
+          <span><i class="i-mute"></i>under 30 min &mdash; too early to judge</span>
+          <button class="more" id="lxReplay" type="button">replay</button>
+        </div>
+      </div>
+      <div class="launch-plot"><canvas id="lxCanvas"></canvas>
+        <div class="tip" id="lxTip"></div>
+      </div>
+    </div>
   </section>
 
   <section>
@@ -1559,6 +1610,134 @@ document.querySelectorAll('.board').forEach(board => {{
   btn.addEventListener('click', () => {{ board.classList.toggle('expanded'); label(); }});
 }});
 
+
+/* ---- launch trajectories ----
+   Canvas, not SVG: 120 animated paths as DOM nodes would crawl.
+   X is minutes since EACH pool's own launch, so a rug's cliff and a survivor's
+   climb line up for comparison. Y is log — the range runs $100 to $millions.
+   Colour is status (validated blue/red, dE 21.5 CVD); the line SHAPE is the
+   real signal and works without colour at all. */
+(function () {{
+  const LX = (D.launch || {{}});
+  const traces = LX.traces || [];
+  const cv = document.getElementById('lxCanvas');
+  if (!cv || !traces.length) {{
+    if (cv) cv.closest('.launch-plot').innerHTML =
+      '<p class="range-note">No trajectories yet — the poller needs to see a pool more than once.</p>';
+    return;
+  }}
+  const tip = document.getElementById('lxTip');
+  const sub = document.getElementById('lxSub');
+  const ctx = cv.getContext('2d');
+  const COL = {{ drained: '#d03b3b', holding: '#0F86C4' }};
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W = 0, H = 0, dpr = 1;
+  const PAD = {{ l: 52, r: 12, t: 8, b: 22 }};
+  // Fit the axis to what the ledger actually holds (min 15m so a fresh
+  // ledger is not absurdly zoomed), growing toward 60 as history builds.
+  let maxT = 0, minV = Infinity, maxV = -Infinity;
+  traces.forEach(tr => tr.pts.forEach(p => {{
+    if (p[0] > maxT) maxT = p[0];
+    if (p[1] < minV) minV = p[1];
+    if (p[1] > maxV) maxV = p[1];
+  }}));
+  maxT = Math.min(Math.max(Math.ceil(maxT / 5) * 5, 15), 60);
+  minV = Math.max(minV, 1);
+  const lg = v => Math.log10(Math.max(v, 1));
+  const X = m => PAD.l + (m / maxT) * (W - PAD.l - PAD.r);
+  const Y = v => H - PAD.b - ((lg(v) - lg(minV)) / Math.max(lg(maxV) - lg(minV), 0.0001))
+                    * (H - PAD.t - PAD.b);
+
+  function resize() {{
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = cv.clientWidth; H = cv.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }}
+
+  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  function frame(cut) {{
+    ctx.clearRect(0, 0, W, H);
+    const line = css('--line'), muted = css('--muted');
+
+    ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.font = '9.5px ui-monospace, Menlo, monospace';
+    ctx.fillStyle = muted; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    const decades = [];
+    for (let d = Math.floor(lg(minV)); d <= Math.ceil(lg(maxV)); d++) decades.push(Math.pow(10, d));
+    decades.forEach(v => {{
+      const y = Y(v); if (y < PAD.t || y > H - PAD.b) return;
+      ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+      const lab = v >= 1e6 ? '$' + (v / 1e6) + 'M' : v >= 1e3 ? '$' + (v / 1e3) + 'K' : '$' + v;
+      ctx.fillText(lab, PAD.l - 6, y);
+    }});
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    for (let m = 0; m <= maxT; m += Math.max(10, Math.round(maxT / 6 / 10) * 10)) {{
+      ctx.fillText(m + 'm', X(m), H - PAD.b + 5);
+    }}
+
+    // young traces first and recessive, so the decided ones paint on top
+    const order = traces.slice().sort((a, b) =>
+      (a.st === 'young' ? 0 : 1) - (b.st === 'young' ? 0 : 1));
+    order.forEach(tr => {{
+      const pts = tr.pts.filter(p => p[0] <= cut);
+      if (pts.length < 2) return;
+      ctx.beginPath();
+      pts.forEach((p, i) => i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
+      if (tr.st === 'young') {{ ctx.strokeStyle = muted; ctx.globalAlpha = 0.35; ctx.lineWidth = 1.25; }}
+      else {{ ctx.strokeStyle = COL[tr.st]; ctx.globalAlpha = 0.9; ctx.lineWidth = 2; }}
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      const last = pts[pts.length - 1];
+      if (tr.st !== 'young') {{
+        ctx.beginPath(); ctx.arc(X(last[0]), Y(last[1]), 2.6, 0, 6.284);
+        ctx.fillStyle = COL[tr.st]; ctx.fill();
+      }}
+    }});
+    if (sub) sub.textContent = cut >= maxT
+      ? traces.length + ' pools · ' + Math.round(maxT) + ' min of trajectory'
+      : 'replaying · ' + Math.round(cut) + ' min';
+  }}
+
+  let raf = 0;
+  function play() {{
+    cancelAnimationFrame(raf);
+    if (reduce) {{ frame(maxT); return; }}
+    const t0 = performance.now(), dur = 2600;
+    const step = now => {{
+      const k = Math.min((now - t0) / dur, 1);
+      frame(k * maxT);
+      if (k < 1) raf = requestAnimationFrame(step);
+    }};
+    raf = requestAnimationFrame(step);
+  }}
+
+  cv.addEventListener('mousemove', e => {{
+    const r = cv.getBoundingClientRect();
+    const mx = e.clientX - r.left, my = e.clientY - r.top;
+    let best = null, bd = 1e9;
+    traces.forEach(tr => tr.pts.forEach(p => {{
+      const d = Math.hypot(X(p[0]) - mx, Y(p[1]) - my);
+      if (d < bd) {{ bd = d; best = {{ tr, p }}; }}
+    }}));
+    if (!best || bd > 26) {{ tip.style.opacity = '0'; return; }}
+    const t = best.tr;
+    tip.innerHTML = '<span class="tip-d">' + t.s + ' · ' + Math.round(best.p[0]) + ' min old</span>'
+      + '$' + Math.round(best.p[1]).toLocaleString()
+      + (t.drop > 0 ? '<br><span class="tip-d">peak $' + Math.round(t.peak).toLocaleString()
+        + ' · −' + t.drop + '%</span>' : '');
+    tip.style.opacity = '1';
+    tip.style.left = Math.min(Math.max(60, X(best.p[0])), W - 60) + 'px';
+    tip.style.top = (Y(best.p[1]) - 12) + 'px';
+  }});
+  cv.addEventListener('mouseleave', () => {{ tip.style.opacity = '0'; }});
+  document.getElementById('lxReplay').addEventListener('click', play);
+  let rz; addEventListener('resize', () => {{ clearTimeout(rz);
+    rz = setTimeout(() => {{ resize(); frame(maxT); }}, 120); }});
+  resize(); play();
+}})();
+
 </script>
 """
 
@@ -1644,6 +1823,110 @@ def logo_html(logo, cls="brandmark"):
     return f'<img class="{cls}" src="{logo["uri"]}" alt="HoodScout">'
 
 
+
+
+
+# --------------------------------------------------------------------------- #
+# Launch trajectories
+# --------------------------------------------------------------------------- #
+LEDGER = OUT_DIR / "launches.jsonl"
+
+# Status colours, NOT categorical identity — there are far more pools than any
+# categorical ramp allows, so hue encodes state and the line SHAPE carries the
+# story (a cliff vs a climb). Validated with the dataviz palette checker on both
+# surfaces: blue/red scores CVD dE 21.5 and passes all six checks.
+#
+# The obvious choice — green for alive, red for drained — FAILS at dE 4.1 under
+# deuteranopia. Red/green is exactly the pair a colourblind reader cannot
+# separate, so it is the one encoding this chart must not use.
+TRACE_ALIVE = "#0F86C4"
+TRACE_DRAINED = "#d03b3b"
+
+
+def load_launch_traces(path=None, hours=6, max_traces=120, max_points=40):
+    """Turn the append-only ledger into per-pool FDV trajectories.
+
+    Aligned at each pool's OWN launch (t=0 = pool_created_at), not wall clock,
+    so a rug's collapse and a survivor's climb are directly comparable — the
+    whole point of the view.
+
+    Plots FDV, not market cap: GeckoTerminal populates market_cap_usd on ~1% of
+    new pools (circulating supply is unknown for a fresh token) while fdv_usd is
+    present 100% of the time. Labelled as FDV on the page for that reason.
+    """
+    p = Path(path) if path else LEDGER
+    if not p.exists():
+        return {"traces": [], "counts": {}, "window_hours": hours}
+
+    by = {}
+    for line in p.read_text().splitlines():
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not r.get("created_at") or not r.get("pool"):
+            continue
+        by.setdefault(r["pool"], []).append(r)
+
+    now = dt.datetime.now(dt.timezone.utc)
+    cutoff = now - dt.timedelta(hours=hours)
+    traces, counts = [], {"drained": 0, "holding": 0, "young": 0}
+
+    for pool, obs in by.items():
+        try:
+            born = dt.datetime.fromisoformat(obs[0]["created_at"].replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            continue
+        if born < cutoff:
+            continue
+        obs.sort(key=lambda r: r["ts"])
+        pts = []
+        for r in obs:
+            v = r.get("fdv")
+            if not v or v <= 0:
+                continue
+            mins = (dt.datetime.fromisoformat(r["ts"]) - born).total_seconds() / 60.0
+            if mins < 0:
+                continue
+            pts.append([round(mins, 2), v])
+        if len(pts) < 2:
+            continue
+
+        peak = max(v for _, v in pts)
+        last = pts[-1][1]
+        age = (now - born).total_seconds() / 60.0
+
+        # Deltas, never levels. A pool that STARTS small is not suspect; a pool
+        # that FALLS off its own peak is. This is the H2 shape, applied to FDV
+        # purely for colour here — the real verdict engine lands in Phase 1.
+        if peak > 0 and last <= 0.30 * peak and age >= 10:
+            state = "drained"
+        elif age < 30:
+            state = "young"
+        else:
+            state = "holding"
+        counts[state] += 1
+
+        if len(pts) > max_points:                       # keep first and last
+            step = len(pts) / max_points
+            keep = {0, len(pts) - 1}
+            keep.update(int(i * step) for i in range(max_points))
+            pts = [pts[i] for i in sorted(keep) if i < len(pts)]
+
+        traces.append({
+            "s": (obs[-1].get("symbol") or "?")[:14],
+            "p": pool,
+            "st": state,
+            "pts": pts,
+            "peak": peak,
+            "last": last,
+            "drop": round((1 - last / peak) * 100, 1) if peak else 0,
+        })
+
+    # Most-moved first so the interesting traces survive the cap and paint last
+    traces.sort(key=lambda t: -abs(t["drop"]))
+    return {"traces": traces[:max_traces], "counts": counts,
+            "window_hours": hours, "total_pools": len(by)}
 
 
 def byline(path=None):
