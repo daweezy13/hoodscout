@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  HoodScout launch poller — Tier 1 of the "just launched" feed.
+
+  Runs every 3 minutes. This cadence is NOT tunable downward without losing
+  data: GeckoTerminal's new_pools feed reaches back only ~53 minutes and pools
+  launch at ~222/hr, so two pages (40 pools) covers ~10.8 minutes. A 3-minute
+  interval leaves a 3.6x margin against launch bursts. If out/refresh logs ever
+  report "GAP SUSPECTED", raise --pages rather than shortening the interval --
+  GeckoTerminal 429s after ~5 rapid calls.
+
+  Install:
+    cp com.hoodscout.launchwatch.plist ~/Library/LaunchAgents/
+    launchctl unload ~/Library/LaunchAgents/com.hoodscout.launchwatch.plist 2>/dev/null
+    launchctl load  ~/Library/LaunchAgents/com.hoodscout.launchwatch.plist
+
+  RunAtLoad is true so the ledger starts filling the moment it is installed
+  rather than waiting out the first interval -- every missed poll is history
+  that cannot be reconstructed later.
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.hoodscout.launchwatch</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/raincityanalytics/anaconda3/envs/node/bin/python3</string>
+        <string>/Users/raincityanalytics/projects/robinhood-chain-pulse/launch_watch.py</string>
+    </array>
+
+    <key>StartInterval</key>
+    <integer>180</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/raincityanalytics/projects/robinhood-chain-pulse</string>
+
+    <key>StandardOutPath</key>
+    <string>/Users/raincityanalytics/projects/robinhood-chain-pulse/out/launchwatch.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/raincityanalytics/projects/robinhood-chain-pulse/out/launchwatch.err.log</string>
+
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>LowPriorityIO</key>
+    <true/>
+</dict>
+</plist>
