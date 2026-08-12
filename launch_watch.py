@@ -265,23 +265,34 @@ MINTER_CAP = 4000               # per-collection minter set ceiling, keeps the f
 
 
 def _rpc(method, params, tries=3, timeout=60):
+    """Returns (result, error_message). The error matters: a 10k-log cap hit is
+    recoverable by narrowing the range, while a transport failure is not."""
     for attempt in range(tries):
         try:
             r = requests.post(RPC_URL, timeout=timeout,
                               json={"jsonrpc": "2.0", "id": 1, "method": method, "params": params})
             j = r.json()
             if "error" in j:
-                return None
-            return j.get("result")
-        except (requests.RequestException, ValueError):
+                return None, str(j["error"].get("message") or j["error"])
+            return j.get("result"), None
+        except (requests.RequestException, ValueError) as e:
             if attempt == tries - 1:
-                return None
+                return None, str(e)[:80]
             time.sleep(1.2 * (attempt + 1))
-    return None
+    return None, "exhausted retries"
 
 
-def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6):
-    """One incremental sweep of ERC-721 mints. Returns a short summary."""
+def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6,
+                   max_calls=14):
+    """Incremental sweep of ERC-721 mints, catching up over several chunks.
+
+    ONE chunk is not enough. The chain produces ~594 blocks/min, so a 10-minute
+    poll must cover ~5,940 blocks, while a single getLogs call caps out around
+    850-1,700 before hitting the 10,000-log limit. Scanning one chunk per poll
+    would fall behind forever. The loop below keeps consuming chunks until it
+    catches the head or spends its call budget, so the watermark converges
+    instead of drifting.
+    """
     reg = {}
     if Path(registry_path).exists():
         try:
@@ -289,24 +300,43 @@ def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6
         except json.JSONDecodeError:
             reg = {}
 
-    head_hex = _rpc("eth_blockNumber", [])
+    head_hex, err = _rpc("eth_blockNumber", [])
     if not head_hex:
-        return {"ok": False, "reason": "no head block"}
+        return {"ok": False, "reason": f"no head block ({err})"}
     head = int(head_hex, 16)
     last = int(reg.get("_watermark") or 0)
     if not last:
         last = head - MAX_SPAN_BLOCKS          # cold start: one span back
-    frm = last + 1
-    to = min(head, frm + MAX_SPAN_BLOCKS - 1)
-    if to <= frm:
+    if head <= last:
         return {"ok": True, "scanned": 0, "collections": 0, "behind": 0}
 
-    logs = _rpc("eth_getLogs", [{"fromBlock": hex(frm), "toBlock": hex(to),
-                                 "topics": [TRANSFER_TOPIC, ZERO_TOPIC]}])
-    if logs is None:
-        return {"ok": False, "reason": "getLogs failed", "behind": head - last}
+    # Mint volume is not stable: a 1,700-block span measured 6,830 logs one day
+    # and blew the 10,000 cap the next. Narrow-and-retry per chunk, and keep
+    # taking chunks until caught up or the call budget is spent.
+    now_ts = dt.datetime.now(dt.timezone.utc).isoformat()
+    all_logs, calls, cursor, span = [], 0, last + 1, MAX_SPAN_BLOCKS
+    while cursor <= head and calls < max_calls:
+        want = min(span, head - cursor + 1)
+        logs, err = _rpc("eth_getLogs", [{"fromBlock": hex(cursor),
+                                          "toBlock": hex(cursor + want - 1),
+                                          "topics": [TRANSFER_TOPIC, ZERO_TOPIC]}])
+        calls += 1
+        if logs is None:
+            if err and ("exceeds" in err.lower() or "limit" in err.lower()) and span > 100:
+                span //= 2                 # cap hit: narrow and retry this range
+                continue
+            break                          # transport error: stop, keep the watermark
+        all_logs.extend(logs)
+        cursor += want
+        # creep back up so a quiet period is not scanned in tiny slices forever
+        if len(logs) < 4000 and span < MAX_SPAN_BLOCKS:
+            span = min(int(span * 1.5), MAX_SPAN_BLOCKS)
+    to = cursor - 1
+    if to < last + 1:
+        return {"ok": False, "reason": "no range scanned", "behind": head - last}
+    logs = all_logs
 
-    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    now = now_ts
     touched = set()
     for lg in logs:
         topics = lg.get("topics") or []
@@ -346,7 +376,7 @@ def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6
             for r in rows:
                 fh.write(json.dumps(r, separators=(",", ":")) + "\n")
 
-    return {"ok": True, "scanned": to - frm + 1, "logs": len(logs),
+    return {"ok": True, "scanned": to - last, "logs": len(logs), "calls": calls,
             "collections": len(rows), "behind": head - to}
 
 

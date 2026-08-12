@@ -1,0 +1,5 @@
+# Append-only observation ledgers: on conflict keep BOTH sides.
+# Two writers (Actions and a local poll) each hold observations that cannot be
+# reconstructed afterwards, so union is the only correct merge.
+out/launches.jsonl merge=union
+out/nft_launches.jsonl merge=union
