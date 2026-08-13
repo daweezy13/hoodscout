@@ -535,8 +535,27 @@ def render(p, logo=None):
             f"definition. Checked {escape(vday)}.")
 
     rw = p.get("rewards") or {"projects": []}
-    lxc = load_launch_traces()
+    # Prefer a 6h view — Dave wants recent movement, not a day's worth. But
+    # Actions cron throttling means a quiet stretch can leave 6h with nothing
+    # plottable, and the chart rendered empty. Widen only as far as needed.
+    for _win in (6, 12, 24):
+        lxc = load_launch_traces(hours=_win)
+        if len(lxc.get("traces") or []) >= 12:
+            break
     _lc = lxc.get("counts") or {}
+    hz = launch_health()
+    hb = hz.get("buckets") or {}
+    _j = hz.get("judged") or 1
+    health_note = (
+        f"Every pool seen in the window, including the ones too sparse to draw above "
+        f"&mdash; those are exactly the ones that died quietly, so leaving them out "
+        f"would flatter the chain. {hb.get('alive',0)} trading "
+        f"({hb.get('alive',0)/_j*100:.0f}%), {hb.get('quiet',0)} with liquidity but no "
+        f"trades, {hb.get('fading',0)} well under launch, and "
+        f"<b>{hb.get('dead',0)} dead ({hb.get('dead',0)/_j*100:.0f}%)</b> &mdash; "
+        f"liquidity gone, whatever the price still says."
+        if hz.get("judged") else "The ledger is still filling.")
+
     nftl = load_nft_launches()
     _nc = nftl.get("counts") or {}
     nft_note = (
@@ -935,6 +954,8 @@ td.sym {{ min-width:190px; }}
 .two-col td.sym {{ min-width:162px; }}
 .two-col /* No .pixel-shadow on this panel: drop-shadow ghosts every glyph and
    canvas stroke inside it. The notched border carries the frame. */
+.health-bar {{ display:flex; height:14px; gap:2px; margin:0 0 14px; }}
+.health-bar i {{ display:block; min-width:2px; }}
 .launch {{ background:var(--panel); border:var(--rule-w) solid var(--rule); padding:14px 16px 10px; }}
 .launch-head {{ display:flex; flex-wrap:wrap; align-items:flex-start;
   justify-content:space-between; gap:10px 18px; margin-bottom:8px; }}
@@ -1187,10 +1208,34 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </div>
     </div>
 
+    <h3 class="sub-head">Health census &middot; last {hz.get('window_hours', 24)}h</h3>
+    <p class="sec-sub">{health_note}</p>
+    <div class="health-bar">
+      <i style="flex:{hb.get('alive',0)};background:{TRACE_ALIVE}" title="alive"></i>
+      <i style="flex:{hb.get('quiet',0)};background:var(--muted)" title="quiet"></i>
+      <i style="flex:{hb.get('fading',0)};background:var(--flag)" title="fading"></i>
+      <i style="flex:{hb.get('dead',0)};background:{TRACE_DRAINED}" title="dead"></i>
+    </div>
+    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
+      <table>
+        <thead><tr>
+          <th></th><th data-sort="text">Project</th><th data-sort="num">vs launch</th>
+          <th data-sort="num" data-default="1">Liquidity</th>
+        </tr></thead>
+        <tbody>
+{health_rows(hz.get('rows', []))}
+        </tbody>
+      </table>
+    </div>
+    <div class="board-foot">
+      <button class="more" type="button"></button>
+      <span class="foot-r">deepest liquidity of {num(hz.get('judged', 0))} judged</span>
+    </div></div></div>
   </section>
 
   <section>
     <h2>NFT launches</h2>
+
     <p class="sec-sub">
       New ERC-721 contracts over the last {nftl.get('window_hours', 6)} hours, found by watching
       mints straight off the chain. {nft_note}
@@ -1222,7 +1267,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       <ul class="stables">
 {stable_rows(stables)}
       </ul>
-    </div>
+    </div></div>
   </section>
 
   <div class="two-col">
@@ -1698,7 +1743,7 @@ document.querySelectorAll('.board').forEach(board => {{
   }}));
   allV.sort((a, b) => a - b);
   const pct = q => allV[Math.min(Math.floor(allV.length * q), allV.length - 1)] || 1;
-  maxT = Math.min(Math.max(Math.ceil(maxT / 5) * 5, 15), 60);
+  maxT = Math.min(Math.max(Math.ceil(maxT / 15) * 15, 30), 360);   // up to 6h
   const loX = Math.min(Math.max(pct(0.01) * 0.8, 0.02), 0.5);
   const hiX = Math.max(Math.min(pct(0.99) * 1.6, 25), 3);
   const clampV = v => Math.min(Math.max(v, loX), hiX);
@@ -1737,7 +1782,19 @@ document.querySelectorAll('.board').forEach(board => {{
   // up again much later. Joining across that produced long horizontal rails
   // implying we watched a flat trajectory when we simply were not looking.
   // Anything past this gap is drawn as a BREAK, not a line.
-  const MAX_GAP = 14;  // minutes
+  // 33% of observation gaps exceed 14 minutes (median 3.3, p75 51.9) because
+  // the follow-up poller can only re-read ~120 pools a run. Severing the line
+  // there left the 1x cluster as loose dots. A gap is now DRAWN, faintly and
+  // dashed, so the trajectory stays readable while still saying plainly that
+  // nothing was observed across it.
+  const MAX_GAP = 14;  // minutes — floor for the adaptive threshold
+  traces.forEach(tr => {{
+    const gs = [];
+    for (let i = 1; i < tr.mx.length; i++) gs.push(tr.mx[i][0] - tr.mx[i - 1][0]);
+    gs.sort((a, b) => a - b);
+    const med = gs.length ? gs[Math.floor(gs.length / 2)] : MAX_GAP;
+    tr.gapLim = Math.max(MAX_GAP, med * 2.5);
+  }});
 
   function frame(cut) {{
     const line = css('--line'), muted = css('--muted'), ink = css('--ink');
@@ -1758,8 +1815,8 @@ document.querySelectorAll('.board').forEach(board => {{
       ctx.fillText(v >= 1 ? v + 'x' : v + 'x', PAD.l - 6, y);
     }});
     ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = muted;
-    for (let m = 0; m <= maxT; m += Math.max(5, Math.round(maxT / 6 / 5) * 5)) {{
-      ctx.fillText(m + 'm', X(m), H - PAD.b + 5);
+    for (let m = 0; m <= maxT; m += Math.max(15, Math.round(maxT / 6 / 15) * 15)) {{
+      ctx.fillText(m >= 60 ? (m / 60) + 'h' : m + 'm', X(m), H - PAD.b + 5);
     }}
 
     /* trails, then dots — young first so decided traces sit on top */
@@ -1770,22 +1827,36 @@ document.querySelectorAll('.board').forEach(board => {{
     order.forEach(tr => {{
       const now = at(tr, cut);
       if (!now) return;
-      const col = tr.st === 'early' ? muted : COL[tr.st];
+      // Colour reflects where the pool is AT THIS MOMENT of the replay, never
+      // its final verdict — coluring by outcome showed minute-50 information at
+      // minute 5, so a pool up 2.5x rendered red because it died later.
+      const col = now.v >= 1.15 ? COL.stable : now.v <= 0.6 ? COL.rugged : muted;
       const seg = tr.mx.filter(p => p[0] <= now.x && p[0] >= now.x - TRAIL);
       if (seg.length > 1) {{
         ctx.strokeStyle = col;
         ctx.globalAlpha = tr.st === 'early' ? 0.18 : 0.42;
         ctx.lineWidth = tr.st === 'early' ? 1 : 1.75;
         ctx.beginPath();
-        let pen = false;
-        for (let i = 0; i < seg.length; i++) {{
-          const p = seg[i];
-          if (i && seg[i][0] - seg[i - 1][0] > MAX_GAP) pen = false;   // unobserved
-          if (pen) ctx.lineTo(X(p[0]), Y(p[1]));
-          else {{ ctx.moveTo(X(p[0]), Y(p[1])); pen = true; }}
+        for (let i = 1; i < seg.length; i++) {{
+          const a = seg[i - 1], b = seg[i];
+          // Threshold adapts to the cadence that produced THIS trace. Actions
+          // throttling means sampling has ranged from 3 minutes to an hour, and
+          // a fixed 14-minute rule drew every hourly-sampled trace as entirely
+          // dashed. 2.5x the trace's own median spacing marks a genuine absence
+          // at any cadence.
+          const unobserved = (b[0] - a[0]) > tr.gapLim;
+          ctx.beginPath();
+          ctx.setLineDash(unobserved ? [2, 3] : []);
+          ctx.globalAlpha = (tr.st === 'early' ? 0.18 : 0.42) * (unobserved ? 0.45 : 1);
+          ctx.moveTo(X(a[0]), Y(a[1])); ctx.lineTo(X(b[0]), Y(b[1]));
+          ctx.stroke();
         }}
-        if (pen && now.x - seg[seg.length - 1][0] <= MAX_GAP) ctx.lineTo(X(now.x), Y(now.v));
+        const tail = seg[seg.length - 1];
+        ctx.beginPath();
+        ctx.setLineDash((now.x - tail[0]) > tr.gapLim ? [2, 3] : []);
+        ctx.moveTo(X(tail[0]), Y(tail[1])); ctx.lineTo(X(now.x), Y(now.v));
         ctx.stroke();
+        ctx.setLineDash([]);
       }}
       live.push({{ tr, now, col }});
     }});
@@ -1795,7 +1866,7 @@ document.querySelectorAll('.board').forEach(board => {{
       const x = X(now.x), y = Y(now.v);
       const over = now.v > hiX, under = now.v < loX;
       if (over || under) clipped++;
-      if (tr.st !== 'early') {{                       // glow only on decided dots
+      if (col !== muted) {{                          // glow only on decided dots
         ctx.globalAlpha = 0.22; ctx.fillStyle = col;
         ctx.beginPath(); ctx.arc(x, y, 7.5, 0, 6.284); ctx.fill();
       }}
@@ -1822,7 +1893,7 @@ document.querySelectorAll('.board').forEach(board => {{
     ctx.globalAlpha = 1;
 
     /* label chips on the biggest movers, euphoria-style */
-    const chips = live.filter(l => l.tr.st !== 'early')
+    const chips = live.filter(l => l.col !== muted)
       .sort((a, b) => Math.abs(Math.log10(b.now.v)) - Math.abs(Math.log10(a.now.v)))
       .slice(0, 5);
     ctx.font = '10px ui-monospace, Menlo, monospace';
@@ -2037,7 +2108,7 @@ TRACE_ALIVE = "#0F86C4"
 TRACE_DRAINED = "#d03b3b"
 
 
-def load_launch_traces(path=None, hours=24, max_traces=70, max_points=48):
+def load_launch_traces(path=None, hours=6, max_traces=70, max_points=60):
     """Turn the append-only ledger into per-pool FDV trajectories.
 
     Aligned at each pool's OWN launch (t=0 = pool_created_at), not wall clock,
@@ -2174,6 +2245,85 @@ def load_launch_traces(path=None, hours=24, max_traces=70, max_points=48):
 
 
 NFT_LEDGER = OUT_DIR / "nft_launches.jsonl"
+
+
+
+def launch_health(path=None, hours=24):
+    """Alive/dead census over every pool tracked in the window.
+
+    This is the health metric; the chart above it is only the most recent
+    movement. A pool is judged on where it ended up relative to its own launch
+    value AND whether its liquidity survived — a launch that started thin and
+    stayed thin is alive, while one that lost its liquidity is not, regardless
+    of what its price says.
+
+    Deliberately covers EVERY pool seen, not just the ones with enough points to
+    draw. The pools too sparse to plot are exactly the ones that died quietly,
+    so excluding them would flatter the chain.
+    """
+    p = Path(path) if path else LEDGER
+    if not p.exists():
+        return {"total": 0, "buckets": {}, "window_hours": hours}
+
+    by = {}
+    for line in p.read_text().splitlines():
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if observation_quality(r) or not r.get("created_at"):
+            continue
+        by.setdefault(r["pool"], []).append(r)
+
+    now = dt.datetime.now(dt.timezone.utc)
+    cutoff = now - dt.timedelta(hours=hours)
+    buckets = {"alive": 0, "quiet": 0, "fading": 0, "dead": 0, "early": 0}
+    rows = []
+
+    for pool, obs in by.items():
+        try:
+            born = dt.datetime.fromisoformat(obs[0]["created_at"].replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            continue
+        if born < cutoff:
+            continue
+        obs.sort(key=lambda r: r["ts"])
+        age = (now - born).total_seconds() / 60
+        fdvs = [r["fdv"] for r in obs if r.get("fdv")]
+        liqs = [r["liq"] for r in obs if r.get("liq") is not None]
+        if not fdvs or not liqs:
+            continue
+        head = sorted(fdvs[:3])
+        base = head[len(head) // 2]
+        last, peak_liq, last_liq = fdvs[-1], max(liqs), liqs[-1]
+        mult = (last / base) if base >= 50 else 1.0
+
+        vol = obs[-1].get("vol_h1")
+        buyers = obs[-1].get("buyers_h1") or 0
+        if age < 30:
+            state = "early"
+        elif last_liq < 500 or (peak_liq >= 5000 and last_liq <= 0.30 * peak_liq):
+            state = "dead"          # the liquidity left, whatever the price says
+        elif mult < 0.5:
+            state = "fading"        # still has a market, but well under launch
+        elif (vol is not None and vol < 100) and buyers <= 1:
+            # Liquidity intact and price flat, but nobody is trading it. Not
+            # rugged, not alive — counting these as "alive" flattered the chain
+            # badly, since most launches simply sit inert.
+            state = "quiet"
+        else:
+            state = "alive"
+        buckets[state] += 1
+        rows.append({"symbol": (obs[-1].get("symbol") or "?")[:14], "state": state,
+                     "mult": round(mult, 3), "liq": last_liq, "age_min": round(age),
+                     "pad": launchpad_of(obs[-1].get("dex")),
+                     "url": f"https://dexscreener.com/robinhood/{pool}"})
+
+    judged = sum(v for k, v in buckets.items() if k != "early")
+    rows.sort(key=lambda r: -r["liq"])
+    return {"total": sum(buckets.values()), "judged": judged, "buckets": buckets,
+            "survival": (buckets["alive"] / judged * 100) if judged else 0,
+            "rows": rows[:12], "window_hours": hours}
 
 
 def load_nft_launches(path=None, hours=6, top_n=12):
@@ -2322,6 +2472,36 @@ NFT_VERDICT = {
     "thin": ("warn", "few wallets have minted so far"),
     "farm": ("flag", "mints concentrated in very few wallets"),
 }
+
+
+HEALTH_STATE = {
+    "alive": ("ok", "trading, holding its launch value, liquidity intact"),
+    "quiet": ("warn", "liquidity intact but nobody is trading it"),
+    "fading": ("warn", "market still there, but well under launch value"),
+    "dead": ("flag", "liquidity gone"),
+    "early": ("warn", "under 30 minutes old"),
+}
+
+
+def health_rows(rows):
+    out = []
+    for i, r in enumerate(rows, 1):
+        cls, tip = HEALTH_STATE.get(r["state"], ("warn", ""))
+        age = r["age_min"]
+        age_s = f"{age}m" if age < 90 else f"{age // 60}h{age % 60:02d}"
+        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
+            <td class="rank">{i}</td>
+            <td class="sym" data-v="{escape(r['symbol'].lower())}">
+              <span class="sym-name">{link(r['url'], r['symbol'], 'ext strong')}<span
+                class="badge {cls}" title="{escape(tip)}">{escape(r['state'])}</span></span>
+              <span class="sym-sub">{escape(r['pad'])} &middot; {escape(age_s)} old</span>
+            </td>
+            <td class="n" data-v="{r['mult']}">{r['mult']:.2f}x
+              <span class="alt">vs launch</span></td>
+            <td class="n strong" data-v="{r['liq']}">{escape(usd(r['liq']))}
+              <span class="alt">liquidity</span></td>
+          </tr>""")
+    return "\n".join(out)
 
 
 def nft_launch_rows(cols):

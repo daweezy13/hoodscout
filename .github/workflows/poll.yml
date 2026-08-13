@@ -11,9 +11,17 @@ name: poll launches
 #
 # The two API calls here are key-free (GeckoTerminal) plus one public RPC call
 # for the NFT mint scan, so this workflow needs no secrets at all.
+# Cron says every 10 minutes; GitHub DELIVERS roughly hourly. Measured run
+# starts: 12:05, 13:38, 14:40, 15:39, 16:31 — scheduled workflows on free
+# runners are throttled and queued, and sub-hourly cadence is not honoured.
+#
+# So the schedule fires hourly and the JOB ITSELF loops, polling every 3 minutes
+# for ~55 minutes. One trigger, ~18 observations per hour instead of 1. This is
+# the only way to get fine-grained sampling out of Actions, and it is free on a
+# public repo.
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "4 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -26,7 +34,7 @@ concurrency:
 jobs:
   poll:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v4
 
@@ -37,8 +45,16 @@ jobs:
       - name: Install deps
         run: pip install --quiet requests
 
-      - name: Poll
-        run: python3 launch_watch.py --prune-days 7
+      - name: Poll on a loop
+        run: |
+          END=$(( $(date +%s) + 55*60 ))
+          N=0
+          while [ "$(date +%s)" -lt "$END" ]; do
+            python3 launch_watch.py --prune-days 7 || true
+            N=$((N+1))
+            [ "$(date +%s)" -lt "$END" ] && sleep 180
+          done
+          echo "completed $N polls this hour"
 
       - name: Commit ledger
         run: |
