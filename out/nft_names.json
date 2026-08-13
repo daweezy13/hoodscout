@@ -70,5 +70,76 @@
 "symbol": "GNPC",
 "max": 3333,
 "minted": 390
+},
+"0x09b847c3f57e1f93a99490964e990d0fea4ca96d": {
+"name": "Retail Punks",
+"symbol": "PUNK",
+"max": 4444
+},
+"0x4c5609d82a9fdbf5472c988c2dd676b54392a4d4": {
+"name": "Drips Hood",
+"symbol": "DRIPSHOOD",
+"max": 4444,
+"minted": 4444
+},
+"0xd8f1719cc6e9ba23797455f775d2a8685caf8786": {
+"name": "Robinhood Brainrot",
+"symbol": "RB",
+"max": 10000,
+"minted": 8105
+},
+"0xb239abb14610bbdd724ef5c928836c5010a3af2a": {
+"name": "Vc Fun",
+"symbol": "Vc Fun",
+"max": 10000,
+"minted": 2580
+},
+"0x0b7fc2a6fe9998accdc3ca894ddcf812b86adff5": {
+"name": "Onchainlineage",
+"symbol": "lineage",
+"max": 4567,
+"minted": 2318
+},
+"0x7051bb35ceaa446ef4176544279c72b70c131ac4": {
+"name": "Numbers",
+"symbol": "NMBRS",
+"max": 9999,
+"minted": 9999
+},
+"0x2ee18c87cde661500bdb86d032fc0fbcf8eb95de": {
+"name": "678 by Dario Luna",
+"symbol": "678",
+"max": 678,
+"minted": 678
+},
+"0xafbacd6b07879d44875f541bf1d3e025650e85e5": {
+"name": "Hood Machine",
+"symbol": "Hmc",
+"max": 2222,
+"minted": 2210
+},
+"0x2a5cae0a837f52156c037ad868d1a3b69e378af3": {
+"name": "Wardlings",
+"symbol": "hdb",
+"max": 1555,
+"minted": 1555
+},
+"0xeb55761e30ca8d38ebfa7263daf7d6d166d1ef6f": {
+"name": "jpegscats",
+"symbol": "jpegs",
+"max": 10000,
+"minted": 4631
+},
+"0x5d9fa7ea688454df96d1562887edbbf2df49c338": {
+"name": "Rat Pixel",
+"symbol": "Rat Pixel",
+"max": 11111,
+"minted": 2902
+},
+"0x37f2bfbf65308d7b61d519d5c70ac8ca8a4b116c": {
+"name": "K3DNZ",
+"symbol": "K3dnz",
+"max": 1000,
+"minted": 217
 }
 }
