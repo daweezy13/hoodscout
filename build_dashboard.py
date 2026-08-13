@@ -551,9 +551,11 @@ def render(p, logo=None):
         f"{escape(k)} {v}" for k, v in (lxc.get("pads") or [])[:5]) + "."
         if lxc.get("pads") else "")
     launch_note = (
-        f"{len(lxc.get('traces', []))} pools tracked over the last "
-        f"{lxc.get('window_hours', 6)}h &mdash; {_lc.get('rugged', 0)} already rugged "
-        f"\u226570% off their peak, {_lc.get('early', 0)} still early. "
+        f"{len(lxc.get('traces', []))} of {lxc.get('total_pools', 0)} pools drawn &mdash; "
+        f"only those that moved more than 25% from their launch value and were "
+        f"seen at least three times. {lxc.get('flat', 0)} never moved that far and "
+        f"{lxc.get('sparse', 0)} were seen too few times to have a shape; drawing "
+        f"them stacked one opaque blob on the 1x line. "
         "Each pool plotted as a multiple of its own value at first sight, so a small "
         "launch that ran and a big one that died sit on the same scale. "
         + pad_note
@@ -1719,6 +1721,7 @@ document.querySelectorAll('.board').forEach(board => {{
       }}
     }}
     const last = p[p.length - 1];
+    if (last[0] > maxT) return null;      // beyond the window: do not pin to the edge
     return {{ x: last[0], v: last[1], done: true }};
   }}
 
@@ -1729,7 +1732,12 @@ document.querySelectorAll('.board').forEach(board => {{
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }}
 
-  const TRAIL = 9;   // minutes of tail behind each dot
+  const TRAIL = 999;   // full path: sampling is too sparse for a short tail
+  // Polling is every ~10 min and a pool can drop out of the feed and be picked
+  // up again much later. Joining across that produced long horizontal rails
+  // implying we watched a flat trajectory when we simply were not looking.
+  // Anything past this gap is drawn as a BREAK, not a line.
+  const MAX_GAP = 14;  // minutes
 
   function frame(cut) {{
     const line = css('--line'), muted = css('--muted'), ink = css('--ink');
@@ -1765,12 +1773,18 @@ document.querySelectorAll('.board').forEach(board => {{
       const col = tr.st === 'early' ? muted : COL[tr.st];
       const seg = tr.mx.filter(p => p[0] <= now.x && p[0] >= now.x - TRAIL);
       if (seg.length > 1) {{
-        ctx.beginPath();
-        seg.forEach((p, i) => i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])));
-        ctx.lineTo(X(now.x), Y(now.v));
         ctx.strokeStyle = col;
         ctx.globalAlpha = tr.st === 'early' ? 0.18 : 0.42;
         ctx.lineWidth = tr.st === 'early' ? 1 : 1.75;
+        ctx.beginPath();
+        let pen = false;
+        for (let i = 0; i < seg.length; i++) {{
+          const p = seg[i];
+          if (i && seg[i][0] - seg[i - 1][0] > MAX_GAP) pen = false;   // unobserved
+          if (pen) ctx.lineTo(X(p[0]), Y(p[1]));
+          else {{ ctx.moveTo(X(p[0]), Y(p[1])); pen = true; }}
+        }}
+        if (pen && now.x - seg[seg.length - 1][0] <= MAX_GAP) ctx.lineTo(X(now.x), Y(now.v));
         ctx.stroke();
       }}
       live.push({{ tr, now, col }});
@@ -2023,7 +2037,7 @@ TRACE_ALIVE = "#0F86C4"
 TRACE_DRAINED = "#d03b3b"
 
 
-def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
+def load_launch_traces(path=None, hours=24, max_traces=70, max_points=48):
     """Turn the append-only ledger into per-pool FDV trajectories.
 
     Aligned at each pool's OWN launch (t=0 = pool_created_at), not wall clock,
@@ -2134,13 +2148,27 @@ def load_launch_traces(path=None, hours=24, max_traces=150, max_points=48):
         })
 
     # Most-moved first so the interesting traces survive the cap and paint last
+    # A trajectory chart needs trajectories. Two problems made this unreadable:
+    #   * 66 of 150 traces had only TWO observations -- one line segment, which
+    #     is why dots appeared with no trail behind them.
+    #   * 67 never moved more than 25% from their launch value, so they stacked
+    #     into one opaque blob sitting on the 1x line and hid everything else.
+    # Both are facts worth REPORTING, not worth drawing 130 times. They become a
+    # count in the subtitle; the plot keeps only what actually has a shape.
+    MIN_PTS, MIN_DEV = 3, 0.25
+    flat = sum(1 for t in traces
+               if len(t["mx"]) >= MIN_PTS and max(abs(1 - v) for _, v in t["mx"]) < MIN_DEV)
+    sparse = sum(1 for t in traces if len(t["mx"]) < MIN_PTS)
+    traces = [t for t in traces
+              if len(t["mx"]) >= MIN_PTS and max(abs(1 - v) for _, v in t["mx"]) >= MIN_DEV]
+
     traces.sort(key=lambda t: -abs(t["drop"]))
     kept = traces[:max_traces]
     pads = {}
     for tr in kept:
         pads[tr["pad"]] = pads.get(tr["pad"], 0) + 1
     return {"traces": kept, "counts": counts, "window_hours": hours,
-            "total_pools": len(by),
+            "total_pools": len(by), "flat": flat, "sparse": sparse,
             "pads": sorted(pads.items(), key=lambda kv: -kv[1])}
 
 
@@ -2214,29 +2242,76 @@ def load_nft_launches(path=None, hours=6, top_n=12):
 NFT_NAMES = OUT_DIR / "nft_names.json"
 
 
-def resolve_nft_names(addrs):
-    """Blockscout name lookup, cached on disk so a name is fetched once ever.
+def resolve_nft_meta(addrs):
+    """Name, symbol and collection size read straight off each contract.
 
-    Only the handful of collections actually rendered are resolved, so this is
-    ~12 calls on a cold cache and zero thereafter.
+    Blockscout returns nothing for a contract minutes old, which is exactly the
+    age this section covers -- every row rendered as a bare 0x address. eth_call
+    answers immediately because the data lives in the contract, not an index.
+
+    maxSupply() is the collection size, and with totalSupply() it gives real
+    mint progress ("7,000 of 9,999"). Three spellings are tried because there is
+    no standard: maxSupply, MAX_SUPPLY, collectionSize.
+
+    Cached on disk. Name and size never change, so a contract is resolved once;
+    only the minted count is re-read.
     """
     import urllib.request
+    from eth_hash.auto import keccak
+
+    def call(to, sig, kind="str"):
+        sel = "0x" + keccak(sig.encode()).hex()[:8]
+        body = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_call",
+                           "params": [{"to": to, "data": sel}, "latest"]}).encode()
+        try:
+            # The RPC 403s Python-urllib's default User-Agent. It answers fine
+            # to anything else, which is why the same call worked under
+            # requests and returned nothing here.
+            req = urllib.request.Request(
+                "https://rpc.mainnet.chain.robinhood.com", body,
+                {"Content-Type": "application/json",
+                 "User-Agent": "hoodscout/1.0"})
+            with urllib.request.urlopen(req, timeout=12) as r:
+                res = json.loads(r.read().decode()).get("result")
+        except Exception:
+            return None
+        if not res or res == "0x":
+            return None
+        if kind == "uint":
+            try:
+                return int(res, 16)
+            except ValueError:
+                return None
+        b = bytes.fromhex(res[2:])
+        if len(b) >= 64:
+            n = int.from_bytes(b[32:64], "big")
+            return b[64:64 + n].decode("utf8", "replace").rstrip("\0") or None
+        return b.decode("utf8", "replace").rstrip("\0") or None
+
     cache = {}
     if NFT_NAMES.exists():
         try:
             cache = json.loads(NFT_NAMES.read_text())
         except json.JSONDecodeError:
             cache = {}
-    missing = [a for a in addrs if a not in cache]
-    for a in missing:
-        try:
-            with urllib.request.urlopen(
-                    f"https://robinhoodchain.blockscout.com/api/v2/tokens/{a}", timeout=15) as r:
-                j = json.loads(r.read().decode())
-            cache[a] = (j.get("name") or "")[:28]
-        except Exception:
-            cache[a] = ""
-    if missing:
+
+    dirty = False
+    for a in addrs:
+        e = cache.get(a) or {}
+        if not isinstance(e, dict):
+            e = {"name": e or ""}
+        if not e.get("name"):
+            e["name"] = (call(a, "name()") or "")[:30]
+            e["symbol"] = (call(a, "symbol()") or "")[:12]
+            e["max"] = (call(a, "maxSupply()", "uint") or call(a, "MAX_SUPPLY()", "uint")
+                        or call(a, "collectionSize()", "uint"))
+            dirty = True
+        minted = call(a, "totalSupply()", "uint")
+        if minted is not None and minted != e.get("minted"):
+            e["minted"] = minted
+            dirty = True
+        cache[a] = e
+    if dirty:
         NFT_NAMES.parent.mkdir(parents=True, exist_ok=True)
         NFT_NAMES.write_text(json.dumps(cache, indent=0))
     return cache
@@ -2250,10 +2325,14 @@ NFT_VERDICT = {
 
 
 def nft_launch_rows(cols):
-    names = resolve_nft_names([c["address"] for c in cols])
+    meta = resolve_nft_meta([c["address"] for c in cols])
     out = []
     for i, c in enumerate(cols, 1):
-        nm = names.get(c["address"]) or short_addr(c["address"])
+        m = meta.get(c["address"]) or {}
+        nm = m.get("name") or short_addr(c["address"])
+        mx, mint = m.get("max"), m.get("minted")
+        size = (f"{num(mint)} of {num(mx)} minted" if mx and mint
+                else f"{num(mint)} minted" if mint else "")
         cls, tip = NFT_VERDICT.get(c["verdict"], ("warn", ""))
         age = c["age_min"]
         age_s = f"{age}m" if age < 90 else f"{age // 60}h{age % 60:02d}"
@@ -2262,7 +2341,7 @@ def nft_launch_rows(cols):
             <td class="sym" data-v="{escape(nm.lower())}">
               <span class="sym-name">{link(c['explorer_url'], nm, 'ext strong')}<span
                 class="badge {cls}" title="{escape(tip)}">{escape(c['verdict'])}</span></span>
-              <span class="sym-sub">first seen {escape(age_s)} ago &middot; {escape(c['why'])}</span>
+              <span class="sym-sub">{(escape(size) + " &middot; ") if size else ""}first seen {escape(age_s)} ago</span>
             </td>
             <td class="n" data-v="{c['minters']}">{escape(num(c['minters']))}
               <span class="alt">wallets</span></td>

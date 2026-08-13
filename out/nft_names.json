@@ -1,26 +1,74 @@
 {
-"0x107c4e7cf931b18e022d40184d03d00b4ec99d5a": "",
-"0x359cba8b02eefc647ae7bb88633ee5a75508c971": "",
-"0x97eb8f6562016384cb7827729a776048f9115ae1": "",
-"0x58daec3116aae6d93017baaea7749052e8a04fa7": "",
-"0xef5c1f0599a142e595a48ccee743313172a003f2": "",
-"0xc3a1c816c3c2a3e4d7d38dd6942809459c94aaf6": "",
-"0x73991a25c818bf1f1128deaab1492d45638de0d3": "",
-"0x9031cc4045f6dbd0bffc2ad6fd4b4b66a221a18f": "",
-"0x968c5f0b6fe2f77b221f5e015c955f32f9a50507": "",
-"0xbde7bec47cbfc689e5e952b6cdd113a500abcd83": "",
-"0x59a6c9c0a13bda938bfa97763ffe1616b37fcb5b": "",
-"0xb2a4e06709afd31cf3f47d8f8a119c4208cc0c86": "",
-"0x50ae851af7bf4936b626bad8d1f350a4288ece59": "",
-"0x54a7716ad541ec41481b38c45804dd832cdd671e": "",
-"0x75f29a66cb224e64590699c4a8e027d5ec5655b2": "",
-"0x96b99b3bb39ce257eea28cf5c8cf0ecbf906c31b": "",
-"0x29cbef6f555c017172275c5b09b066a892bc4e2c": "",
-"0x207cfeaa071c70c76c3bccd0309225b56cd59a36": "",
-"0x6c37c102b6ecd3a6eb3d54f77ad18f13ee2f2860": "",
-"0x082ecee2f7e08b92f0f8de12866b2b819af75114": "",
-"0x46e551d922ffa003d3363ca9383e9e8684d89f42": "",
-"0xabb6dc94114509ea39b426f26cc7c4294c670619": "",
-"0x5b05c950993705416c9069d43ee70b564a875e40": "",
-"0x65e49514e3283763a7deea88d3ec9ce94a426975": ""
+"0x75f29a66cb224e64590699c4a8e027d5ec5655b2": {
+"name": "Robinhood Saudis Punks",
+"symbol": "RSP",
+"max": 5555,
+"minted": 5555
+},
+"0xabb6dc94114509ea39b426f26cc7c4294c670619": {
+"name": "Robin Hood Apes",
+"symbol": "RHA",
+"max": 10000,
+"minted": 7515
+},
+"0x5b05c950993705416c9069d43ee70b564a875e40": {
+"name": "Cash Rabbits",
+"symbol": "CashRabbits",
+"max": 10000,
+"minted": 3631
+},
+"0x96b99b3bb39ce257eea28cf5c8cf0ecbf906c31b": {
+"name": "Sloth420",
+"symbol": "Sloth420",
+"max": 4200,
+"minted": 4200
+},
+"0x29cbef6f555c017172275c5b09b066a892bc4e2c": {
+"name": "Hoodiez Brokers",
+"symbol": "HOODIEZ",
+"max": 10000,
+"minted": 7561
+},
+"0x65e49514e3283763a7deea88d3ec9ce94a426975": {
+"name": "Spritehood Knights",
+"symbol": "SKK",
+"max": 2222,
+"minted": 2198
+},
+"0x082ecee2f7e08b92f0f8de12866b2b819af75114": {
+"name": "StonklyMarket",
+"symbol": "Stonkly",
+"max": 10000,
+"minted": 5607
+},
+"0x46e551d922ffa003d3363ca9383e9e8684d89f42": {
+"name": "WHYCATS",
+"symbol": "WHYCATS",
+"max": 7777,
+"minted": 7777
+},
+"0xf5673eaaae53c3af6ac3d2c83770197e4e64e85e": {
+"name": "Retardio Brokers",
+"symbol": "Retardio",
+"max": 1500,
+"minted": 1500
+},
+"0x68ad8340a4bff1b7203fb219796ca92759e2f79a": {
+"name": "Stonk Inscription",
+"symbol": "Robinhood ch",
+"max": 1111,
+"minted": 727
+},
+"0xd6c8e93f263e077495cd14f5eb1809d8d4858207": {
+"name": "Squiggle Wuiggle",
+"symbol": "NFT",
+"max": 10000,
+"minted": 1360
+},
+"0xa11302fc41ca9b2f0a01857c56b0a61f66fc0aaa": {
+"name": "GlobzNon-PlayChain",
+"symbol": "GNPC",
+"max": 3333,
+"minted": 390
+}
 }

@@ -210,15 +210,20 @@ def extend_ages(ledger=LEDGER, now=None):
             continue
         born[r["token"]] = r["created_at"]
         tok[r["token"]] = r
-    out = {}
+    aged = []
     for addr, created in born.items():
         try:
             age = (now - dt.datetime.fromisoformat(created.replace("Z", "+00:00"))).total_seconds() / 60
         except ValueError:
             continue
         if EXTEND_MIN_AGE <= age <= EXTEND_MAX_AGE:
-            out[addr] = tok[addr]
-    return out
+            aged.append((age, addr))
+    # YOUNGEST FIRST. The batch cap means we can only follow ~120 pools per run;
+    # taking them in dict order followed the same stale set every time, so pools
+    # in the first hour -- the only window where anything interesting happens --
+    # ended up with a median of 3 observations and no visible trajectory.
+    aged.sort()
+    return {addr: tok[addr] for _, addr in aged}
 
 
 def poll_extended(ledger=LEDGER, max_batches=4):
