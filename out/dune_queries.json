@@ -1,0 +1,30 @@
+{
+  "dau": {
+    "id": 8287346,
+    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    count(distinct \"from\")        as active_senders,\n    count(*)                      as txns\nfrom robinhood.transactions\nwhere block_time >= date_trunc('day', now() - interval '6' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
+  },
+  "gas": {
+    "id": 8287347,
+    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    sum(cast(gas_used as double) * cast(effective_gas_price as double)) / 1e18 as gas_eth\nfrom robinhood.transactions\nwhere block_time >= date_trunc('day', now() - interval '6' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
+  },
+  "seaport_range": {
+    "id": 8309122,
+    "sql": "\nselect count(*) as fills\nfrom robinhood.logs\nwhere contract_address = from_hex('0000000000000068f116a894984e2db1123eb395')\n  and topic0 = from_hex('9d9af8e38d66c62e2c12f0225249fd9d721c54b83f48d9352c97c6cacdcb6f31')\n  and block_number >= 33212964\n  and block_number <= 34077586\n"
+  },
+  "seaport_daily": {
+    "id": 8287352,
+    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    count(*)                      as fills\nfrom robinhood.logs\nwhere contract_address = from_hex('0000000000000068f116a894984e2db1123eb395')\n  and topic0 = from_hex('9d9af8e38d66c62e2c12f0225249fd9d721c54b83f48d9352c97c6cacdcb6f31')\n  and block_time >= date_trunc('day', now() - interval '30' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
+  },
+  "distributors": {
+    "id": 8289002,
+    "sql": "\nselect\n    contract_address as token,\n    count(*)         as distributions,\n    min(block_time)  as first_distribution,\n    max(block_time)  as last_distribution\nfrom robinhood.logs\nwhere topic0 = 0xa493a9229478c3fcd73f66d2cdeb7f94fd0f341da924d1054236d78454116511\ngroup by 1\norder by 2 desc\nlimit 200\n"
+  },
+  "boosters": {
+    "id": 8289359,
+    "sql": "\nselect contract_address as booster, count(*) as drops,\n       min(block_time) as first_drop, max(block_time) as last_drop\nfrom robinhood.logs\nwhere topic0 = 0xf37cd5e9c8e09ef905b10bb36512f016d147a88e3a5d850289ec0b41fb20eae8\ngroup by 1 having count(*) >= 2\norder by 2 desc\nlimit 50\n"
+  },
+  "booster_payouts": {
+    "id": 8289363,
+    "sql": "\nselect\n    bytearray_substring(topic1, 13, 20) as booster,\n    contract_address                    as asset,\n    count(*)                            as transfers,\n    count(distinct bytearray_substring(topic2, 13, 20)) as recipients,\n    sum(bytearray_to_uint256(bytearray_substring(data, greatest(1,length(data)-31), 32))) as raw\nfrom robinhood.logs\nwhere topic0 = 0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef\n  and bytearray_substring(topic1, 13, 20) in (0x038a7f4e4e89448ad74e044337c9ac25c11e726b, 0xf9ca5f6d8622c82758914681a12674e2d489259a, 0xf501bdfd823ff9148c4989ea67ea4a4d9657b9ce)\ngroup by 1, 2\n"
+  }
+}

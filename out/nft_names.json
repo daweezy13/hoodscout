@@ -374,5 +374,77 @@
 "symbol": "ALPHABETS",
 "max": 10000,
 "minted": 3226
+},
+"0xebc19a90bfecc930e1ee6056b3df16d212d0bad7": {
+"name": "ShibaHood",
+"symbol": "9",
+"max": 10000,
+"minted": 10000
+},
+"0x47e65fb2c017421caa89fd1ee89a4f8b71361d6a": {
+"name": "Nezora",
+"symbol": "Nezora",
+"max": 8888,
+"minted": 8888
+},
+"0x7cd4fe6f8cee2859290b4ccd1e72b54838860dd7": {
+"name": "Money Dogs",
+"symbol": "MD",
+"max": 3000,
+"minted": 3000
+},
+"0xa358c9e8c2045dab96be142a1c7fe43f99b322bd": {
+"name": "Cash Dogs",
+"symbol": "Robinhood ch",
+"max": 10000,
+"minted": 10000
+},
+"0xb06d451c31ff3ee6cc23e0ac747010ac91ca4c79": {
+"name": "RobinMap",
+"symbol": "ROBINMAP",
+"max": null,
+"minted": 1287
+},
+"0x0777263dc6d6b66d5412e61f0988818590c5e079": {
+"name": "HoodwinkedNFT",
+"symbol": "HW",
+"max": 1111,
+"minted": 1111
+},
+"0xca9c293891c4fc244a97cc1d9f5f7d41a1ec344d": {
+"name": "Stackers NFT",
+"symbol": "Stackers",
+"max": 10000,
+"minted": 10000
+},
+"0x4f685f9046ded78cfdd9f3c7b450e2999e5a9288": {
+"name": "Stock Punks",
+"symbol": "STPN",
+"max": 1500,
+"minted": 1433
+},
+"0x2ea834a638b7624a8e4096dd2307dec7258fd713": {
+"name": "fishook",
+"symbol": "f",
+"max": 4000,
+"minted": 4498
+},
+"0x5e35ce76001026bf61144a8f18cc54c53311df55": {
+"name": "RH Pillas",
+"symbol": "RHPillas",
+"max": 10000,
+"minted": 10000
+},
+"0xe22e69f87d30e0884d94704af5d8408f0ea6ad96": {
+"name": "T9 HOOD 4663",
+"symbol": "Robinhood ch",
+"max": 4663,
+"minted": 4663
+},
+"0x27d104466b66847ae3bd8e345a5e7264357c2550": {
+"name": "Monkey Brokers",
+"symbol": "MBRK",
+"max": 1450,
+"minted": 1411
 }
 }

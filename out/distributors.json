@@ -1,0 +1,230 @@
+[
+  {
+    "distributions": 1124,
+    "first_distribution": "2026-08-04 02:51:10.000 UTC",
+    "last_distribution": "2026-08-13 05:34:11.000 UTC",
+    "token": "0x9033afa74b90554cc8f5bc03959804470df94307"
+  },
+  {
+    "distributions": 467,
+    "first_distribution": "2026-07-08 03:27:18.000 UTC",
+    "last_distribution": "2026-08-13 22:30:05.000 UTC",
+    "token": "0xea58e3f89892cac6b6c9e1519c6acb29e6e87931"
+  },
+  {
+    "distributions": 401,
+    "first_distribution": "2026-08-03 00:55:30.000 UTC",
+    "last_distribution": "2026-08-03 03:39:14.000 UTC",
+    "token": "0x871a33377d4e4816bd31464675f7c35ae0948f70"
+  },
+  {
+    "distributions": 401,
+    "first_distribution": "2026-08-03 03:42:19.000 UTC",
+    "last_distribution": "2026-08-03 16:58:32.000 UTC",
+    "token": "0xe7f2a1cd429ad0eff9501a1d55ddc12f60fc15ba"
+  },
+  {
+    "distributions": 399,
+    "first_distribution": "2026-08-03 00:27:02.000 UTC",
+    "last_distribution": "2026-08-03 00:41:33.000 UTC",
+    "token": "0xb9e8f5a89abced4479fbb26502535afbfe81e627"
+  },
+  {
+    "distributions": 268,
+    "first_distribution": "2026-07-09 08:40:08.000 UTC",
+    "last_distribution": "2026-07-22 15:08:32.000 UTC",
+    "token": "0xcafe5cf93438b6a565fbfff9cef4522a7f34cddd"
+  },
+  {
+    "distributions": 168,
+    "first_distribution": "2026-07-14 16:01:59.000 UTC",
+    "last_distribution": "2026-08-09 18:49:50.000 UTC",
+    "token": "0x758b330dc3ae64bf1a45daa04ccfb4ca5c71511a"
+  },
+  {
+    "distributions": 146,
+    "first_distribution": "2026-07-13 15:41:28.000 UTC",
+    "last_distribution": "2026-07-23 19:53:19.000 UTC",
+    "token": "0xc0db7c7470d0c72ba40c13730c9e068f5fe704dc"
+  },
+  {
+    "distributions": 143,
+    "first_distribution": "2026-07-15 21:06:10.000 UTC",
+    "last_distribution": "2026-08-13 05:40:04.000 UTC",
+    "token": "0xa33ef2d57044c815ad501eac269193b25ba32fe8"
+  },
+  {
+    "distributions": 123,
+    "first_distribution": "2026-07-11 10:35:20.000 UTC",
+    "last_distribution": "2026-07-11 12:43:30.000 UTC",
+    "token": "0xeec9afeccc31ca2fb472b7014c0fce0fd2929424"
+  },
+  {
+    "distributions": 79,
+    "first_distribution": "2026-07-08 08:01:48.000 UTC",
+    "last_distribution": "2026-07-08 14:02:55.000 UTC",
+    "token": "0xacaa704f3c6c65300594b3b5dac21264d7da7186"
+  },
+  {
+    "distributions": 77,
+    "first_distribution": "2026-07-22 03:50:08.000 UTC",
+    "last_distribution": "2026-08-12 21:45:51.000 UTC",
+    "token": "0x0470ceb3fe7022291481ae7dea07efe938cdd4c6"
+  },
+  {
+    "distributions": 64,
+    "first_distribution": "2026-07-19 09:10:11.000 UTC",
+    "last_distribution": "2026-08-04 23:57:18.000 UTC",
+    "token": "0xa563ac0f900ca8ee76bb040bc951cabb32e56af3"
+  },
+  {
+    "distributions": 38,
+    "first_distribution": "2026-07-19 04:16:49.000 UTC",
+    "last_distribution": "2026-08-03 19:43:12.000 UTC",
+    "token": "0x18fa6c4f8000ba5910b132825ab4de4819209f1c"
+  },
+  {
+    "distributions": 20,
+    "first_distribution": "2026-07-08 16:11:45.000 UTC",
+    "last_distribution": "2026-07-08 16:43:19.000 UTC",
+    "token": "0xacdc09fa42ea4902de880e2884749bbe4b223b61"
+  },
+  {
+    "distributions": 16,
+    "first_distribution": "2026-07-31 08:32:46.000 UTC",
+    "last_distribution": "2026-08-11 08:11:41.000 UTC",
+    "token": "0x71a7e0e8f3e9fd4e796a347260f9e636549bffa2"
+  },
+  {
+    "distributions": 14,
+    "first_distribution": "2026-07-13 07:53:02.000 UTC",
+    "last_distribution": "2026-07-13 08:00:06.000 UTC",
+    "token": "0x788bcfa099ef5d15cf1b1cada6c9dd4b60958991"
+  },
+  {
+    "distributions": 11,
+    "first_distribution": "2026-07-15 02:22:51.000 UTC",
+    "last_distribution": "2026-07-16 03:12:41.000 UTC",
+    "token": "0xf1aa9f36c8d6a059e631cf407a69ef6f393aaa84"
+  },
+  {
+    "distributions": 10,
+    "first_distribution": "2026-07-11 13:18:30.000 UTC",
+    "last_distribution": "2026-07-11 13:20:32.000 UTC",
+    "token": "0x09f86415f6cc52122e360c0e61538943224e5955"
+  },
+  {
+    "distributions": 10,
+    "first_distribution": "2026-08-02 23:30:01.000 UTC",
+    "last_distribution": "2026-08-02 23:57:57.000 UTC",
+    "token": "0x83afd3097146df847fc1e546d8aaf0be52191fdd"
+  },
+  {
+    "distributions": 9,
+    "first_distribution": "2026-08-02 22:44:04.000 UTC",
+    "last_distribution": "2026-08-02 23:18:23.000 UTC",
+    "token": "0x5ffd96002b48264d0e67e8bda2cf0302ff07f523"
+  },
+  {
+    "distributions": 7,
+    "first_distribution": "2026-07-08 05:32:10.000 UTC",
+    "last_distribution": "2026-07-08 07:18:15.000 UTC",
+    "token": "0x49b5a693204b3c767aa74aeec3e483da813b67dd"
+  },
+  {
+    "distributions": 7,
+    "first_distribution": "2026-07-18 07:06:31.000 UTC",
+    "last_distribution": "2026-07-18 13:50:53.000 UTC",
+    "token": "0x14c2e50fb2b483f846c3b6086a8bce026b1a1840"
+  },
+  {
+    "distributions": 6,
+    "first_distribution": "2026-08-03 17:01:40.000 UTC",
+    "last_distribution": "2026-08-03 17:17:57.000 UTC",
+    "token": "0x3e7d791e8edb46176e1006938cc0b5d5cee77d16"
+  },
+  {
+    "distributions": 5,
+    "first_distribution": "2026-07-17 07:41:21.000 UTC",
+    "last_distribution": "2026-07-17 07:54:00.000 UTC",
+    "token": "0xd4bb107e362e19582cd8d1b0006cdf227e058ff1"
+  },
+  {
+    "distributions": 3,
+    "first_distribution": "2026-07-10 23:38:26.000 UTC",
+    "last_distribution": "2026-07-11 00:11:54.000 UTC",
+    "token": "0x7a74663d8330706173812e5c6141f68a019cb3c5"
+  },
+  {
+    "distributions": 3,
+    "first_distribution": "2026-07-08 13:10:08.000 UTC",
+    "last_distribution": "2026-07-08 13:10:32.000 UTC",
+    "token": "0x4f76a9b7866e56b9a76184540c0c3be532135977"
+  },
+  {
+    "distributions": 3,
+    "first_distribution": "2026-07-08 13:28:50.000 UTC",
+    "last_distribution": "2026-07-08 13:35:47.000 UTC",
+    "token": "0x39aa6042dc7318d9b3928ec1f6824a3e01b58e74"
+  },
+  {
+    "distributions": 3,
+    "first_distribution": "2026-07-15 20:23:35.000 UTC",
+    "last_distribution": "2026-07-15 20:46:09.000 UTC",
+    "token": "0x1f6aef9c60ef0c7e3f4515b5ca2c53d396721dda"
+  },
+  {
+    "distributions": 3,
+    "first_distribution": "2026-07-11 08:18:43.000 UTC",
+    "last_distribution": "2026-07-11 08:38:23.000 UTC",
+    "token": "0x28929f57ee0462cef75cc2c48bb1548ce65ee59a"
+  },
+  {
+    "distributions": 2,
+    "first_distribution": "2026-07-16 07:29:16.000 UTC",
+    "last_distribution": "2026-07-16 07:29:18.000 UTC",
+    "token": "0x14e88a07974ce651f4f06fa825e0c0b90ba03956"
+  },
+  {
+    "distributions": 2,
+    "first_distribution": "2026-08-02 07:52:26.000 UTC",
+    "last_distribution": "2026-08-02 16:22:04.000 UTC",
+    "token": "0x0aa79cb10a6c974d2c6910a238cb7a9c41d10d88"
+  },
+  {
+    "distributions": 2,
+    "first_distribution": "2026-07-16 09:08:13.000 UTC",
+    "last_distribution": "2026-07-16 09:08:40.000 UTC",
+    "token": "0x0250273bac00e54e92f7bb55b72cb34ace9c8f75"
+  },
+  {
+    "distributions": 2,
+    "first_distribution": "2026-07-13 03:16:33.000 UTC",
+    "last_distribution": "2026-07-13 03:16:33.000 UTC",
+    "token": "0xca1c653dc3782f5bba2750b0e8507f7b16232caa"
+  },
+  {
+    "distributions": 1,
+    "first_distribution": "2026-08-12 18:35:31.000 UTC",
+    "last_distribution": "2026-08-12 18:35:31.000 UTC",
+    "token": "0xd7ea7a8150691063edbd93946ed16201208132c5"
+  },
+  {
+    "distributions": 1,
+    "first_distribution": "2026-08-12 17:18:42.000 UTC",
+    "last_distribution": "2026-08-12 17:18:42.000 UTC",
+    "token": "0xb5edd13cbcafcb593d623b7466447e24bd0b4088"
+  },
+  {
+    "distributions": 1,
+    "first_distribution": "2026-08-12 18:35:23.000 UTC",
+    "last_distribution": "2026-08-12 18:35:23.000 UTC",
+    "token": "0xabdc7781b12c09e9f7210f31f76347989528bcdf"
+  },
+  {
+    "distributions": 1,
+    "first_distribution": "2026-07-13 07:52:59.000 UTC",
+    "last_distribution": "2026-07-13 07:52:59.000 UTC",
+    "token": "0x96f2cdd94e9f0e9a4e8cf31ecf930268dd7c8817"
+  }
+]

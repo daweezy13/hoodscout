@@ -556,6 +556,8 @@ def render(p, logo=None):
         if nftl.get("collections") else
         "The mint scanner is warming up.")
 
+    summary_html = chain_summary(s, l, n, m, rw, lxc, tvl_headline)
+
     pad_note = ("Launchpads: " + " &middot; ".join(
         f"{escape(k)} {v}" for k, v in (lxc.get("pads") or [])[:5]) + "."
         if lxc.get("pads") else "")
@@ -939,10 +941,24 @@ td.sym {{ min-width:190px; }}
    overflowed its scroller by 21px, clipping Volume — the column the ranking
    is based on. Tighter name column and padding in the two-up context only. */
 .two-col td.sym {{ min-width:162px; }}
-.two-col /* No .pixel-shadow on this panel: drop-shadow ghosts every glyph and
-   canvas stroke inside it. The notched border carries the frame. */
-.health-bar {{ display:flex; height:14px; gap:2px; margin:0 0 14px; }}
-.health-bar i {{ display:block; min-width:2px; }}
+
+.summary {{
+  margin:18px 0 0; padding:16px 20px 16px 22px;
+  background:var(--panel); border:1px solid var(--line);
+  border-left:5px solid var(--accent);
+  font-size:16.5px; line-height:1.62; color:var(--ink-2);
+  max-width:92ch; text-wrap:pretty;
+}}
+/* The numbers ARE the content, so they carry the accent and the page's mono
+   face; the prose around them stays recessive so the figures read first. */
+.summary b {{
+  color:var(--ink); font-weight:700;
+  font-family:var(--mono); font-size:15px;
+  font-variant-numeric:tabular-nums;
+  background:var(--accent-soft); padding:1px 5px; border-radius:2px;
+  white-space:nowrap;
+}}
+@media (max-width:700px) {{ .summary {{ font-size:15px; padding:14px 16px; }} }}
 
 /* ---- 24h launch summary cards ---- */
 .lx-cards {{
@@ -1195,6 +1211,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
 {hero_tiles}
     </div>
   </div>
+{summary_html}
 
   <section>
     <h2>Chain vitals</h2>
@@ -2270,6 +2287,56 @@ def load_launch_traces(path=None, hours=24, max_traces=70, max_points=48):
             "top_rug": best("rug", lambda t: t["peak_liq"]),
             "pads": sorted(pads.items(), key=lambda kv: -kv[1])}
 
+
+
+def chain_summary(s, l, n, m, rw, lx, tvl):
+    """One paragraph tying the page's headline numbers into a reading.
+
+    Every figure here is rendered elsewhere on the page; the value added is the
+    RELATIONSHIP between them, which a grid of tiles cannot state -- that more
+    dollars sit parked in stablecoins than in TVL, or that the launch count and
+    the death count belong in the same sentence. Written so each claim survives
+    on its own if a section is missing, because sections do go missing.
+    """
+    bits = []
+    stables = l.get("stables_current") or 0
+    if tvl and stables:
+        rel = ("more stablecoin float than value locked"
+               if stables > tvl else "more value locked than stablecoin float")
+        bits.append(
+            f"<b>{usd(tvl)}</b> of value locked sits against <b>{usd(stables)}</b> "
+            f"of stablecoins &mdash; {rel}.")
+    dau, fees = s.get("dau_current"), s.get("gas_fees_usd_current")
+    app = l.get("app_fees_24h")
+    if dau:
+        line = f"<b>{num(dau)}</b> addresses transacted in the last complete day"
+        if fees:
+            line += f", paying <b>{usd(fees)}</b> in gas"
+        if app:
+            line += f" while apps earned <b>{usd(app)}</b> on top"
+        bits.append(line + ".")
+    nvol = (n or {}).get("total_volume_usd")
+    if nvol:
+        bits.append(f"NFTs cleared <b>{usd(nvol)}</b> in paid Seaport fills.")
+    c = (lx or {}).get("counts") or {}
+    launched = (lx or {}).get("total_pools")
+    if launched:
+        line = f"<b>{num(launched)}</b> memecoin pools launched in 24 hours"
+        dead, rug = c.get("dead", 0), c.get("rug", 0)
+        if dead:
+            line += f", <b>{num(dead)}</b> of them already dead"
+        if rug:
+            line += f" and <b>{num(rug)}</b> drained of a real market"
+        bits.append(line + ".")
+    payers = (rw.get("projects") or []) + ((rw.get("boosters") or {}).get("projects") or [])
+    paid = (rw.get("total_distributed_usd") or 0) + \
+           ((rw.get("boosters") or {}).get("total_distributed_usd") or 0)
+    if payers and paid:
+        bits.append(f"And <b>{len(payers)}</b> projects route fees back to the people "
+                    f"holding them, <b>{usd(paid)}</b> paid out so far.")
+    if not bits:
+        return ""
+    return ('<p class="summary">' + " ".join(bits) + "</p>")
 
 
 def launch_cards(lx):

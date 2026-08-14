@@ -1,0 +1,20 @@
+[
+  {
+    "booster": "0x038a7f4e4e89448ad74e044337c9ac25c11e726b",
+    "drops": 772,
+    "first_drop": "2026-07-18 00:36:05.000 UTC",
+    "last_drop": "2026-08-03 22:29:40.000 UTC"
+  },
+  {
+    "booster": "0xf9ca5f6d8622c82758914681a12674e2d489259a",
+    "drops": 220,
+    "first_drop": "2026-07-21 04:54:41.000 UTC",
+    "last_drop": "2026-08-03 22:57:51.000 UTC"
+  },
+  {
+    "booster": "0xf501bdfd823ff9148c4989ea67ea4a4d9657b9ce",
+    "drops": 2,
+    "first_drop": "2026-07-17 05:48:35.000 UTC",
+    "last_drop": "2026-07-17 05:56:59.000 UTC"
+  }
+]

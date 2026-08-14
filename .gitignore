@@ -17,6 +17,15 @@ out/*
 # verified wage-pool addresses: a discovery cache, re-measured every run
 !out/wage_pools.json
 
+# ⚠️ Dune's saved-query IDs and the discovery caches MUST be committed.
+# Dune now 402s on POST /v1/query (creating a query) while existing ids still
+# execute. Without this map CI cannot reach the existing queries, tries to
+# create one, gets 402, and falls back to a cache that is also absent -- which
+# is exactly how the ERC-20 and booster payout boards published as $0.
+!out/dune_queries.json
+!out/distributors.json
+!out/boosters.json
+
 # The RENDERED SITE is committed so Cloudflare Pages can deploy straight from
 # the repo with no build step and no API token: GitHub Actions builds it, Pages
 # watches the branch. Build artifacts in git is normally a smell; here it is the

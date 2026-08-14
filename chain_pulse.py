@@ -1791,6 +1791,32 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
     else:
         print("        SKIPPED (--skip-rewards)", flush=True)
 
+    # ⚠️ A section that collapses to zero must not overwrite one that worked.
+    # The whole-file guard below only covers CORE stats, so when Dune 402'd on
+    # CI the ERC-20 and booster boards published as "$0 to holders" -- factually
+    # wrong, and worse than stale, since the payouts plainly did happen. Carry
+    # the previous block forward and say when it was measured. Same reasoning as
+    # refusing to publish a zeroed page: stale is true as of its timestamp, zero
+    # is just false.
+    if not skip_rewards and not (rewards.get("projects")
+                                 or (rewards.get("boosters") or {}).get("projects")):
+        prev = {}
+        try:
+            prev = (json.loads((OUT_DIR / "pulse.json").read_text()) or {}).get("rewards") or {}
+        except (OSError, ValueError):
+            prev = {}
+        if prev.get("projects") or (prev.get("boosters") or {}).get("projects"):
+            print("        rewards came back empty -- keeping the last good block",
+                  flush=True)
+            prev["stale"] = True
+            prev.setdefault("measured_at", prev.get("measured_at"))
+            rewards = prev
+        else:
+            rewards["stale"] = False
+    elif not skip_rewards:
+        rewards["stale"] = False
+        rewards["measured_at"] = dt.datetime.now(dt.timezone.utc).isoformat()
+
     return {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "chain": {"name": CHAIN_NAME, "chain_id": 4663},
