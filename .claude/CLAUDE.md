@@ -24,3 +24,33 @@ Robinhood Chain has heavy squatting on popular project names — 40+ results for
 - Reusable, parameterized functions over one-off scripts.
 - Artifacts (the likely dashboard output) run under a strict CSP with no external network access from the browser — data pulls happen server-side (this Python/script layer), not client-side; "live" means periodic re-pull + republish unless a specific live-data capability is deliberately adopted.
 - No extra files not explicitly asked for.
+
+## ⚠️ Verification and burn stats are forgeable here — only markets aren't
+Confirmed 2026-08-13 chasing Zaibatsu Wagies. Searching one project name returned **four
+contracts with byte-identical bytecode**, all `verified=True` on Blockscout, all reporting a
+burn of *exactly* 306,483,516 tokens. The real token was `verified=False`. Vanity addresses
+shared a `ba3` suffix to look alike.
+
+**A burn percentage, a holder count and explorer verification can all be copied.** Liquidity and
+24h volume were the only fields that separated the real token ($138k liquidity, $43k volume,
+20 pools) from four identical fakes ($272–$330, zero volume). Cross-check on a market, never on
+a badge — and never on a number the contract reports about itself.
+
+## Reward payouts come in THREE contract families, not two
+`rewardToken()` + `totalDividendsDistributed()` (RewardsCoin ERC-20s) and `getStockTokens()` +
+`DropFinished` (NFT boosters) both discover by INTERFACE, and both missed a pool distributing
+$159,481 — second-largest on the board. Zaibatsu's wage pool answers `rewardToken()` but not
+`totalDividendsDistributed()`, so the probe called it, got a valid answer, then discarded it.
+
+Third family: `nft()` + `rewardToken()`, discovered by the PAYOUT (a contract sending one ERC-20
+to hundreds of distinct wallets) rather than by interface, since that generalises to templates
+nobody has written yet. ⚠️ Do NOT discover it by event topic — its most common event is emitted
+by 79 unrelated contracts, almost all false positives.
+
+The tokenised equities are enumerable by naming convention: every one is `<Company> • Robinhood
+Token`, so the explorer's own search yields the asset universe without hardcoding addresses.
+
+## Dune can no longer create saved queries
+POST `/v1/query` returns **402 Payment Required**; existing query ids still execute fine. Never
+repoint an existing id at new SQL — each one is in use by another section. New analysis has to
+run on the RPC.

@@ -213,5 +213,94 @@
 "symbol": "Pups",
 "max": 9601,
 "minted": 244
+},
+"0x7aeb6e0d076d31567403c0a9f71267d1d6a56927": {
+"name": "KRYPTROZ",
+"symbol": "KRYP",
+"max": 3333,
+"minted": 3333
+},
+"0x09327807c784666f50f86a1e245e0b4ef578bcf0": {
+"name": "Link Hood",
+"symbol": "LINK",
+"max": 6980,
+"minted": 6980
+},
+"0x4f9aef6f5d0f69e1da33ba81ab44bc044a655ad4": {
+"name": "Neon Rooks",
+"symbol": "ROOKS",
+"max": 10000,
+"minted": 10000
+},
+"0x3207615bd3df6fa29a9dde2f70fa2f314f357b53": {
+"name": "Zoba",
+"symbol": "zz",
+"max": 100000,
+"minted": 7618
+},
+"0x713bb61bae6d93db23f6d68729ad23187aae1fca": {
+"name": "CHROMAVORTEX",
+"symbol": "CHROMAVORTEX",
+"max": 5555,
+"minted": 5262
+},
+"0x286e6677fd5843f8681cb80a372266fcec6912b4": {
+"name": "Dungeon Employees",
+"symbol": "DNGN",
+"max": 5555,
+"minted": 2477
+},
+"0x0c9efe5cbd92087c8de1b6be614bf77a9f4d0c97": {
+"name": "alpha-bet",
+"symbol": "alpha-bet",
+"max": 100000,
+"minted": 100000
+},
+"0x250f50a603256ffb9adb649b9972c952bda231f2": {
+"name": "Degens of the Hood ",
+"symbol": "hoods ",
+"max": 10036,
+"minted": 6291
+},
+"0x1ade0ddf5079acd25b97e50cbb265c7d4eb63dcf": {
+"name": "Punch Hood Collage",
+"symbol": "PUNCH",
+"max": 5555,
+"minted": 5555
+},
+"0x9856fc5df568ef60c6532413a018a836f95ba199": {
+"name": "Robinhood Venture Cats",
+"symbol": "RHVCATS",
+"max": 5000,
+"minted": 5000
+},
+"0x5696cda3c297f3482e30b6e7eacfd3c47285708a": {
+"name": "Broker Pepe",
+"symbol": "BPEPE",
+"max": 4444,
+"minted": 2047
+},
+"0xa63d012d591b73337ae1e6e85a9840fe55352bfb": {
+"name": "Stock Girls",
+"symbol": "STGR",
+"max": 1888,
+"minted": 1823
+},
+"0xe156909f3bd03cf50cf2754d83dab21cd4d2d452": {
+"name": "Stonk Ladies",
+"symbol": "STONKLADIES",
+"max": 4444
+},
+"0xf024839b5471e4eb03dcc0fd378e34c23f4b3b47": {
+"name": "Broker Senders",
+"symbol": "SEND",
+"max": 1555,
+"minted": 1510
+},
+"0xcbfe3403e5046aa3ad04d061448bdbb7c5f59d47": {
+"name": "Anthropic",
+"symbol": "Anthropic",
+"max": 1111,
+"minted": 966
 }
 }

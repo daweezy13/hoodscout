@@ -14,6 +14,8 @@ out/*
 !out/nft_launches.jsonl
 !out/nft_registry.json
 !out/nft_names.json
+# verified wage-pool addresses: a discovery cache, re-measured every run
+!out/wage_pools.json
 
 # The RENDERED SITE is committed so Cloudflare Pages can deploy straight from
 # the repo with no build step and no API token: GitHub Actions builds it, Pages

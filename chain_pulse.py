@@ -1466,6 +1466,259 @@ def fetch_nft_boosters(dune_run, min_usd=1.0):
             "reward_assets": sorted({s for p in out for s in p["asset_symbols"]})}
 
 
+# --------------------------------------------------------------------------- #
+# NFT wage pools — the third family
+# --------------------------------------------------------------------------- #
+# The first two families are found by INTERFACE: RewardsCoin ERC-20s answer
+# rewardToken() + totalDividendsDistributed(), boosters answer getStockTokens()
+# and emit DropFinished. Both miss a contract that pays holders by any other
+# shape, and one such contract was distributing more than every ERC-20
+# distributor on the board combined.
+#
+# MEASURED, Zaibatsu Wagies' "wage pool" 0xf22554273505a0d59323ca6e3a03877810238b97:
+# 8,570 GME ($159,481) paid to 272 wallets across 3,400 transfers -- which ranks
+# it SECOND on this board, ahead of OvertimeBooster. It answers rewardToken()
+# (returning GME) but not totalDividendsDistributed(), so the ERC-20 probe
+# called it, got a valid answer, and then discarded it on the second call.
+#
+# ⚠️ Do NOT discover this family by interface or by event topic. Its most common
+# event is emitted by 79 unrelated contracts on this chain, only one of which is
+# a wage pool -- keying on it would be almost entirely false positives. Discover
+# by the PAYOUT instead: a contract sending one ERC-20 to hundreds of distinct
+# wallets is doing a distribution whatever its interface, and nft() then
+# attributes it to a collection. That test is mechanism-agnostic, so it also
+# catches the next template nobody has written yet.
+WAGE_POOL_REGISTRY = OUT_DIR / "wage_pools.json"
+
+# Discovery runs on the RPC, not Dune. The Dune account cannot create new saved
+# queries (the API 402s on POST /v1/query while existing query ids still
+# execute), and reusing another section's query id would clobber it. The RPC is
+# also the authoritative source for the payout total either way.
+#
+# The asset universe is derived, not hardcoded: Robinhood's tokenised equities
+# all carry the name "<Company> • Robinhood Token", so the explorer's own search
+# enumerates them (50 including GME, AAPL, NVDA, TSLA...). A pool paying holders
+# in something else is still caught once it lands in the registry below.
+STOCK_TOKEN_MARK = "Robinhood Token"
+
+
+def discover_stock_tokens(limit=60):
+    """Addresses of the tokenised equities, by their naming convention."""
+    d = _get(f"{BLOCKSCOUT}/search", params={"q": STOCK_TOKEN_MARK}) or {}
+    out = {}
+    for it in (d.get("items") or []):
+        name = str(it.get("name") or "")
+        addr = (it.get("address") or it.get("address_hash") or "").lower()
+        if STOCK_TOKEN_MARK in name and addr.startswith("0x"):
+            out[addr] = it.get("symbol") or "?"
+    return dict(list(out.items())[:limit])
+
+
+def _pool_assets(pool, pages=6):
+    """Every token this contract has ever SENT, from the explorer's index.
+
+    Deriving the asset set from what the discovery window happened to see made
+    the reported total depend on when the job ran -- StonkBrokers came out at
+    $3,537 on one run and $2,525 on the next, purely from which equities showed
+    up in the window. A single-address transfer index answers it directly and
+    identically every time. This is the low-volume lookup Blockscout is good at;
+    only the asset SET comes from here, never an amount.
+    """
+    assets, params = set(), {}
+    for _ in range(pages):
+        d = _get(f"{BLOCKSCOUT}/addresses/{pool}/token-transfers", params=params) or {}
+        items = d.get("items") or []
+        for it in items:
+            frm = ((it.get("from") or {}).get("hash") or "").lower()
+            tok = ((it.get("token") or {}).get("address") or "").lower()
+            if frm == pool.lower() and tok.startswith("0x"):
+                assets.add(tok)
+        params = d.get("next_page_params") or {}
+        if not params:
+            break
+        time.sleep(0.2)
+    return assets
+
+
+def _fanout_senders(asset, from_block, to_block, min_recipients, chunk=400_000):
+    """Senders of `asset` paying many distinct wallets in the window."""
+    rec = defaultdict(set)
+    start = from_block
+    while start <= to_block:
+        end = min(start + chunk - 1, to_block)
+        logs = _get_logs_chunked(asset, TRANSFER_TOPIC, start, end)
+        for l in logs:
+            t = l.get("topics") or []
+            if len(t) != 3:                      # 4 topics == ERC-721
+                continue
+            rec["0x" + t[1][-40:].lower()].add(t[2][-40:].lower())
+        start = end + 1
+    return {a: len(v) for a, v in rec.items() if len(v) >= min_recipients}
+
+
+def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
+                         budget_s=420):
+    """Contracts paying an ERC-20 to the holders of a specific NFT collection.
+
+    `known` is the set of addresses the other two families already claim, so a
+    booster is never reported twice under a second name.
+
+    Confirmed pools persist in a registry. Discovery only looks at a recent
+    window -- cheap, but blind to a pool that paid before it and has been quiet
+    since -- so remembering what was already proven is what keeps the board
+    stable. The registry stores addresses only; every figure is re-measured
+    from chain logs on each run.
+    """
+    claimed = {a.lower() for a in known if a}
+    reg = []
+    if WAGE_POOL_REGISTRY.exists():
+        try:
+            reg = json.loads(WAGE_POOL_REGISTRY.read_text())
+        except (ValueError, OSError):
+            reg = []
+    candidates = {r["pool"].lower() for r in reg if r.get("pool")}
+    # Which assets each pool has actually been seen paying. Without this the
+    # payout scan would sweep all ~50 equities against every pool -- ~600 RPC
+    # calls each, for tokens it has never touched.
+    seen_assets = defaultdict(set)
+    for r in reg:
+        if r.get("pool"):
+            seen_assets[r["pool"].lower()] |= {a.lower() for a in (r.get("assets") or [])}
+
+    head, err = _rpc("eth_blockNumber", [])
+    if err or not head:
+        return {"projects": [], "skipped": "rpc unavailable"}
+    head = int(head, 16)
+    span = int(hours * 3600 / 0.101)             # ~101ms blocks
+    stocks = discover_stock_tokens()
+    print(f"        scanning {len(stocks)} stock tokens over {hours}h for payouts",
+          flush=True)
+    # Discovery is the open-ended part -- a heavily traded equity can carry a lot
+    # of Transfer logs -- and this runs unattended inside a 30-minute job that
+    # already spends ~9. So it gets a wall-clock budget: whatever is scanned by
+    # then is used, and the registry keeps every pool already proven. Better a
+    # late discovery than a refresh that times out and publishes nothing.
+    deadline = time.time() + budget_s
+    for i, asset in enumerate(stocks):
+        if time.time() > deadline:
+            print(f"        discovery budget reached after {i} of {len(stocks)} "
+                  f"tokens; registry still measured in full", flush=True)
+            break
+        try:
+            for a in _fanout_senders(asset, max(head - span, 0), head, min_recipients):
+                candidates.add(a)
+                seen_assets[a].add(asset)
+        except Exception as e:                   # one asset must not kill the run
+            print(f"        fanout scan failed on {asset[:10]}: {e}", flush=True)
+
+    # nft() is the attribution test AND the filter: AMMs, routers and bridges
+    # all move tokens to many wallets, and none of them implement it.
+    pools = []
+    for a in sorted(candidates):
+        if a in claimed:
+            continue
+        nft = _eth_call(a, "nft()", "addr")
+        if not nft or int(nft, 16) == 0:
+            continue
+        pools.append({"addr": a, "nft": nft.lower()})
+    print(f"        {len(pools)} wage pools from {len(candidates)} candidates",
+          flush=True)
+    if not pools:
+        return {"projects": [], "total_distributed_usd": 0.0, "reward_assets": []}
+    WAGE_POOL_REGISTRY.write_text(json.dumps(
+        [{"pool": p["addr"], "nft": p["nft"],
+          "assets": sorted(seen_assets.get(p["addr"], []))} for p in pools], indent=2))
+
+    # Lifetime payouts, measured as Transfers OUT of the pool -- the money that
+    # actually left the contract, not an announced figure.
+    by_pool = defaultdict(list)
+    for p in pools:
+        reward = _eth_call(p["addr"], "rewardToken()", "addr")
+        assets = {reward.lower()} if reward and int(reward, 16) else set()
+        assets |= _pool_assets(p["addr"]) | seen_assets.get(p["addr"], set())
+        assets -= {WETH, USDG, NATIVE}
+        topic1 = "0x" + p["addr"][2:].rjust(64, "0")
+        for asset in assets:
+            raw, recips, n = 0, set(), 0
+            start = 0
+            while start <= head:
+                end = min(start + 3_000_000 - 1, head)
+                logs, e = _rpc("eth_getLogs", [{
+                    "fromBlock": hex(start), "toBlock": hex(end),
+                    "address": asset, "topics": [TRANSFER_TOPIC, topic1]}])
+                for l in (logs or []):
+                    t = l.get("topics") or []
+                    if len(t) != 3:
+                        continue
+                    recips.add(t[2][-40:])
+                    n += 1
+                    try:
+                        raw += int(l.get("data") or "0x0", 16)
+                    except ValueError:
+                        pass
+                start = end + 1
+            if n:
+                by_pool[p["addr"]].append({"asset": asset, "raw": raw,
+                                           "transfers": n, "recipients": len(recips)})
+
+    price_cache = {}
+
+    def px(addr):
+        if addr not in price_cache:
+            ds = fetch_dexscreener_token(addr) or {}
+            price_cache[addr] = _f(ds.get("price_usd")) or 0.0
+            time.sleep(0.2)
+        return price_cache[addr]
+
+    out = []
+    for p in pools:
+        assets, total, holders = [], 0.0, 0
+        for row in by_pool.get(p["addr"], []):
+            a = (row["asset"] or "").lower()
+            if a in (WETH, USDG, NATIVE):
+                continue              # funding legs, not the reward
+            dec = _eth_call(a, "decimals()") or 18
+            amt = float(row["raw"] or 0) / (10 ** dec)
+            price = px(a)
+            usd = amt * price
+            # Keep an asset whose PRICE we could not fetch but whose amount is
+            # real. Dropping on `usd < min_usd` deleted whole projects when
+            # DexScreener rate-limited -- StonkBrokers vanished between two runs
+            # that measured identical on-chain transfers. An unpriced payout is
+            # a known quantity of tokens, so it is reported with usd 0 and the
+            # total reads as the lower bound it is.
+            if amt <= 0 or (price and usd < min_usd):
+                continue
+            assets.append({"address": a,
+                           "symbol": _eth_call(a, "symbol()", "str") or "?",
+                           "amount": amt, "usd": usd,
+                           "unpriced": not price,
+                           "recipients": row.get("recipients")})
+            total += usd
+            holders = max(holders, row.get("recipients") or 0)
+        if not assets:
+            continue
+        assets.sort(key=lambda x: -x["usd"])
+        # Name it after the COLLECTION it pays, not the payout contract, which
+        # is unverified and unnamed. That is also the name a reader recognises.
+        name = (_get(f"{BLOCKSCOUT}/tokens/{p['nft']}") or {}).get("name") \
+            or (_get(f"{BLOCKSCOUT}/smart-contracts/{p['addr']}") or {}).get("name") \
+            or "wage pool"
+        out.append({
+            "address": p["addr"], "name": name, "kind": "nft-wage-pool",
+            "nft": p["nft"],
+            "assets": assets,
+            "asset_symbols": [a["symbol"] for a in assets],
+            "distributed_usd": total,
+            "holders": holders,
+            "explorer_url": f"https://robinhoodchain.blockscout.com/address/{p['addr']}",
+        })
+    out.sort(key=lambda x: -x["distributed_usd"])
+    return {"projects": out,
+            "total_distributed_usd": sum(p["distributed_usd"] for p in out),
+            "reward_assets": sorted({s for p in out for s in p["asset_symbols"]})}
+
+
 def _token_decimals(addr, default=6):
     d = _get(f"{BLOCKSCOUT}/tokens/{addr}") or {}
     return _i(d.get("decimals")) or default
@@ -1508,13 +1761,33 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
         print(f"        {len(rewards['projects'])} token projects, "
               f"${rewards['total_distributed_usd']:,.0f} to ERC-20 holders", flush=True)
         boosters = fetch_nft_boosters(dune_query)
+        print(f"        {len(boosters.get('projects', []))} NFT boosters, "
+              f"${boosters.get('total_distributed_usd', 0):,.0f} to NFT holders", flush=True)
+
+        # Wage pools pay NFT holders exactly as boosters do, so they join the
+        # same board rather than starting a third list nobody asked for. Pass
+        # the addresses already claimed so nothing is counted twice.
+        claimed = ([p["address"] for p in boosters.get("projects", [])]
+                   + [p.get("address") for p in rewards.get("projects", [])])
+        wage = fetch_nft_wage_pools(known=claimed)
+        if wage.get("projects"):
+            boosters["projects"] = sorted(
+                boosters.get("projects", []) + wage["projects"],
+                key=lambda x: -x["distributed_usd"])
+            boosters["total_distributed_usd"] = sum(
+                p["distributed_usd"] for p in boosters["projects"])
+            boosters["reward_assets"] = sorted(
+                {s for p in boosters["projects"] for s in p["asset_symbols"]})
+            print(f"        {len(wage['projects'])} NFT wage pools, "
+                  f"${wage.get('total_distributed_usd', 0):,.0f} to NFT holders",
+                  flush=True)
+
         rewards["boosters"] = boosters
+        rewards["wage_pools"] = wage
         rewards["combined_usd"] = (rewards.get("total_distributed_usd", 0)
                                    + boosters.get("total_distributed_usd", 0))
         rewards["all_assets"] = sorted(set(rewards.get("reward_assets", []))
                                        | set(boosters.get("reward_assets", [])))
-        print(f"        {len(boosters.get('projects', []))} NFT boosters, "
-              f"${boosters.get('total_distributed_usd', 0):,.0f} to NFT holders", flush=True)
     else:
         print("        SKIPPED (--skip-rewards)", flush=True)
 

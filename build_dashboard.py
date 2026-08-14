@@ -332,12 +332,14 @@ def booster_rows(projects, today=None):
                             f'{days} days ago">idle {days}d</span>')
             except ValueError:
                 pass
+        # Wage pools have no drop count -- they pay continuously rather than in
+        # discrete drops -- so the clause is omitted rather than rendered "-- drops".
+        drops = f" \u00b7 {num(p['drops'])} drops" if p.get("drops") else ""
         out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((p.get('name') or '').lower())}">
               <span class="sym-name">{link(p.get('explorer_url'), p.get('name') or '?', 'ext strong')}{idle}</span>
-              <span class="sym-sub">{escape(num(p.get('holders')))} holders ·
-                {escape(num(p.get('drops')))} drops</span>
+              <span class="sym-sub">{escape(num(p.get('holders')))} holders{escape(drops)}</span>
             </td>
             <td class="n basket" data-v="{len(p.get('assets') or [])}">{chips}</td>
             <td class="n strong" data-v="{p.get('distributed_usd') or 0}">{escape(usd(p.get('distributed_usd')))}
@@ -543,18 +545,6 @@ def render(p, logo=None):
         if len(lxc.get("traces") or []) >= 12:
             break
     _lc = lxc.get("counts") or {}
-    hz = launch_health()
-    hb = hz.get("buckets") or {}
-    _j = hz.get("judged") or 1
-    health_note = (
-        f"Every pool seen in the window, including the ones too sparse to draw above "
-        f"&mdash; those are exactly the ones that died quietly, so leaving them out "
-        f"would flatter the chain. {hb.get('alive',0)} trading "
-        f"({hb.get('alive',0)/_j*100:.0f}%), {hb.get('quiet',0)} with liquidity but no "
-        f"trades, {hb.get('fading',0)} well under launch, and "
-        f"<b>{hb.get('dead',0)} dead ({hb.get('dead',0)/_j*100:.0f}%)</b> &mdash; "
-        f"liquidity gone, whatever the price still says."
-        if hz.get("judged") else "The ledger is still filling.")
 
     nftl = load_nft_launches()
     _nc = nftl.get("counts") or {}
@@ -570,13 +560,10 @@ def render(p, logo=None):
         f"{escape(k)} {v}" for k, v in (lxc.get("pads") or [])[:5]) + "."
         if lxc.get("pads") else "")
     launch_note = (
-        f"{len(lxc.get('traces', []))} of {lxc.get('total_pools', 0)} pools drawn &mdash; "
-        f"only those that moved more than 25% from their launch value and were "
-        f"seen at least three times. {lxc.get('flat', 0)} never moved that far and "
-        f"{lxc.get('sparse', 0)} were seen too few times to have a shape; drawing "
-        f"them stacked one opaque blob on the 1x line. "
-        "Each pool plotted as a multiple of its own value at first sight, so a small "
-        "launch that ran and a big one that died sit on the same scale. "
+        f"The {len(lxc.get('traces', []))} biggest movers of "
+        f"{num(lxc.get('total_pools', 0))} pools launched in the window, each averaged "
+        f"by the hour and plotted as a multiple of its own launch value &mdash; so a "
+        f"small launch that ran and a big one that died sit on the same scale. "
         + pad_note
         if lxc.get("traces") else
         "The poller is warming up &mdash; trajectories appear once pools have been "
@@ -956,6 +943,45 @@ td.sym {{ min-width:190px; }}
    canvas stroke inside it. The notched border carries the frame. */
 .health-bar {{ display:flex; height:14px; gap:2px; margin:0 0 14px; }}
 .health-bar i {{ display:block; min-width:2px; }}
+
+/* ---- 24h launch summary cards ---- */
+.lx-cards {{
+  display:grid; gap:14px; margin:0 0 6px;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+}}
+.lx-card {{
+  background:var(--panel); border:1px solid var(--line);
+  padding:14px 14px 12px; min-width:0;
+  display:flex; flex-direction:column; gap:2px;
+}}
+.lx-card .k {{
+  font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted);
+}}
+.lx-card .v {{
+  font-size:34px; line-height:1.05; font-weight:700;
+  font-variant-numeric:tabular-nums; color:var(--ink);
+}}
+/* The callout names the pool behind the count. Its own line, clipped rather
+   than wrapped, so a long symbol cannot change the card's height and break
+   the row's alignment. */
+.lx-card .c {{
+  font-family:var(--mono); font-size:11px; color:var(--ink-2);
+  margin-top:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}}
+.lx-card .c b {{ font-weight:700; }}
+.lx-card .c.none {{ color:var(--muted); }}
+.lx-card.win .v {{ color:{TRACE_ALIVE}; }}
+.lx-card.lose .v, .lx-card.dead .v {{ color:{TRACE_DRAINED}; }}
+.lx-rug {{
+  font-family:var(--mono); font-size:11px; color:var(--ink-2);
+  margin:0 0 16px; padding:9px 12px;
+  background:var(--flag-soft); border-left:3px solid var(--flag);
+}}
+.lx-rug b {{ color:var(--ink); }}
+@media (max-width:760px) {{
+  .lx-cards {{ grid-template-columns:repeat(2, minmax(0, 1fr)); }}
+}}
 .launch {{ background:var(--panel); border:var(--rule-w) solid var(--rule); padding:14px 16px 10px; }}
 .launch-head {{ display:flex; flex-wrap:wrap; align-items:flex-start;
   justify-content:space-between; gap:10px 18px; margin-bottom:8px; }}
@@ -1151,8 +1177,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <span class="kicker">Robinhood Chain, end to end</span>
   </div>
   <p class="lede">
-    {span_days} days of chain history, screened against two independent indexers,
-    priced from DexScreener and measured from Seaport fills on-chain.
+    {span_days} days of chain history and counting.
   </p>
   <a class="contract-link" href="https://robinhoodchain.blockscout.com/" target="_blank"
      rel="noopener noreferrer">View explorer <span aria-hidden="true">&#8599;</span></a>
@@ -1190,7 +1215,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     <div class="launch pixel">
       <div class="launch-head">
         <div>
-          <span class="launch-k">VALUE VS LAUNCH &middot; MINUTES SINCE LAUNCH</span>
+          <span class="launch-k">VALUE VS LAUNCH &middot; HOURS SINCE LAUNCH</span>
           <span class="launch-sub" id="lxSub"></span>
         </div>
         <div class="legend lx-legend">
@@ -1208,29 +1233,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </div>
     </div>
 
-    <h3 class="sub-head">Health census &middot; last {hz.get('window_hours', 24)}h</h3>
-    <p class="sec-sub">{health_note}</p>
-    <div class="health-bar">
-      <i style="flex:{hb.get('alive',0)};background:{TRACE_ALIVE}" title="alive"></i>
-      <i style="flex:{hb.get('quiet',0)};background:var(--muted)" title="quiet"></i>
-      <i style="flex:{hb.get('fading',0)};background:var(--flag)" title="fading"></i>
-      <i style="flex:{hb.get('dead',0)};background:{TRACE_DRAINED}" title="dead"></i>
-    </div>
-    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
-      <table>
-        <thead><tr>
-          <th></th><th data-sort="text">Project</th><th data-sort="num">vs launch</th>
-          <th data-sort="num" data-default="1">Liquidity</th>
-        </tr></thead>
-        <tbody>
-{health_rows(hz.get('rows', []))}
-        </tbody>
-      </table>
-    </div>
-    <div class="board-foot">
-      <button class="more" type="button"></button>
-      <span class="foot-r">deepest liquidity of {num(hz.get('judged', 0))} judged</span>
-    </div></div></div>
+{launch_cards(lx)}
   </section>
 
   <section>
@@ -1743,7 +1746,11 @@ document.querySelectorAll('.board').forEach(board => {{
   }}));
   allV.sort((a, b) => a - b);
   const pct = q => allV[Math.min(Math.floor(allV.length * q), allV.length - 1)] || 1;
-  maxT = Math.min(Math.max(Math.ceil(maxT / 15) * 15, 30), 360);   // up to 6h
+  // Hours now, not minutes: mx carries hour-since-launch buckets. The axis
+  // follows the data rather than reserving the full 24h -- a fixed window drew
+  // every trace as a stub against five hours of blank panel. It widens on its
+  // own as the follow-up poller accumulates longer histories.
+  maxT = Math.min(Math.max(Math.ceil(maxT) + 1, 3), 24);
   const loX = Math.min(Math.max(pct(0.01) * 0.8, 0.02), 0.5);
   const hiX = Math.max(Math.min(pct(0.99) * 1.6, 25), 3);
   const clampV = v => Math.min(Math.max(v, loX), hiX);
@@ -1787,7 +1794,7 @@ document.querySelectorAll('.board').forEach(board => {{
   // there left the 1x cluster as loose dots. A gap is now DRAWN, faintly and
   // dashed, so the trajectory stays readable while still saying plainly that
   // nothing was observed across it.
-  const MAX_GAP = 14;  // minutes — floor for the adaptive threshold
+  const MAX_GAP = 2;   // hours — floor for the adaptive threshold
   traces.forEach(tr => {{
     const gs = [];
     for (let i = 1; i < tr.mx.length; i++) gs.push(tr.mx[i][0] - tr.mx[i - 1][0]);
@@ -1815,8 +1822,9 @@ document.querySelectorAll('.board').forEach(board => {{
       ctx.fillText(v >= 1 ? v + 'x' : v + 'x', PAD.l - 6, y);
     }});
     ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = muted;
-    for (let m = 0; m <= maxT; m += Math.max(15, Math.round(maxT / 6 / 15) * 15)) {{
-      ctx.fillText(m >= 60 ? (m / 60) + 'h' : m + 'm', X(m), H - PAD.b + 5);
+    const tick = maxT <= 6 ? 1 : maxT <= 12 ? 2 : 4;
+    for (let h = 0; h <= maxT; h += tick) {{
+      ctx.fillText(h + 'h', X(h), H - PAD.b + 5);
     }}
 
     /* trails, then dots — young first so decided traces sit on top */
@@ -1913,7 +1921,7 @@ document.querySelectorAll('.board').forEach(board => {{
       ctx.fillText(label, x + 6, y + 1);
     }});
 
-    if (sub) sub.textContent = traces.length + ' pools · ' + Math.round(cut) + ' min in'
+    if (sub) sub.textContent = traces.length + ' pools · ' + Math.round(cut) + 'h in'
       + ' · axis ' + (loX < 0.1 ? loX.toFixed(2) : loX.toFixed(1)) + 'x-' + hiX.toFixed(0) + 'x'
       + (clipped ? ' · ' + clipped + ' beyond it' : '');
   }}
@@ -1947,7 +1955,7 @@ document.querySelectorAll('.board').forEach(board => {{
     paused = true;
     const tr = best.tr, abs = (tr.pts[best.i] || [])[1];
     tip.innerHTML = '<span class="tip-d">' + tr.s + ' · ' + tr.pad + ' · '
-      + Math.round(best.p[0]) + ' min old</span>'
+      + Math.round(best.p[0]) + 'h old</span>'
       + best.p[1].toFixed(2) + 'x'
       + (abs ? ' · $' + Math.round(abs).toLocaleString() : '')
       + '<br><span class="tip-d">from $' + Math.round(tr.base).toLocaleString()
@@ -2060,10 +2068,15 @@ LEDGER = OUT_DIR / "launches.jsonl"
 # ledger schema. Imported rather than re-implemented so the chart and any later
 # verdict engine can never drift apart on what counts as bad data.
 try:
-    from launch_watch import observation_quality
+    from launch_watch import observation_quality, usable_liquidity, MIN_DEPTH_USD
 except ImportError:                       # renderer must still work standalone
+    MIN_DEPTH_USD = 500
+
     def observation_quality(_r):
         return None
+
+    def usable_liquidity(r):
+        return r.get("liq")
 
 # GeckoTerminal's dex id already names the launchpad. Pons is dominant on this
 # chain (~45% of new pools across its three ids); the rest are the generic AMM
@@ -2108,16 +2121,32 @@ TRACE_ALIVE = "#0F86C4"
 TRACE_DRAINED = "#d03b3b"
 
 
-def load_launch_traces(path=None, hours=6, max_traces=70, max_points=60):
-    """Turn the append-only ledger into per-pool FDV trajectories.
+def load_launch_traces(path=None, hours=24, max_traces=70, max_points=48):
+    """Hourly-averaged trajectories for pools launched in the window.
 
-    Aligned at each pool's OWN launch (t=0 = pool_created_at), not wall clock,
-    so a rug's collapse and a survivor's climb are directly comparable — the
-    whole point of the view.
+    Per-observation plotting was too granular to show a trend: a coin can dump
+    in its first hour and recover in its third, and at 3-minute resolution that
+    reads as noise. Averaging FDV within each hour-since-launch bucket leaves at
+    most 24 points per pool and makes the SHAPE legible.
 
-    Plots FDV, not market cap: GeckoTerminal populates market_cap_usd on ~1% of
-    new pools (circulating supply is unknown for a fresh token) while fdv_usd is
-    present 100% of the time. Labelled as FDV on the page for that reason.
+    Shape is the point. A rug is not just "ended down" -- it is the classic
+    mountain: climbed hard, then collapsed. That is detectable from the bucketed
+    series and is a different failure from a slow bleed, so it gets its own bin.
+
+    TWO SERIES, READ FROM DIFFERENT ROWS, and the distinction matters:
+
+      * FDV is only a price where there is depth behind it, so the plotted
+        multiple is built from quality-passing rows alone.
+      * LIQUIDITY is valid in every row, and it is the series that actually
+        collapses. Filtering the ledger up-front discarded precisely the
+        evidence of a rug -- Choju's crash reading ($34,732 of liquidity down
+        to $361) was thrown away for having too little depth to price, which is
+        the very fact being measured.
+
+    This is the same lesson the FDV freeze taught: when a pool is drained the
+    last trade price persists in the feed forever, so a rugged token keeps
+    reporting its peak FDV and looks like a winner on price alone. Death is
+    legible in liquidity, never in FDV.
     """
     p = Path(path) if path else LEDGER
     if not p.exists():
@@ -2135,7 +2164,8 @@ def load_launch_traces(path=None, hours=6, max_traces=70, max_points=60):
 
     now = dt.datetime.now(dt.timezone.utc)
     cutoff = now - dt.timedelta(hours=hours)
-    traces, counts = [], {"rugged": 0, "stable": 0, "early": 0}
+    traces = []
+    counts = {"winner": 0, "loser": 0, "rug": 0, "dead": 0, "flat": 0, "early": 0}
 
     for pool, obs in by.items():
         try:
@@ -2145,185 +2175,160 @@ def load_launch_traces(path=None, hours=6, max_traces=70, max_points=60):
         if born < cutoff:
             continue
         obs.sort(key=lambda r: r["ts"])
-        pts, rejected = [], 0
+
+        # average FDV within each hour-since-launch
+        buckets, liqs, raw = {}, [], []
         for r in obs:
-            if observation_quality(r):
-                rejected += 1             # a mispriced quote poisons every ratio
-                continue
-            v = r.get("fdv")
-            if not v or v <= 0:
-                continue
             mins = (dt.datetime.fromisoformat(r["ts"]) - born).total_seconds() / 60.0
-            if mins < 0:
+            if mins < 0 or mins > hours * 60:
                 continue
-            pts.append([round(mins, 2), v])
-        if len(pts) < 2:
+            # liquidity from EVERY row -- a drained pool's reading is the signal
+            lq = usable_liquidity(r)
+            if lq is not None:
+                liqs.append(lq)
+            # price only from rows with a market behind them
+            v = r.get("fdv")
+            if observation_quality(r) or not v or v <= 0:
+                continue
+            buckets.setdefault(int(mins // 60), []).append(v)
+            raw.append(v)
+        if not liqs:
             continue
 
-        # With bad quotes already filtered above, the base is far less likely to
-        # be poisoned -- but a median of the first three still costs nothing and
-        # covers a bad tick that passes the ratio gate.
-        # The base cannot be "the first value we ever saw". EAGLE's first tick
-        # read $2.42 of FDV (price 2.4e-11) while its pool already held $39,899
-        # of liquidity -- a mispriced first quote. Dividing every later reading
-        # by that produced a fake 115,747x that stretched the axis across six
-        # orders of magnitude and flattened all 150 other traces.
-        #
-        # Median of the first three observations is robust to exactly one bad
-        # tick, which is the failure mode seen. A base still below $50 means the
-        # pool had no meaningful price yet, so the trace is left unnormalised
-        # rather than inventing a multiple.
-        head = sorted(v for _, v in pts[:3])
-        base = head[len(head) // 2]
-        base_ok = base >= 50
-        peak = max(v for _, v in pts)
-        last = pts[-1][1]
-        age = (now - born).total_seconds() / 60.0
+        age_h = (now - born).total_seconds() / 3600
+        peak_liq, last_liq = max(liqs), liqs[-1]
 
-        # Deltas, never levels. A pool that STARTS small is not suspect; a pool
-        # that FALLS off its own peak is. This is the H2 shape, applied to FDV
-        # purely for colour here — the real verdict engine lands in Phase 1.
-        if peak > 0 and last <= 0.30 * peak and age >= 10:
-            state = "rugged"
-        elif age < 30:
+        # The price track, where one exists. A pool can be judged dead without
+        # ever having had a quotable price, so this is allowed to come out empty.
+        hrs = sorted(buckets)
+        series = [[h, sum(buckets[h]) / len(buckets[h])] for h in hrs]
+        mult, base, peakx, lastx = [], None, 0.0, 0.0
+        if series and series[0][1] >= 50:
+            base = series[0][1]
+            mult = [[h, v / base] for h, v in series]
+            # Peak comes from the RAW series, not the hourly means. Averaging is
+            # what makes the trend legible, but it also flattens the pump: most
+            # rugs here complete inside one hour (BLINK ran $89k to $2.6k in 45
+            # minutes), so a bucketed peak hides the very shape being named.
+            # Detect on full resolution, draw the smoothed line.
+            peakx = max(raw) / base
+            lastx = mult[-1][1]
+
+        # Liquidity decides life and death; price only ranks the survivors.
+        # Ordered so the mountain is claimed BEFORE the quieter failures, since
+        # a pool that had a real market and lost it is a different event from
+        # one that never had a market at all -- and it is the one worth naming.
+        drained = peak_liq >= 5000 and last_liq <= 0.30 * peak_liq
+        if drained:
+            state = "rug"
+        elif last_liq < MIN_DEPTH_USD:
+            state = "dead"                      # faded out; never had a market
+        elif age_h < 1 or len(mult) < 2:
             state = "early"
+        elif lastx >= 1.2:
+            state = "winner"
+        elif lastx <= 0.8:
+            state = "loser"
         else:
-            state = "stable"
+            state = "flat"
         counts[state] += 1
 
-        if len(pts) > max_points:                       # keep first and last
-            step = len(pts) / max_points
-            keep = {0, len(pts) - 1}
-            keep.update(int(i * step) for i in range(max_points))
-            pts = [pts[i] for i in sorted(keep) if i < len(pts)]
-
-        # Normalise to a multiple of the pool's OWN first observation. Absolute
-        # FDV buries a $3k launch that 40x'd under a $90k launch that died; as a
-        # multiple both read on one scale and the shape is the whole point.
-        mult = [[m, (v / base) if base_ok else 1.0] for m, v in pts]
         traces.append({
             "s": (obs[-1].get("symbol") or "?")[:14],
+            "p": pool, "st": state,
             "pad": launchpad_of(obs[-1].get("dex")),
             "pk": pad_key(launchpad_of(obs[-1].get("dex"))),
-            "p": pool,
-            "st": state,
-            "pts": pts,
-            "mx": mult,
-            "base": base,
-            "base_ok": base_ok,
-            "peakx": round(max(x for _, x in mult), 2),
-            "lastx": round(mult[-1][1], 3),
-            "peak": peak,
-            "last": last,
-            "drop": round((1 - last / peak) * 100, 1) if peak else 0,
+            # absolute hourly means alongside the multiples, so the tooltip can
+            # show the real dollar FDV rather than only a ratio
+            "mx": mult, "pts": series, "base": base,
+            "peakx": round(peakx, 2), "lastx": round(lastx, 3),
+            "liq": last_liq, "peak_liq": peak_liq, "age_h": round(age_h, 1),
+            "chg": round((lastx - 1) * 100, 1),
+            "url": f"https://dexscreener.com/robinhood/{pool}",
         })
 
-    # Most-moved first so the interesting traces survive the cap and paint last
-    # A trajectory chart needs trajectories. Two problems made this unreadable:
-    #   * 66 of 150 traces had only TWO observations -- one line segment, which
-    #     is why dots appeared with no trail behind them.
-    #   * 67 never moved more than 25% from their launch value, so they stacked
-    #     into one opaque blob sitting on the 1x line and hid everything else.
-    # Both are facts worth REPORTING, not worth drawing 130 times. They become a
-    # count in the subtitle; the plot keeps only what actually has a shape.
-    MIN_PTS, MIN_DEV = 3, 0.25
-    flat = sum(1 for t in traces
-               if len(t["mx"]) >= MIN_PTS and max(abs(1 - v) for _, v in t["mx"]) < MIN_DEV)
-    sparse = sum(1 for t in traces if len(t["mx"]) < MIN_PTS)
-    traces = [t for t in traces
-              if len(t["mx"]) >= MIN_PTS and max(abs(1 - v) for _, v in t["mx"]) >= MIN_DEV]
-
-    traces.sort(key=lambda t: -abs(t["drop"]))
-    kept = traces[:max_traces]
+    # draw the ones with a story: rugs and the biggest movers either way.
+    # A trace needs at least two priced points to be a line rather than a dot.
+    traces.sort(key=lambda t: (t["st"] != "rug", -abs(t["chg"])))
+    kept = [t for t in traces
+            if t["st"] != "early" and len(t["mx"]) >= 2][:max_traces]
     pads = {}
     for tr in kept:
         pads[tr["pad"]] = pads.get(tr["pad"], 0) + 1
+
+    def best(state, key, rev=True):
+        pool = [t for t in traces if t["st"] == state]
+        return sorted(pool, key=key, reverse=rev)[0] if pool else None
+
     return {"traces": kept, "counts": counts, "window_hours": hours,
-            "total_pools": len(by), "flat": flat, "sparse": sparse,
+            "total_pools": len(by), "judged": sum(counts.values()) - counts["early"],
+            "top_winner": best("winner", lambda t: t["chg"]),
+            "top_loser": best("loser", lambda t: -t["chg"]),
+            # Rugs rank by the size of the market that vanished, not by price
+            # multiple -- many drain without ever posting a quotable pump, and
+            # the money that was in the pool is the honest measure of damage.
+            "top_rug": best("rug", lambda t: t["peak_liq"]),
             "pads": sorted(pads.items(), key=lambda kv: -kv[1])}
 
 
 
+def launch_cards(lx):
+    """The 24h launch summary as four counts, each naming the pool behind it.
+
+    A count alone is a number nobody can check. Naming the best and worst pool
+    under each one turns it into something a reader can click through to
+    DexScreener and verify, which is the standard the rest of the page is held
+    to. Rugs get their own callout rather than a fifth card: a drained pool is
+    a kind of death, not a parallel outcome, and it is the one worth naming
+    even when the count is zero."""
+    c = lx.get("counts") or {}
+    launched = lx.get("total_pools", 0)
+    judged = lx.get("judged", 0)
+
+    def callout(t, label, pct=True):
+        if not t:
+            return '<div class="c none">—</div>'
+        sym = escape(str(t.get("s") or "?"))
+        if pct:
+            detail = f"{t['chg']:+,.0f}%"
+        else:
+            detail = f"${t.get('liq', 0):,.0f} left"
+        return (f'<div class="c">{label} <a class="ext" href="{escape(t["url"])}"'
+                f' target="_blank" rel="noopener"><b>{sym}</b></a> {detail}</div>')
+
+    cards = [
+        ("", "Launched", launched,
+         f'<div class="c">{num(judged)} with enough history to judge</div>'),
+        ("win", "Winners", c.get("winner", 0), callout(lx.get("top_winner"), "top")),
+        ("lose", "Losers", c.get("loser", 0), callout(lx.get("top_loser"), "worst")),
+        ("dead", "Dead", c.get("dead", 0),
+         '<div class="c">liquidity gone</div>'),
+    ]
+    html = ['<div class="lx-cards">']
+    for cls, k, v, foot in cards:
+        html.append(
+            f'<div class="lx-card {cls} pixel"><span class="k">{k}</span>'
+            f'<span class="v">{num(v)}</span>{foot}</div>')
+    html.append("</div>")
+
+    rug = lx.get("top_rug")
+    n_rug = c.get("rug", 0)
+    if rug:
+        fell = 100 - (rug.get("liq", 0) / rug["peak_liq"] * 100) if rug.get("peak_liq") else 0
+        html.append(
+            f'<p class="lx-rug"><b>{num(n_rug)} rugged</b> — pools that held a real '
+            f'market and lost it. Biggest: <a class="ext" href="{escape(rug["url"])}" '
+            f'target="_blank" rel="noopener"><b>{escape(str(rug.get("s") or "?"))}</b></a> '
+            f'took ${rug["peak_liq"]:,.0f} of liquidity down {fell:.0f}% to '
+            f'${rug.get("liq", 0):,.0f}.</p>')
+    else:
+        html.append('<p class="lx-rug">No pool in the window drained a market of '
+                    '$5,000 or more.</p>')
+    return "\n".join(html)
+
+
 NFT_LEDGER = OUT_DIR / "nft_launches.jsonl"
 
-
-
-def launch_health(path=None, hours=24):
-    """Alive/dead census over every pool tracked in the window.
-
-    This is the health metric; the chart above it is only the most recent
-    movement. A pool is judged on where it ended up relative to its own launch
-    value AND whether its liquidity survived — a launch that started thin and
-    stayed thin is alive, while one that lost its liquidity is not, regardless
-    of what its price says.
-
-    Deliberately covers EVERY pool seen, not just the ones with enough points to
-    draw. The pools too sparse to plot are exactly the ones that died quietly,
-    so excluding them would flatter the chain.
-    """
-    p = Path(path) if path else LEDGER
-    if not p.exists():
-        return {"total": 0, "buckets": {}, "window_hours": hours}
-
-    by = {}
-    for line in p.read_text().splitlines():
-        try:
-            r = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if observation_quality(r) or not r.get("created_at"):
-            continue
-        by.setdefault(r["pool"], []).append(r)
-
-    now = dt.datetime.now(dt.timezone.utc)
-    cutoff = now - dt.timedelta(hours=hours)
-    buckets = {"alive": 0, "quiet": 0, "fading": 0, "dead": 0, "early": 0}
-    rows = []
-
-    for pool, obs in by.items():
-        try:
-            born = dt.datetime.fromisoformat(obs[0]["created_at"].replace("Z", "+00:00"))
-        except (ValueError, AttributeError):
-            continue
-        if born < cutoff:
-            continue
-        obs.sort(key=lambda r: r["ts"])
-        age = (now - born).total_seconds() / 60
-        fdvs = [r["fdv"] for r in obs if r.get("fdv")]
-        liqs = [r["liq"] for r in obs if r.get("liq") is not None]
-        if not fdvs or not liqs:
-            continue
-        head = sorted(fdvs[:3])
-        base = head[len(head) // 2]
-        last, peak_liq, last_liq = fdvs[-1], max(liqs), liqs[-1]
-        mult = (last / base) if base >= 50 else 1.0
-
-        vol = obs[-1].get("vol_h1")
-        buyers = obs[-1].get("buyers_h1") or 0
-        if age < 30:
-            state = "early"
-        elif last_liq < 500 or (peak_liq >= 5000 and last_liq <= 0.30 * peak_liq):
-            state = "dead"          # the liquidity left, whatever the price says
-        elif mult < 0.5:
-            state = "fading"        # still has a market, but well under launch
-        elif (vol is not None and vol < 100) and buyers <= 1:
-            # Liquidity intact and price flat, but nobody is trading it. Not
-            # rugged, not alive — counting these as "alive" flattered the chain
-            # badly, since most launches simply sit inert.
-            state = "quiet"
-        else:
-            state = "alive"
-        buckets[state] += 1
-        rows.append({"symbol": (obs[-1].get("symbol") or "?")[:14], "state": state,
-                     "mult": round(mult, 3), "liq": last_liq, "age_min": round(age),
-                     "pad": launchpad_of(obs[-1].get("dex")),
-                     "url": f"https://dexscreener.com/robinhood/{pool}"})
-
-    judged = sum(v for k, v in buckets.items() if k != "early")
-    rows.sort(key=lambda r: -r["liq"])
-    return {"total": sum(buckets.values()), "judged": judged, "buckets": buckets,
-            "survival": (buckets["alive"] / judged * 100) if judged else 0,
-            "rows": rows[:12], "window_hours": hours}
 
 
 def load_nft_launches(path=None, hours=6, top_n=12):
@@ -2481,27 +2486,6 @@ HEALTH_STATE = {
     "dead": ("flag", "liquidity gone"),
     "early": ("warn", "under 30 minutes old"),
 }
-
-
-def health_rows(rows):
-    out = []
-    for i, r in enumerate(rows, 1):
-        cls, tip = HEALTH_STATE.get(r["state"], ("warn", ""))
-        age = r["age_min"]
-        age_s = f"{age}m" if age < 90 else f"{age // 60}h{age % 60:02d}"
-        out.append(f"""          <tr class="{'over' if i > 10 else ''}">
-            <td class="rank">{i}</td>
-            <td class="sym" data-v="{escape(r['symbol'].lower())}">
-              <span class="sym-name">{link(r['url'], r['symbol'], 'ext strong')}<span
-                class="badge {cls}" title="{escape(tip)}">{escape(r['state'])}</span></span>
-              <span class="sym-sub">{escape(r['pad'])} &middot; {escape(age_s)} old</span>
-            </td>
-            <td class="n" data-v="{r['mult']}">{r['mult']:.2f}x
-              <span class="alt">vs launch</span></td>
-            <td class="n strong" data-v="{r['liq']}">{escape(usd(r['liq']))}
-              <span class="alt">liquidity</span></td>
-          </tr>""")
-    return "\n".join(out)
 
 
 def nft_launch_rows(cols):

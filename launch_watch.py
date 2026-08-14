@@ -111,13 +111,72 @@ def _tx(block, window):
 # out when a pool is measured against its own base.
 FDV_LIQ_FLOOR = 0.02
 
+# Depth below which a quote is not a measurement. Set to match the existing
+# "no market" threshold rather than inventing a second number for the same idea.
+MIN_DEPTH_USD = 500
+
+# Upper sanity bound on a single pool's reserve. The whole chain holds ~$481M of
+# TVL, so a pool reporting more than this is a corrupt reading, not a large
+# pool: the ledger contains one at $60,520,012,210,442. GeckoTerminal is known
+# to emit broken reserves here -- it also reported NEGATIVE liquidity for RBH --
+# so both tails need bounding, not just the low one.
+MAX_DEPTH_USD = 100_000_000
+
+
+def usable_liquidity(r):
+    """The row's reserve if it is a believable number, else None.
+
+    Separate from observation_quality() on purpose. That answers "can this row
+    carry a PRICE", which needs depth behind it; this answers "is this reserve
+    reading itself sane", and a drained pool reporting $10 is a perfectly sane
+    reading -- indeed it is the one that matters most.
+
+    ⚠️ Rows tagged src="multi" are the retired token-endpoint follow-ups, whose
+    `liq` is a token-level total_reserve_in_usd rather than this pool's reserve.
+    On this chain that number is simply wrong -- HMM read $6 there while its
+    pool held $362,750 -- so those readings are refused outright rather than
+    compared against pool-level ones. They stay in the ledger; only their
+    liquidity is unusable."""
+    if r.get("src") == "multi":
+        return None
+    liq = r.get("liq")
+    if liq is None or liq < 0 or liq > MAX_DEPTH_USD:
+        return None
+    return liq
+
 
 def observation_quality(r):
     """None if the row is usable, else a short human reason it is not."""
     fdv, liq = r.get("fdv"), r.get("liq")
     if fdv is None or fdv <= 0:
         return "no fdv"
-    if liq is not None and liq > 0 and (fdv / liq) < FDV_LIQ_FLOOR:
+    # Legacy token-endpoint rows: the FDV is sound (spot-checked against the
+    # pool endpoint on three pools -- $42,285, $453,333 and $481,213 all
+    # matched), but their `liq` is a different quantity entirely, so the depth
+    # tests below cannot run. Keep the price, refuse the depth. Discarding these
+    # outright would drop 68% of the window and flatten every trace back to its
+    # one or two discovery rows. The BASE is unaffected: discovery rows come
+    # from new_pools and are still fully validated.
+    if r.get("src") == "multi":
+        return None
+    # An FDV quoted against no real pool depth is not a low price, it is an
+    # unpriceable one -- nobody can trade at it in either direction, so the
+    # number is noise rather than a measurement. The ratio test below cannot
+    # catch these: it needs liq > 0 to divide at all, and dividing by dust
+    # produces a huge ratio that sails through a LOW floor. Measured examples
+    # from the ledger: $107,104 of FDV on $1 of liquidity, $379,323 on $1,
+    # $319,209 on $22 -- and PAYPOOL's $371 opening quote on $0.49, which
+    # rendered as a 64x.
+    #
+    # NOTE this is emphatically NOT a launch filter. Screening new pools by
+    # liquidity LEVEL is backwards here and always has been -- the biggest
+    # gainers in the sample opened at $56, $0 and $0. A pool is still tracked
+    # from birth; this only decides which of its quotes can carry a number.
+    # In practice the base becomes the first reading with a real market behind
+    # it, which is exactly the point the multiple should be measured from.
+    if not liq or liq < MIN_DEPTH_USD:
+        return f"${liq or 0:,.0f} liquidity — no market to price against"
+    if (fdv / liq) < FDV_LIQ_FLOOR:
         return f"fdv ${fdv:,.2f} vs ${liq:,.0f} liquidity — mispriced quote"
     return None
 
@@ -187,47 +246,103 @@ def poll(pages=DEFAULT_PAGES):
 
 # GeckoTerminal drops a pool from new_pools once ~53 minutes of newer launches
 # have arrived, so the feed alone cannot follow a pool through its first hour.
-# tokens/multi takes 30 addresses per call and keeps returning price/FDV/reserve
-# after that, which is what lets a trace run to 60 minutes and beyond.
+# pools/multi takes 30 addresses per call and keeps returning the same pool
+# record afterwards, which is what lets a trace run past 60 minutes.
+#
+# ⚠️ MUST be pools/multi, NOT tokens/multi. The token endpoint's
+# total_reserve_in_usd is NOT the pool's reserve and is broken on this chain --
+# VERIFIED live against three pools: HMM read $6 and $0 at the token endpoint
+# while its pools held $362,750 and $385,089 at that same moment. Following
+# tokens wrote that number into the same `liq` field that new_pools fills with a
+# real pool reserve, so every trace showed a catastrophic liquidity collapse the
+# instant it aged out of the feed. That single mismatch manufactured 287 false
+# "rugs" out of 900 judged pools. The pool endpoint also returns live
+# transaction counts, so the extended rows no longer carry stale ones forward.
 MULTI_BATCH = 30
 EXTEND_MIN_AGE = 12       # below this the pool is still in the feed
-EXTEND_MAX_AGE = 180      # stop following after 3h
+EXTEND_MAX_AGE = 1440     # follow for a full 24h -- see the tiering note below
+
+# HOW OFTEN EACH AGE BAND IS RE-READ, in polls (the loop polls every ~3 min).
+#
+# MEASURED, and the reason this exists: with a flat 120-address cap taken
+# youngest-first, the cap was only ever deep enough to reach the 12-44 minute
+# band. Every pool stopped being observed at ~45 minutes old, so no pool in the
+# ledger had more than FIVE observations and the median was THREE -- against a
+# chart whose axis runs to 24 hours. Peak and last were routinely the same
+# point, which is why no rug ever showed the mountain shape: two points cannot
+# describe one.
+#
+# Sampling density should follow where the information is. A memecoin's first
+# hour decides it, so that band is read every poll; after that the question is
+# only "is it still alive", which a half-hourly read answers just as well.
+EXTEND_TIERS = (
+    (60,   1),            # first hour      -- every poll, ~3 min
+    (360,  4),            # 1h to 6h        -- ~12 min
+    (1440, 10),           # 6h to 24h       -- ~30 min
+)
 
 
-def extend_ages(ledger=LEDGER, now=None):
+def _tier_period(age_min):
+    """Polls between re-reads for a pool of this age, or None if past following."""
+    for ceiling, period in EXTEND_TIERS:
+        if age_min <= ceiling:
+            return period
+    return None
+
+
+def extend_ages(ledger=LEDGER, now=None, tick=None):
     """Pools we already know that are past the feed window but inside the
-    follow-up window, newest launch first."""
+    follow-up window, newest launch first.
+
+    `tick` selects which age tiers are due this run. It is derived from the wall
+    clock rather than a stored counter because every poll is a SEPARATE process
+    invocation -- there is no in-memory state to increment, and a state file
+    would desync the moment a run is cancelled mid-loop."""
     if not Path(ledger).exists():
         return {}
     now = now or dt.datetime.now(dt.timezone.utc)
+    if tick is None:
+        tick = int(now.timestamp() // 180)
     born, tok = {}, {}
     for line in Path(ledger).read_text().splitlines():
         try:
             r = json.loads(line)
         except json.JSONDecodeError:
             continue
-        if not r.get("token") or not r.get("created_at"):
+        # Keyed by POOL, because the follow-up reads the pool endpoint. Keying
+        # by token also silently collapsed the many same-symbol copycat pools
+        # this chain is full of down to whichever one was seen last.
+        if not r.get("pool") or not r.get("created_at"):
             continue
-        born[r["token"]] = r["created_at"]
-        tok[r["token"]] = r
+        born[r["pool"]] = r["created_at"]
+        tok[r["pool"]] = r
     aged = []
     for addr, created in born.items():
         try:
             age = (now - dt.datetime.fromisoformat(created.replace("Z", "+00:00"))).total_seconds() / 60
         except ValueError:
             continue
-        if EXTEND_MIN_AGE <= age <= EXTEND_MAX_AGE:
-            aged.append((age, addr))
-    # YOUNGEST FIRST. The batch cap means we can only follow ~120 pools per run;
-    # taking them in dict order followed the same stale set every time, so pools
-    # in the first hour -- the only window where anything interesting happens --
-    # ended up with a median of 3 observations and no visible trajectory.
+        if not EXTEND_MIN_AGE <= age <= EXTEND_MAX_AGE:
+            continue
+        period = _tier_period(age)
+        # Older bands are read on a slower rotation, so most polls skip them and
+        # the young band is never crowded out of the batch budget.
+        if period is None or tick % period:
+            continue
+        aged.append((age, addr))
+    # YOUNGEST FIRST within whatever is due -- if the budget still binds, it
+    # should bind on the pools whose next reading matters least.
     aged.sort()
     return {addr: tok[addr] for _, addr in aged}
 
 
-def poll_extended(ledger=LEDGER, max_batches=4):
-    """Re-read known tokens that have aged out of new_pools."""
+def poll_extended(ledger=LEDGER, max_batches=40):
+    """Re-read known pools that have aged out of new_pools.
+
+    40 batches is 1,200 addresses -- enough to sweep the entire 24h cohort on
+    the one poll in twenty where all three tiers come due at once. At 1.2s
+    between calls that worst case costs ~50s of a 180s poll, and every other
+    poll is far cheaper."""
     pending = extend_ages(ledger)
     if not pending:
         return []
@@ -236,7 +351,7 @@ def poll_extended(ledger=LEDGER, max_batches=4):
     obs = []
     for i in range(0, len(addrs), MULTI_BATCH):
         chunk = addrs[i:i + MULTI_BATCH]
-        d = _get(f"{GECKOTERMINAL}/networks/{GT_NETWORK}/tokens/multi/{','.join(chunk)}")
+        d = _get(f"{GECKOTERMINAL}/networks/{GT_NETWORK}/pools/multi/{','.join(chunk)}")
         if not d:
             break
         for item in d.get("data") or []:
@@ -245,33 +360,39 @@ def poll_extended(ledger=LEDGER, max_batches=4):
             prev = pending.get(addr)
             if not prev:
                 continue
+            b5, s5, br5, sr5 = _tx(a.get("transactions"), "m5")
+            b1, s1, br1, sr1 = _tx(a.get("transactions"), "h1")
+            vol = a.get("volume_usd") or {}
             obs.append({
                 "ts": now.isoformat(),
-                "pool": prev["pool"],
-                "created_at": prev["created_at"],
-                "name": prev.get("name"),
-                "token": addr,
-                "symbol": a.get("symbol") or prev.get("symbol"),
-                "token_name": a.get("name"),
-                "decimals": a.get("decimals"),
-                "supply": _f(a.get("normalized_total_supply")),
+                "pool": addr,
+                "created_at": a.get("pool_created_at") or prev["created_at"],
+                "name": a.get("name") or prev.get("name"),
+                # The pool endpoint does not inline the token records, so the
+                # token identity carries over from the row that discovered it.
+                "token": prev.get("token"),
+                "symbol": prev.get("symbol"),
+                "token_name": prev.get("token_name"),
+                "decimals": prev.get("decimals"),
+                "supply": prev.get("supply"),
                 "quote": prev.get("quote"),
                 "dex": prev.get("dex"),
-                "liq": _f(a.get("total_reserve_in_usd")),
-                "price": _f(a.get("price_usd")),
+                # Same field, same meaning as poll(): THIS pool's reserve.
+                "liq": _f(a.get("reserve_in_usd")),
+                "price": _f(a.get("base_token_price_usd")),
                 "fdv": _f(a.get("fdv_usd")),
                 "mcap": _f(a.get("market_cap_usd")),
-                "vol_h24": _f((a.get("volume_usd") or {}).get("h24")),
-                # tokens/multi carries no tx breakdown -- carry the last known
-                # counts forward so the verdict rules still have a value, and
-                # mark the row so they can be excluded if that matters.
-                "vol_m5": None, "vol_h1": None,
-                "buys_m5": prev.get("buys_m5"), "sells_m5": prev.get("sells_m5"),
-                "buyers_m5": prev.get("buyers_m5"), "sellers_m5": prev.get("sellers_m5"),
-                "buys_h1": prev.get("buys_h1"), "sells_h1": prev.get("sells_h1"),
-                "buyers_h1": prev.get("buyers_h1"), "sellers_h1": prev.get("sellers_h1"),
-                "chg_m5": None, "chg_h1": None,
-                "src": "multi",
+                "vol_m5": _f(vol.get("m5")),
+                "vol_h1": _f(vol.get("h1")),
+                "vol_h24": _f(vol.get("h24")),
+                "buys_m5": b5, "sells_m5": s5, "buyers_m5": br5, "sellers_m5": sr5,
+                "buys_h1": b1, "sells_h1": s1, "buyers_h1": br1, "sellers_h1": sr1,
+                "chg_m5": _f((a.get("price_change_percentage") or {}).get("m5")),
+                "chg_h1": _f((a.get("price_change_percentage") or {}).get("h1")),
+                # Distinct from the retired "multi" tag on purpose: those older
+                # rows hold a token-level reserve in `liq` and must never be
+                # compared against a pool-level one. Consumers key off this.
+                "src": "pool_multi",
             })
         time.sleep(PAGE_SLEEP)
     return obs
@@ -479,7 +600,7 @@ def main():
                     help="drop ledger rows older than N days (0 = keep all)")
     ap.add_argument("--no-nft", action="store_true", help="skip the ERC-721 mint scan")
     ap.add_argument("--no-extend", action="store_true",
-                    help="skip the tokens/multi follow-up for aged-out pools")
+                    help="skip the pools/multi follow-up for aged-out pools")
     args = ap.parse_args()
 
     t0 = time.time()
