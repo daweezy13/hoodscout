@@ -942,13 +942,23 @@ td.sym {{ min-width:190px; }}
    is based on. Tighter name column and padding in the two-up context only. */
 .two-col td.sym {{ min-width:162px; }}
 
+/* The hero is two columns: TVL + its reading on the left, the other on-chain
+   metrics on the right. The summary is a sibling card of the metrics panel,
+   not a full-width paragraph under both -- it carries the same surface, rule
+   and notch, and flex:1 makes it absorb the leftover height so the two columns
+   finish level whatever the TVL card's clamped type does. */
+.hero-main {{ display:flex; flex-direction:column; gap:22px; min-width:0; }}
 .summary {{
-  margin:18px 0 0; padding:16px 20px 16px 22px;
-  background:var(--panel); border:1px solid var(--line);
-  border-left:5px solid var(--accent);
-  font-size:16.5px; line-height:1.62; color:var(--ink-2);
-  max-width:92ch; text-wrap:pretty;
+  flex:1; margin:0; padding:16px 20px 18px;
+  background:var(--panel); border:var(--rule-w) solid var(--rule);
+  display:flex; flex-direction:column; justify-content:center;
+  font-size:15.5px; line-height:1.6; color:var(--ink-2); text-wrap:pretty;
 }}
+.summary-label {{
+  font-family:var(--mono); font-size:10px; letter-spacing:.11em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:10px;
+}}
+.summary p {{ margin:0; }}
 /* The numbers ARE the content, so they carry the accent and the page's mono
    face; the prose around them stays recessive so the figures read first. */
 .summary b {{
@@ -958,7 +968,7 @@ td.sym {{ min-width:190px; }}
   background:var(--accent-soft); padding:1px 5px; border-radius:2px;
   white-space:nowrap;
 }}
-@media (max-width:700px) {{ .summary {{ font-size:15px; padding:14px 16px; }} }}
+@media (max-width:700px) {{ .summary {{ font-size:14.5px; padding:14px 16px; }} }}
 
 /* ---- 24h launch summary cards ---- */
 .lx-cards {{
@@ -1199,19 +1209,21 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
      rel="noopener noreferrer">View explorer <span aria-hidden="true">&#8599;</span></a>
 
   <div class="hero">
-    <div class="pixel-shadow"><div class="hero-card pixel">
-      <span class="hero-label">Total value locked</span>
-      <span class="hero-value">{usd(tvl_headline)}</span>
-      <span class="hero-meta">
-        Robinhood Chain &middot; DefiLlama &middot; {escape(tvl_date)}
-        &middot; {pct(l.get('tvl_change_7d_pct'))} 7d
-      </span>
-    </div></div>
+    <div class="hero-main">
+      <div class="pixel-shadow"><div class="hero-card pixel">
+        <span class="hero-label">Total value locked</span>
+        <span class="hero-value">{usd(tvl_headline)}</span>
+        <span class="hero-meta">
+          Robinhood Chain &middot; DefiLlama &middot; {escape(tvl_date)}
+          &middot; {pct(l.get('tvl_change_7d_pct'))} 7d
+        </span>
+      </div></div>
+{summary_html}
+    </div>
     <div class="hero-side pixel">
 {hero_tiles}
     </div>
   </div>
-{summary_html}
 
   <section>
     <h2>Chain vitals</h2>
@@ -2336,7 +2348,9 @@ def chain_summary(s, l, n, m, rw, lx, tvl):
                     f"holding them, <b>{usd(paid)}</b> paid out so far.")
     if not bits:
         return ""
-    return ('<p class="summary">' + " ".join(bits) + "</p>")
+    return ('<div class="summary pixel">'
+            '<span class="summary-label">The short version</span>'
+            '<p>' + " ".join(bits) + "</p></div>")
 
 
 def launch_cards(lx):
