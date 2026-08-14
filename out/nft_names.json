@@ -302,5 +302,77 @@
 "symbol": "Anthropic",
 "max": 1111,
 "minted": 966
+},
+"0x4a2c6e28d1fbadee3c11c4b4157f4bf2fe2a1f1a": {
+"name": "Howl Street",
+"symbol": "HOWL",
+"max": 100000,
+"minted": 100000
+},
+"0x949e1dfac9fb8d4a137f874e33a3a70bf84fa2fb": {
+"name": "URSAPE",
+"symbol": "URSAPE",
+"max": 10000,
+"minted": 10000
+},
+"0xa6f2472bb5fb86d6d5f9e7a01025b2617d789340": {
+"name": "HoodLings",
+"symbol": "Ling",
+"max": 6968,
+"minted": 6968
+},
+"0x14a247e9e3accbc941a705c984a49e291468bc29": {
+"name": "HoodBirds",
+"symbol": "HDB",
+"max": 4500,
+"minted": 4500
+},
+"0x258180a015b9fcdd8bdacc3fa09f9fdbd05fae17": {
+"name": "\u53c8\u4e8f\u4e86",
+"symbol": "\u53c8\u4e8f\u4e86",
+"max": 3333,
+"minted": 3333
+},
+"0x42253bb24f6e1e5821974054a44df6d6b43fec01": {
+"name": "BOYHOOD",
+"symbol": "BHOOD",
+"max": 3706,
+"minted": 3373
+},
+"0x91e417fd4364a50b28af96fb2a9009dce5445ea1": {
+"name": "Dungeon Employees",
+"symbol": "DNGN",
+"max": 5555,
+"minted": 5555
+},
+"0xe7fe1d254dd0e42931b2786181fdaee0c5318e74": {
+"name": "Brick Block",
+"symbol": "BB",
+"max": 10000,
+"minted": 10000
+},
+"0x1226624f0cb883823b26166819ae2a48c4cece41": {
+"name": "Weird Cat",
+"symbol": "Weird Cat",
+"max": 2999,
+"minted": 2999
+},
+"0x69df803313c517f5fd7a085e808799c526d2f235": {
+"name": "Rain pools",
+"symbol": "Rainpools",
+"max": 3333,
+"minted": 3333
+},
+"0xfed118d1078aa94569a344fed396f5debd84b510": {
+"name": "Sherwood PePe",
+"symbol": "SPEPE",
+"max": 6969,
+"minted": 6969
+},
+"0x2c94cccb3be4ef45e013a83a7ee2bdbe4328e80f": {
+"name": "Alphabets",
+"symbol": "ALPHABETS",
+"max": 10000,
+"minted": 3226
 }
 }
