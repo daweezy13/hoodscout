@@ -446,5 +446,77 @@
 "symbol": "MBRK",
 "max": 1450,
 "minted": 1411
+},
+"0xaac28a521c99ff554bf625b9f4904a78397e5a98": {
+"name": "PopHoodCat",
+"symbol": "PopHoodCat",
+"max": 10000,
+"minted": 10000
+},
+"0xaa37636848fd4a9970ef611c4651b640997430a4": {
+"name": "kiwyu",
+"symbol": "kiwyu",
+"max": 1500,
+"minted": 1500
+},
+"0x1b6e40ae0dadd31db8626e2bffc8e31a7f7124ad": {
+"name": "Cash NPC",
+"symbol": "CASHN",
+"max": null,
+"minted": 6075
+},
+"0xfb16359c14222536b85e5e3aeb97e6471a4d3003": {
+"name": "Florakins",
+"symbol": "Flora",
+"max": 10000,
+"minted": 10000
+},
+"0x6656d732c9630c14823847f807dbd0bd817dedf6": {
+"name": "Cyclops Eyrix",
+"symbol": "cyclops-eyri",
+"max": 9999,
+"minted": 9999
+},
+"0xb52564ab1cd4ed31510132b1b82070272e82acc7": {
+"name": "Mortis",
+"symbol": "Mortis",
+"max": 4444,
+"minted": 4444
+},
+"0x7a8628b3e9468d140f552a0045015b53618dd180": {
+"name": "ROBIPIXEL NFT",
+"symbol": "ROBIPIXELNFT",
+"max": 4444,
+"minted": 1265
+},
+"0x918d3da507a79d7c531498a7cb58d05dd3b23159": {
+"name": "ROBIPIXELS NFT",
+"symbol": "RBP",
+"max": 2222,
+"minted": 1599
+},
+"0x6c66607e83cc7944f6ab9456d4a51b8382cf6c56": {
+"name": "NEKO.exe",
+"symbol": "NEKO",
+"max": null,
+"minted": 6774
+},
+"0xc2e29ff7d4933d6ad609917236fd2a8278e87598": {
+"name": "OUTLANDERS",
+"symbol": "OUTLANDERS",
+"max": 666,
+"minted": 666
+},
+"0x070df8aaaed0c83bcc7f63d8171a7c10692fdae7": {
+"name": "Skull Brokers",
+"symbol": "sbb",
+"max": 999,
+"minted": 963
+},
+"0x08998652f1e1c76995d396e782b8eda1d50c6f93": {
+"name": "Cash Cows",
+"symbol": "CASHCOWS",
+"max": 6666,
+"minted": 6386
 }
 }

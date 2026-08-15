@@ -1451,6 +1451,7 @@ def fetch_nft_boosters(dune_run, min_usd=1.0):
         assets.sort(key=lambda x: -x["usd"])
         out.append({
             "address": b, "name": name, "kind": "nft-booster",
+            "pending_usd": _pending_usd(b, [a["address"] for a in assets], px),
             "assets": assets,
             "asset_symbols": [a["symbol"] for a in assets],
             "distributed_usd": total,
@@ -1490,6 +1491,19 @@ def fetch_nft_boosters(dune_run, min_usd=1.0):
 # catches the next template nobody has written yet.
 WAGE_POOL_REGISTRY = OUT_DIR / "wage_pools.json"
 
+# A curated basket tops out around a dozen; past that it is an aggregator.
+MAX_BASKET_ASSETS = 12
+PAYOUT_NAME_RE = re.compile(
+    r"distribut|reward|payout|reflect|dividend|salary|booster|clockin|wage", re.I)
+
+# Contracts that move many tokens to many wallets as a matter of routine. They
+# pass every fanout test ever written and none of them pays holders.
+PAYOUT_INFRA = {
+    "0x8366a39cc670b4001a1121b8f6a443a643e40951",   # Uniswap v4 PoolManager
+    "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",   # RelayRouterV3
+    "0x0000000000000000000000000000000000000000",
+}
+
 # Discovery runs on the RPC, not Dune. The Dune account cannot create new saved
 # queries (the API 402s on POST /v1/query while existing query ids still
 # execute), and reusing another section's query id would clobber it. The RPC is
@@ -1512,6 +1526,51 @@ def discover_stock_tokens(limit=60):
         if STOCK_TOKEN_MARK in name and addr.startswith("0x"):
             out[addr] = it.get("symbol") or "?"
     return dict(list(out.items())[:limit])
+
+
+def _pending_usd(holder, assets, price_of):
+    """Value of reward assets still sitting in a payout contract, unclaimed.
+
+    Distributed and pending are DIFFERENT FACTS and must not be summed: one has
+    reached holders, the other has not. Reporting only the first quietly
+    penalises the epoch/claim model -- a pool that converts fees periodically
+    looks smaller than a push-based one between conversions, purely because of
+    when the job happened to run.
+
+    Measured as the contract's own balance of the assets it pays, which is
+    generic (one balanceOf per asset) and true for both models: for a claim
+    pool it is money holders can take right now.
+
+    ⚠️ It does NOT include fees still upstream of the contract. QUOTRONS accrues
+    trading fees in a Uniswap v4 hook (QuotronWethHook, 4.795 WETH ≈ $9,046 at
+    the time of writing, two thirds of it earmarked for stocks under their
+    documented 3% split) and only converts on an epoch. Counting that would need
+    each project's hook, which is only knowable here because their docs name it,
+    so it is deliberately out of scope rather than counted for one project and
+    not the rest.
+    """
+    total = 0.0
+    for a in assets:
+        res, err = _rpc("eth_call", [{"to": a,
+                                      "data": "0x70a08231" + holder[2:].rjust(64, "0")},
+                                     "latest"])
+        if err or not res or res == "0x":
+            continue
+        try:
+            bal = int(res, 16)
+        except ValueError:
+            continue
+        if not bal:
+            continue
+        dec = _eth_call(a, "decimals()") or 18
+        total += bal / (10 ** dec) * (price_of(a) or 0.0)
+    return total
+
+
+def _contract_name(addr):
+    """The verified contract name, if the explorer has one."""
+    d = _get(f"{BLOCKSCOUT}/addresses/{addr}") or {}
+    return d.get("name") or (_get(f"{BLOCKSCOUT}/smart-contracts/{addr}") or {}).get("name")
 
 
 def _pool_assets(pool, pages=6):
@@ -1540,9 +1599,16 @@ def _pool_assets(pool, pages=6):
     return assets
 
 
-def _fanout_senders(asset, from_block, to_block, min_recipients, chunk=400_000):
-    """Senders of `asset` paying many distinct wallets in the window."""
-    rec = defaultdict(set)
+def _fanout_scan(asset, from_block, to_block, rec, chunk=400_000):
+    """Accumulate sender -> ({recipients}, {assets}) for one asset.
+
+    ⚠️ Accumulates ACROSS assets instead of thresholding within each one, which
+    is the whole point. QUOTRONS V2 converts trading fees into TEN tokenised
+    stocks each epoch, so its reflections contract paid 60 distinct wallets in
+    8 hours while its BIGGEST single asset reached only 26 -- under a per-asset
+    threshold of 40 it was invisible, despite having paid 252 wallets overall.
+    A basket payer is the normal shape here, not the exception.
+    """
     start = from_block
     while start <= to_block:
         end = min(start + chunk - 1, to_block)
@@ -1551,13 +1617,16 @@ def _fanout_senders(asset, from_block, to_block, min_recipients, chunk=400_000):
             t = l.get("topics") or []
             if len(t) != 3:                      # 4 topics == ERC-721
                 continue
-            rec["0x" + t[1][-40:].lower()].add(t[2][-40:].lower())
+            sender = "0x" + t[1][-40:].lower()
+            if sender in PAYOUT_INFRA:
+                continue
+            rec[sender][0].add(t[2][-40:].lower())
+            rec[sender][1].add(asset)
         start = end + 1
-    return {a: len(v) for a, v in rec.items() if len(v) >= min_recipients}
 
 
 def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
-                         budget_s=420):
+                         budget_s=420, measure_budget_s=600):
     """Contracts paying an ERC-20 to the holders of a specific NFT collection.
 
     `known` is the set of addresses the other two families already claim, so a
@@ -1599,67 +1668,148 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
     # then is used, and the registry keeps every pool already proven. Better a
     # late discovery than a refresh that times out and publishes nothing.
     deadline = time.time() + budget_s
+    rec = defaultdict(lambda: (set(), set()))
     for i, asset in enumerate(stocks):
         if time.time() > deadline:
             print(f"        discovery budget reached after {i} of {len(stocks)} "
                   f"tokens; registry still measured in full", flush=True)
             break
         try:
-            for a in _fanout_senders(asset, max(head - span, 0), head, min_recipients):
-                candidates.add(a)
-                seen_assets[a].add(asset)
+            _fanout_scan(asset, max(head - span, 0), head, rec)
         except Exception as e:                   # one asset must not kill the run
             print(f"        fanout scan failed on {asset[:10]}: {e}", flush=True)
+    for a, (wallets, assets_seen) in rec.items():
+        if len(wallets) >= min_recipients:
+            candidates.add(a)
+            seen_assets[a] |= assets_seen
 
     # nft() is the attribution test AND the filter: AMMs, routers and bridges
     # all move tokens to many wallets, and none of them implement it.
+    # ATTRIBUTION. nft() is the clean case: it names the collection outright and
+    # excludes AMMs and routers, which never implement it. It is not the only
+    # shape though -- QuotronReflectionsV2 is a verified, working payout contract
+    # that implements none of the usual accessors (nft, collection, nftContract,
+    # erc721, token all return nothing), so requiring one dropped it even after
+    # discovery had correctly found it.
+    #
+    # Without nft(), the discriminator is that A PAYOUT BASKET IS CURATED AND AN
+    # AGGREGATOR IS NOT. MEASURED over one sweep, the split has an empty middle:
+    #   payers   1, 3, 10, 10, 11, 11 assets  (QUOTRONS pays its documented ten)
+    #   routers  18, 22, 25, 26, 27, 29, 30, 31  (LiFiDiamond, RobinHoodSettler,
+    #            bare ERC1967/Transparent proxies, unnamed aggregators)
+    # A project picks the few equities it pays in; an aggregator touches nearly
+    # every one on the chain. An unbounded "3 or more" rule put a bridge and a
+    # settlement contract on the board, so the ceiling is the real test.
+    #
+    # A verified name that says what the contract does is evidence too, and it
+    # rescues the curated-but-broad case (USDGBuyerDistributorV2, 18 assets)
+    # without readmitting LiFiDiamond, which claims nothing of the sort. Names
+    # are weak evidence, so they only ever ADD to the asset test, never replace
+    # it. A pool kept this way carries no collection link rather than a guess.
     pools = []
     for a in sorted(candidates):
-        if a in claimed:
+        if a in claimed or a in PAYOUT_INFRA:
             continue
         nft = _eth_call(a, "nft()", "addr")
-        if not nft or int(nft, 16) == 0:
+        if nft and int(nft, 16):
+            pools.append({"addr": a, "nft": nft.lower()})
             continue
-        pools.append({"addr": a, "nft": nft.lower()})
+        n_assets = len(seen_assets.get(a, ()))
+        if n_assets < 3:
+            continue
+        if n_assets <= MAX_BASKET_ASSETS or PAYOUT_NAME_RE.search(_contract_name(a) or ""):
+            pools.append({"addr": a, "nft": None})
     print(f"        {len(pools)} wage pools from {len(candidates)} candidates",
           flush=True)
     if not pools:
         return {"projects": [], "total_distributed_usd": 0.0, "reward_assets": []}
-    WAGE_POOL_REGISTRY.write_text(json.dumps(
-        [{"pool": p["addr"], "nft": p["nft"],
-          "assets": sorted(seen_assets.get(p["addr"], []))} for p in pools], indent=2))
+
 
     # Lifetime payouts, measured as Transfers OUT of the pool -- the money that
     # actually left the contract, not an announced figure.
+    #
+    # INCREMENTAL, against a per-pool block watermark. Re-reading all of history
+    # for every pool every run costs ~13 chunked calls per asset per pool; once
+    # discovery started finding twelve pools instead of three that is ~1,500
+    # calls, which does not fit the refresh's 30-minute budget alongside
+    # everything else. Totals are cumulative and past transfers never change, so
+    # each run only needs the blocks since the last. Same watermark pattern the
+    # NFT mint scanner uses.
+    prior = {r.get("pool"): r for r in reg}
+    # Seed every pool with whatever was already known, so a pool the budget does
+    # not reach this run keeps its tallies instead of being reset to zero.
+    for p in pools:
+        was = prior.get(p["addr"]) or {}
+        p["tallies"] = was.get("tallies") or {}
+        p["last_block"] = int(was.get("last_block") or 0)
+
+    # The first run after a discovery change has no watermarks and must read all
+    # of history for every pool, which is the one case that can overrun. Measure
+    # until the budget is spent and persist what was finished: unmeasured pools
+    # keep watermark 0 and are picked up next run, so the work CONVERGES across
+    # runs rather than timing out the refresh and never completing at all.
+    m_deadline = time.time() + measure_budget_s
     by_pool = defaultdict(list)
     for p in pools:
+        if time.time() > m_deadline:
+            print(f"        measurement budget spent; {len(by_pool)} of "
+                  f"{len(pools)} pools priced, rest resume next run", flush=True)
+            break
+        was = prior.get(p["addr"]) or {}
+        tallies = {a: dict(v) for a, v in (was.get("tallies") or {}).items()}
+        frm = int(was.get("last_block") or 0)
         reward = _eth_call(p["addr"], "rewardToken()", "addr")
         assets = {reward.lower()} if reward and int(reward, 16) else set()
         assets |= _pool_assets(p["addr"]) | seen_assets.get(p["addr"], set())
+        assets |= set(tallies)
         assets -= {WETH, USDG, NATIVE}
         topic1 = "0x" + p["addr"][2:].rjust(64, "0")
         for asset in assets:
-            raw, recips, n = 0, set(), 0
-            start = 0
+            tal = tallies.setdefault(asset, {"raw": 0, "transfers": 0, "recipients": []})
+            recips = set(tal.get("recipients") or [])
+            raw, n = int(tal.get("raw") or 0), int(tal.get("transfers") or 0)
+            start = frm
             while start <= head:
                 end = min(start + 3_000_000 - 1, head)
                 logs, e = _rpc("eth_getLogs", [{
                     "fromBlock": hex(start), "toBlock": hex(end),
                     "address": asset, "topics": [TRANSFER_TOPIC, topic1]}])
                 for l in (logs or []):
-                    t = l.get("topics") or []
-                    if len(t) != 3:
+                    tp = l.get("topics") or []
+                    if len(tp) != 3:
                         continue
-                    recips.add(t[2][-40:])
+                    recips.add(tp[2][-40:])
                     n += 1
                     try:
                         raw += int(l.get("data") or "0x0", 16)
                     except ValueError:
                         pass
                 start = end + 1
+            tal.update(raw=raw, transfers=n, recipients=sorted(recips))
             if n:
                 by_pool[p["addr"]].append({"asset": asset, "raw": raw,
                                            "transfers": n, "recipients": len(recips)})
+        p["tallies"] = {a: v for a, v in tallies.items() if v.get("transfers")}
+        p["last_block"] = head + 1
+
+    # Written AFTER measuring: a registry saved before the scan would advance the
+    # watermark past blocks whose transfers were never counted.
+    #
+    # A pool that has been fully measured and sent NOTHING is not a payer, so it
+    # is dropped rather than rescanned every run forever. Two such entries were
+    # carrying 10 and 18 assets from an earlier buggy state; a direct scan
+    # confirmed zero transfers out for any of them. Dropping is safe because
+    # discovery runs every time -- if one ever does pay, it comes straight back.
+    keep = [p for p in pools if p.get("tallies") or not p.get("last_block")]
+    dropped = len(pools) - len(keep)
+    if dropped:
+        print(f"        pruned {dropped} measured non-payers from the registry",
+              flush=True)
+    WAGE_POOL_REGISTRY.write_text(json.dumps(
+        [{"pool": p["addr"], "nft": p["nft"],
+          "assets": sorted(seen_assets.get(p["addr"], [])),
+          "last_block": p.get("last_block", 0),
+          "tallies": p.get("tallies", {})} for p in keep], indent=2))
 
     price_cache = {}
 
@@ -1699,14 +1849,22 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
         if not assets:
             continue
         assets.sort(key=lambda x: -x["usd"])
-        # Name it after the COLLECTION it pays, not the payout contract, which
-        # is unverified and unnamed. That is also the name a reader recognises.
-        name = (_get(f"{BLOCKSCOUT}/tokens/{p['nft']}") or {}).get("name") \
-            or (_get(f"{BLOCKSCOUT}/smart-contracts/{p['addr']}") or {}).get("name") \
-            or "wage pool"
+        # Name it after the COLLECTION it pays where we know it -- that is the
+        # name a reader recognises -- else the contract's own verified name.
+        #
+        # Failing both, fall back to the ADDRESS, never a generic word. Three
+        # unverified pools rendered as an identical "wage pool" row, which tells
+        # a reader nothing and reads like a bug. A truncated address is at least
+        # a key they can paste into the explorer, and the row already links
+        # there. Prefixed so it is obviously an identifier, not a name.
+        name = ((_get(f"{BLOCKSCOUT}/tokens/{p['nft']}") or {}).get("name")
+                if p.get("nft") else None) \
+            or _contract_name(p["addr"]) \
+            or f"Pool {p['addr'][:6]}…{p['addr'][-4:]}"
         out.append({
             "address": p["addr"], "name": name, "kind": "nft-wage-pool",
             "nft": p["nft"],
+            "pending_usd": _pending_usd(p["addr"], [a["address"] for a in assets], px),
             "assets": assets,
             "asset_symbols": [a["symbol"] for a in assets],
             "distributed_usd": total,

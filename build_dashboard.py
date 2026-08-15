@@ -17,6 +17,7 @@ carry category identity even though it carries the brand.
 Usage:  python3 chain_pulse.py && python3 build_dashboard.py
 """
 
+import re
 import json
 import argparse
 import datetime as dt
@@ -304,6 +305,57 @@ def reward_rows(projects):
 
 
 
+# Contract GENERATIONS of one project, from its own published docs
+# (stonkbrokers.cash/docs#abi). Clock In v1 is retired and Clock In v2 is the
+# active payer, but both paid the same holders in the same equities, so the
+# project's total distributed is the sum. Listing them as separate rows put a
+# RETIRED contract at the top of the board as though it were the chain's biggest
+# active payer, while the live one sat five rows below under a different name.
+#
+# Keyed by address, and deliberately narrow: there is no general way to know two
+# contracts are the same project, so this only ever holds pairs a project has
+# documented itself.
+PROJECT_GENERATIONS = {
+    "0x038a7f4e4e89448ad74e044337c9ac25c11e726b": ("StonkBrokers", "v1 retired"),
+    "0x1f12fe622c11947f93f53d63f68f7f46b6d081c9": ("StonkBrokers", "v2 active"),
+}
+
+
+def merge_generations(projects):
+    """Fold a project's contract generations into one row, summing what it paid."""
+    out, byname = [], {}
+    for p in projects:
+        name, gen = PROJECT_GENERATIONS.get((p.get("address") or "").lower(), (None, None))
+        if not name:
+            out.append(p)
+            continue
+        if name not in byname:
+            # Seed with the accumulators ZEROED, then add every generation
+            # including this one. Copying the first row and adding it to itself
+            # counted it twice -- $289.0K + $289.0K + $65.7K = $643.7K.
+            q = dict(p)
+            q.update(name=name, gens=[], distributed_usd=0.0, pending_usd=0.0,
+                     holders=0, assets=[], asset_symbols=[])
+            byname[name] = q
+            out.append(q)
+        q = byname[name]
+        q["distributed_usd"] += (p.get("distributed_usd") or 0)
+        q["pending_usd"] += (p.get("pending_usd") or 0)
+        q["holders"] = max(q["holders"], p.get("holders") or 0)
+        seen = {a["address"] for a in q["assets"]}
+        q["assets"] += [a for a in (p.get("assets") or []) if a["address"] not in seen]
+        q["asset_symbols"] = sorted(set(q["asset_symbols"]) | set(p.get("asset_symbols") or []))
+        q["gens"].append(gen)
+        # the live contract is the one worth linking to
+        if gen and gen.startswith("v2"):
+            q["explorer_url"] = p.get("explorer_url") or q.get("explorer_url")
+            q["idle_days"] = p.get("idle_days")
+    for q in byname.values():
+        q["assets"].sort(key=lambda a: -(a.get("usd") or 0))
+    out.sort(key=lambda x: -(x.get("distributed_usd") or 0))
+    return out
+
+
 def booster_rows(projects, today=None):
     """NFT boosters pay a BASKET, not one asset, so the asset column is a set
     of chips with per-asset amount and value in the tooltip."""
@@ -335,6 +387,10 @@ def booster_rows(projects, today=None):
         # Wage pools have no drop count -- they pay continuously rather than in
         # discrete drops -- so the clause is omitted rather than rendered "-- drops".
         drops = f" \u00b7 {num(p['drops'])} drops" if p.get("drops") else ""
+        # Say plainly that a row is two contracts summed, so the total is
+        # checkable rather than mysterious.
+        if p.get("gens"):
+            drops += " \u00b7 " + " + ".join(p["gens"])
         out.append(f"""          <tr class="{'over' if i > 10 else ''}">
             <td class="rank">{i}</td>
             <td class="sym" data-v="{escape((p.get('name') or '').lower())}">
@@ -344,6 +400,8 @@ def booster_rows(projects, today=None):
             <td class="n basket" data-v="{len(p.get('assets') or [])}">{chips}</td>
             <td class="n strong" data-v="{p.get('distributed_usd') or 0}">{escape(usd(p.get('distributed_usd')))}
               <span class="alt">{len(p.get('assets') or [])} assets</span></td>
+            <td class="n pend" data-v="{p.get('pending_usd') or 0}">{escape(usd(p.get('pending_usd'))) if (p.get('pending_usd') or 0) >= 1 else '&mdash;'}
+              <span class="alt">{'unclaimed' if (p.get('pending_usd') or 0) >= 1 else ''}</span></td>
           </tr>""")
     return "\n".join(out)
 
@@ -557,6 +615,18 @@ def render(p, logo=None):
         "The mint scanner is warming up.")
 
     summary_html = chain_summary(s, l, n, m, rw, lxc, tvl_headline)
+    padx = launchpad_index(tvl=l.get("tvl_current"))
+    _lead = (padx.get("pads") or [{}])[0]
+    pad_note_idx = (
+        f"Every launchpad's {padx.get('top_n', 10)} biggest live coins, valued together &mdash; "
+        f"the top ten is the filter, so how many a pad launches does not flatter it. "
+        f"Counts a coin only for the pad it launched on, and only while it still holds a "
+        f"market. Excluded: tokens already valuable when they opened a pool, plus "
+        f"stablecoins, wrapped majors and the tokenised equities &mdash; those are new "
+        f"pools, not new coins. Equities are matched by address, so a copycat memecoin "
+        f"using a stock ticker still counts as the launch it is."
+        if padx.get("pads") else "The ledger is still filling.")
+    nav_html = nav_cards(s, l, n, m, rw, lxc, nftl, padx)
 
     pad_note = ("Launchpads: " + " &middot; ".join(
         f"{escape(k)} {v}" for k, v in (lxc.get("pads") or [])[:5]) + "."
@@ -954,6 +1024,42 @@ td.sym {{ min-width:190px; }}
   display:flex; flex-direction:column; justify-content:center;
   font-size:15.5px; line-height:1.6; color:var(--ink-2); text-wrap:pretty;
 }}
+/* ---- jump cards: contents page and second summary in one row ---- */
+.jump {{
+  display:grid; gap:12px; margin:22px 0 4px;
+  grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+}}
+.jump-card {{
+  display:flex; flex-direction:column; gap:5px;
+  padding:12px 14px 11px; text-decoration:none;
+  background:var(--panel); border:var(--rule-w) solid var(--rule);
+  color:var(--ink); transition:transform .12s ease, background .12s ease;
+}}
+.jump-card .jk {{
+  font-family:var(--mono); font-size:10px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted);
+}}
+.jump-card .jv {{
+  font-family:var(--mono); font-size:14px; font-weight:700;
+  font-variant-numeric:tabular-nums; color:var(--ink);
+}}
+/* Lifts toward the accent on hover rather than shifting layout -- these sit in
+   a tight grid and any size change would nudge every neighbour. */
+.jump-card:hover {{ background:var(--accent-soft); transform:translateY(-2px); }}
+.jump-card:hover .jk {{ color:var(--accent-ink); }}
+.jump-card:focus-visible {{ outline:2px solid var(--accent); outline-offset:2px; }}
+@media (prefers-reduced-motion:reduce) {{ .jump-card {{ transition:none; }}
+  .jump-card:hover {{ transform:none; }} }}
+
+/* Anchored sections need headroom or the heading lands flush against the
+   viewport edge and reads as cut off. */
+section[id] {{ scroll-margin-top:18px; }}
+
+.idxbar {{ height:5px; background:var(--panel-2); margin-top:6px; width:100%; }}
+.idxbar i {{ display:block; height:100%; background:var(--accent);
+  border-right:1px solid var(--on-accent); }}
+.board td.pend {{ color:var(--ink-2); }}
+.board td.pend .alt {{ color:var(--muted); }}
 .summary-label {{
   font-family:var(--mono); font-size:10px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--muted); margin-bottom:10px;
@@ -1079,6 +1185,14 @@ td.n {{ line-height:1.3; }}
 .two-col > section {{ margin-top:0; display:flex; flex-direction:column; min-width:0; }}
 /* keep both board headers on the same baseline even though the blurbs differ */
 .two-col .sec-sub {{ min-height:3.1em; }}
+/* Payout boards STACK rather than sitting side by side. The NFT board carries
+   five columns now (collection, assets, distributed, pending) and at half width
+   `table-layout:fixed` starved the name column down to a single letter --
+   "StockBooster" rendered as "S". Full width is what a five-column table needs;
+   the memecoin board above it is unharmed by the extra room. */
+.reward-stack {{ display:flex; flex-direction:column; gap:26px; }}
+.reward-stack .sub-head {{ margin-top:0; min-height:auto; }}
+.reward-stack table {{ width:100%; }}
 .reward-cols .sub-head {{ margin-top:0; min-height:auto; }}
 /* max-width on a <td> is ignored unless the table is fixed-layout, which is
    why the asset chips kept overflowing into the Value column. */
@@ -1186,6 +1300,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   td.sym {{ min-width:150px; }}
   tbody td, thead th {{ padding-left:10px; padding-right:10px; }}
 }}
+@media (prefers-reduced-motion:no-preference) {{ html {{ scroll-behavior:smooth; }} }}
 @media (prefers-reduced-motion:reduce) {{ * {{ transition:none !important; }} }}
 </style>
 
@@ -1224,8 +1339,9 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
 {hero_tiles}
     </div>
   </div>
+{nav_html}
 
-  <section>
+  <section id="vitals">
     <h2>Chain vitals</h2>
     <p class="sec-sub">Last complete UTC day. Hover any plot for exact values.</p>
     <div class="ranges" id="ranges" role="group" aria-label="Time range"></div>
@@ -1236,7 +1352,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     </div></div>
   </section>
 
-  <section>
+  <section id="memecoin-vitals">
     <h2>Memecoin vitals</h2>
     <p class="sec-sub">
       Every new pool's value from its own first minute. {launch_note}
@@ -1265,7 +1381,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
 {launch_cards(lx)}
   </section>
 
-  <section>
+  <section id="nft-launches">
     <h2>NFT launches</h2>
 
     <p class="sec-sub">
@@ -1289,7 +1405,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     </div></div></div>
   </section>
 
-  <section>
+  <section id="stablecoins">
     <h2>Stablecoins on the chain</h2>
     <p class="sec-sub">
       All {usd(stb_headline)} of it. No real USDC or USDT exists on this chain.
@@ -1303,7 +1419,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
   </section>
 
   <div class="two-col">
-    <section>
+    <section id="top-memecoins">
       <h2>Top memecoins</h2>
       <p class="sec-sub">
         By 24h volume, behind a {usd(floor)} liquidity floor. {n_ok}/{n_shown} corroborated
@@ -1326,7 +1442,7 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
       </div></div></div>
     </section>
 
-    <section>
+    <section id="top-nfts">
       <h2>Top NFT collections</h2>
       <p class="sec-sub">
         By paid Seaport fills, {escape(str(n.get('window_label') or ''))} UTC.
@@ -1351,12 +1467,53 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
     </section>
   </div>
 
-  <section>
+  <section id="launchpads">
+    <h2>Launchpad index</h2>
+    <p class="sec-sub">{pad_note_idx}</p>
+    <h3 class="sub-head">Launchers</h3>
+    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
+      <table>
+        <thead><tr>
+          <th></th><th data-sort="text">Launcher</th>
+          <th data-sort="num" data-default="1">Top {padx.get('top_n', 10)} combined FDV</th>
+        </tr></thead>
+        <tbody>
+{pad_rows(pad_split(padx.get('pads', []))[0], padx.get('top_n', 10))}
+        </tbody>
+      </table>
+    </div>
+    <div class="board-foot">
+      <span>{len(pad_split(padx.get('pads', []))[0])} launchers</span>
+      <span class="foot-r">{escape(usd(sum(p['index'] for p in pad_split(padx.get('pads', []))[0])))} combined</span>
+    </div></div></div>
+
+    <h3 class="sub-head">Direct deploys &middot; AMM venues</h3>
+    <p class="sec-sub">Not launchpads: somebody deployed a token and opened a pool
+      themselves. Measured, 90% of recent Uniswap v4 pools carry no hook at all, so
+      the venue hosted the coin rather than producing it.</p>
+    <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
+      <table>
+        <thead><tr>
+          <th></th><th data-sort="text">Venue</th>
+          <th data-sort="num" data-default="1">Top {padx.get('top_n', 10)} combined FDV</th>
+        </tr></thead>
+        <tbody>
+{pad_rows(pad_split(padx.get('pads', []))[1], padx.get('top_n', 10))}
+        </tbody>
+      </table>
+    </div>
+    <div class="board-foot">
+      <span>{len(pad_split(padx.get('pads', []))[1])} venues</span>
+      <span class="foot-r">{escape(usd(sum(p['index'] for p in pad_split(padx.get('pads', []))[1])))} combined</span>
+    </div></div></div>
+  </section>
+
+  <section id="payouts">
     <h2>Holder payouts</h2>
     <p class="sec-sub">
       Projects routing fees into buying a different asset and paying it out. {rw_assets_note}
     </p>
-    <div class="two-col reward-cols">
+    <div class="reward-stack">
       <section>
         <h3 class="sub-head">Memecoins &middot; ERC-20 holders</h3>
         <div class="pixel-shadow"><div class="board pixel"><div class="scroll">
@@ -1382,16 +1539,18 @@ footer code {{ font-family:var(--mono); font-size:11.5px; color:var(--ink-2); }}
           <table>
             <thead><tr>
               <th></th><th data-sort="text">Collection</th><th data-sort="num">Pays in</th>
-              <th data-sort="num" data-default="1">Value</th>
+              <th data-sort="num" data-default="1">Distributed</th>
+              <th data-sort="num">Pending</th>
             </tr></thead>
             <tbody>
-{booster_rows(bst.get('projects', []))}
+{booster_rows(merge_generations(bst.get('projects', [])))}
             </tbody>
           </table>
         </div>
         <div class="board-foot">
           <span>{len(bst.get('reward_assets', []))} assets</span>
-          <span class="foot-r">{escape(usd(bst.get('total_distributed_usd')))} to NFT holders</span>
+          <span class="foot-r">{escape(usd(bst.get('total_distributed_usd')))} paid
+            &middot; {escape(usd(sum((p.get('pending_usd') or 0) for p in bst.get('projects', []))))} waiting</span>
         </div></div></div>
       </section>
     </div>
@@ -2101,6 +2260,11 @@ try:
 except ImportError:                       # renderer must still work standalone
     MIN_DEPTH_USD = 500
 
+try:
+    from chain_pulse import INFRA_SYMBOLS
+except ImportError:
+    INFRA_SYMBOLS = {"WETH", "ETH", "USDG", "USDC", "USDT", "USDE"}
+
     def observation_quality(_r):
         return None
 
@@ -2110,6 +2274,52 @@ except ImportError:                       # renderer must still work standalone
 # GeckoTerminal's dex id already names the launchpad. Pons is dominant on this
 # chain (~45% of new pools across its three ids); the rest are the generic AMM
 # tiers plus a few smaller pads.
+# A launch starts small. Measured medians at first sight run $3k-$10k across
+# every pad and p90 tops out near $45k, so a million is ~20x above the busiest
+# pad's p90 -- generous to real launches, decisive against tokens that were
+# already established when they opened a new pool.
+LAUNCH_FDV_CEILING = 1_000_000
+
+# Venue is not the same thing as launcher, and ranking them together credits an
+# AMM for work it did not do. MEASURED: 90% of recent Uniswap v4 Initialize
+# events carry NO hook at all, so those pools are people deploying a token and
+# opening a pool themselves -- the venue hosted it, nothing more. Grouping them
+# apart is what lets the launchers actually compete on screen instead of being
+# buried under v4's aggregate.
+#
+# Classification is by product, from on-chain behaviour and naming; there is no
+# authoritative registry of which dex id is a launchpad on this chain. Up is the
+# judgement call -- its coins (OAK, oakmont.fun) and its link to Oakmont Vault
+# read as a launcher, but no source states it outright, so it is marked as
+# inferred rather than asserted.
+LAUNCHER_PADS = {"Pons", "Bankr", "Clanker", "Virtuals", "Easya Kickstart",
+                 "Mint Club", "Up", "Hoodit"}
+INFERRED_PADS = {"Up"}
+
+# What is NOT a launched coin, however new its pool is. INFRA_SYMBOLS covers the
+# obvious names; these catch the rest of the same idea.
+#
+#  * stablecoins and their wrappers -- USDUF, WUSDG, USDG0, rwaUSDi all appeared
+#    with real pools. A dollar is not a launch, whatever the ticker.
+#  * wrapped majors -- BTC opened a $470k pool on v3 and is bridged value, not a
+#    coin somebody launched there.
+#  * tokenised equities -- matched by ADDRESS, never by symbol, because ticker
+#    squatting is endemic here. That distinction matters: the real RDDT is
+#    Robinhood's Reddit token and does not belong in the index, while a copycat
+#    memecoin calling itself RDDT genuinely is a launch and should stay.
+STABLE_RE = re.compile(r"USD|^DAI$|^EUR", re.I)
+WRAPPED_MAJORS = {"BTC", "WBTC", "CBBTC", "TBTC", "STETH", "WSTETH", "WETH", "ETH"}
+
+
+def _equity_addresses():
+    """Addresses of the tokenised equities, or an empty set if unreachable."""
+    try:
+        from chain_pulse import discover_stock_tokens
+        return {a.lower() for a in discover_stock_tokens()}
+    except Exception:
+        return set()
+
+
 LAUNCHPADS = {
     "pons-dot-family": "Pons", "pons-v2": "Pons", "pons-v2-dex": "Pons",
     "uniswap-v4-robinhood": "Uniswap v4", "uniswap-v3-robinhood": "Uniswap v3",
@@ -2299,6 +2509,189 @@ def load_launch_traces(path=None, hours=24, max_traces=70, max_points=48):
             "top_rug": best("rug", lambda t: t["peak_liq"]),
             "pads": sorted(pads.items(), key=lambda kv: -kv[1])}
 
+
+
+def pad_split(pads):
+    """Launchers and AMM venues, each ranked within its own group."""
+    return ([p for p in pads if p.get("launcher")],
+            [p for p in pads if not p.get("launcher")])
+
+
+def pad_rows(pads, top_n=10):
+    """One row per launchpad, with a proportional bar for the index.
+
+    The bar is LINEAR against the leader, not logarithmic. The spread is the
+    finding -- the busiest launchpad by coin count carries the smallest top-ten
+    value on the chain -- and a log scale would flatter the tail into looking
+    comparable when it is two orders of magnitude behind.
+    """
+    if not pads:
+        return ""
+    lead = max(p["index"] for p in pads) or 1   # scaled within the group
+    out = []
+    for i, p in enumerate(pads, 1):
+        names = " &middot; ".join(escape(c["sym"]) for c in p["top"][:3])
+        pct = max(p["index"] / lead * 100, 0.6)
+        out.append(f"""          <tr>
+            <td class="rank">{i}</td>
+            <td class="sym" data-v="{escape(p['pad'].lower())}">
+              <span class="sym-name">{escape(p['pad'])}{' <span class="badge warn">inferred</span>' if p.get('inferred') else ''}</span>
+              <span class="sym-sub">{names}</span>
+            </td>
+            <td class="n strong" data-v="{p['index']}">{escape(usd(p['index']))}
+              <div class="idxbar"><i style="width:{pct:.1f}%"></i></div></td>
+          </tr>""")
+    return "\n".join(out)
+
+
+def launchpad_index(path=None, top_n=10, tvl=None, min_coins=3):
+    """Combined FDV of each launchpad's biggest live coins.
+
+    Ranks launchpads by the value of what they actually produced: the top
+    `top_n` coins each one launched, summed. Two guards matter.
+
+    LIVE ONLY. A drained pool keeps reporting its last trade price forever --
+    FDV freezes when liquidity leaves -- so a rugged coin would carry its peak
+    valuation into its launchpad's total indefinitely. Only coins still holding
+    a real market are counted, which makes this an index of live value rather
+    than of high-water marks.
+
+    ⚠️ AND AN ABSOLUTE CEILING, because summing changes what a bad number does.
+    observation_quality() deliberately leaves the HIGH side of fdv/liquidity
+    ungated -- a huge ratio just means a large nominal supply, and it cancels
+    out when a pool is measured against its own base. It cancels nothing in a
+    sum: the raw ledger contains an FDV of $5,629,578,765,665,840, which alone
+    would have made its launchpad the biggest on the chain by a factor of
+    30 million. MEASURED, the separation is unambiguous: those broken readings
+    sit at $5.6e15 and $2.3e12 while the largest real coin is $35M, so a cutoff
+    anywhere in that five-order gap excludes exactly the two and nothing else.
+    Pinned to chain TVL rather than a constant -- a single coin on this chain
+    cannot credibly be worth more than the chain it trades on -- so it tracks
+    the chain instead of going stale.
+
+    One entry per TOKEN, not per pool: a coin commonly has several pools on the
+    same pad, and counting each would multiply its FDV by its pool count.
+    """
+    p = Path(path) if path else LEDGER
+    if not p.exists():
+        return {"pads": [], "top_n": top_n}
+    cap = tvl or 500_000_000
+
+    pools = {}
+    for line in p.read_text().splitlines():
+        try:
+            r = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        pool = r.get("pool")
+        if not pool:
+            continue
+        d = pools.setdefault(pool, {"dex": r.get("dex"), "sym": r.get("symbol"),
+                                    "tok": r.get("token"), "born": r.get("created_at"),
+                                    "liq": None, "fdv": None, "first_fdv": None})
+        lq = usable_liquidity(r)
+        if lq is not None:
+            d["liq"] = lq
+        if not observation_quality(r) and (r.get("fdv") or 0) > 0:
+            if d["first_fdv"] is None:
+                d["first_fdv"] = r["fdv"]
+            d["fdv"] = r["fdv"]
+        if r.get("symbol"):
+            d["sym"] = r["symbol"]
+
+    # ⚠️ A NEW POOL IS NOT A NEW TOKEN, and both ways of confusing them inflate
+    # a launchpad that did nothing.
+    #
+    # First, a token that already trades elsewhere can open a second pool on
+    # another dex; the feed reports that as new. MEASURED: 444 tokens (3.5%)
+    # appear on more than one pad, and the strays land precisely on the pads in
+    # question -- WALL, GP, STRIKE, SPCX, GME, PACK and RIPZ all launched on
+    # v4, Pons or Up and later opened a Uniswap v3 pool. So a token counts only
+    # for the pad of its EARLIEST pool.
+    #
+    # Second, and larger: an established token opening a new pool arrives
+    # already valuable. MEASURED, median FDV at first sight is $3.2k on Pons,
+    # $10.2k on v4 and $5.5k on v3 -- but v3's p90 is $44.8k and its intake
+    # includes PIPEDOG at $38.9M and USDG at $1.05 BILLION. PIPEDOG alone was
+    # $34.5M of v3's $55.1M index: a top-ten memecoin of the chain that merely
+    # opened a pool there. A launch starts small, so a pool whose FIRST quote is
+    # already above the ceiling is not one.
+    born_at = {}
+    for pool, d in pools.items():
+        tk = (d.get("tok") or "").lower()
+        if not tk or not d.get("born"):
+            continue
+        if tk not in born_at or d["born"] < born_at[tk][0]:
+            born_at[tk] = (d["born"], launchpad_of(d["dex"]))
+
+    equities = _equity_addresses()
+    by = {}
+    for pool, d in pools.items():
+        if not d["fdv"] or d["liq"] is None or d["liq"] < MIN_DEPTH_USD:
+            continue
+        if d["fdv"] > cap:
+            continue
+        if (d.get("first_fdv") or 0) > LAUNCH_FDV_CEILING:
+            continue                       # arrived already valuable: not a launch
+        sym = d["sym"] or "?"
+        if (sym.upper() in INFRA_SYMBOLS or sym.upper() in WRAPPED_MAJORS
+                or STABLE_RE.search(sym)):
+            continue
+        tk = (d.get("tok") or "").lower()
+        if tk and tk in equities:
+            continue
+        pad = born_at.get(tk, (None, launchpad_of(d["dex"])))[1]
+        key = (d.get("tok") or sym).lower()
+        seen = by.setdefault(pad, {})
+        if d["fdv"] > (seen.get(key, {}).get("fdv") or 0):
+            seen[key] = {"sym": sym[:14], "fdv": d["fdv"], "liq": d["liq"], "pool": pool}
+
+    out = []
+    for pad, toks in by.items():
+        coins = sorted(toks.values(), key=lambda x: -x["fdv"])
+        if len(coins) < min_coins:
+            continue
+        top = coins[:top_n]
+        out.append({"pad": pad, "coins": len(coins), "index": sum(c["fdv"] for c in top),
+                    "liq": sum(c["liq"] for c in top), "top": top,
+                    "launcher": pad in LAUNCHER_PADS,
+                    "inferred": pad in INFERRED_PADS})
+    out.sort(key=lambda x: -x["index"])
+    return {"pads": out, "top_n": top_n,
+            "total": sum(x["index"] for x in out)}
+
+
+def nav_cards(s, l, n, m, rw, lx, nftl, padx=None):
+    """Jump links to each section, each carrying that section's headline number.
+
+    A bare menu would repeat words already visible in the headings below. Giving
+    every card the figure its section is about makes the row a contents page AND
+    a second summary -- the reader can see where the activity is before deciding
+    where to go. Numbers come from the same objects the sections render, so a
+    card cannot disagree with what it links to.
+    """
+    bst = (rw.get("boosters") or {})
+    paid = (rw.get("total_distributed_usd") or 0) + (bst.get("total_distributed_usd") or 0)
+    c = (lx or {}).get("counts") or {}
+    alive = (c.get("winner", 0) + c.get("loser", 0) + c.get("flat", 0))
+    items = [
+        ("vitals",          "Chain vitals",   f"{num(s.get('dau_current'))} wallets"),
+        ("memecoin-vitals", "Memecoin vitals", f"{num((lx or {}).get('total_pools'))} launched"),
+        ("nft-launches",    "NFT launches",   f"{num((nftl or {}).get('total') or 0)} collections"),
+        ("top-memecoins",   "Top memecoins",  f"{num(len((m or {}).get('tokens') or []))} by volume"),
+        ("top-nfts",        "Top NFTs",       f"{usd((n or {}).get('total_volume_usd'))} in fills"),
+        ("launchpads",      "Launchpads",     f"{num(len((padx or {}).get('pads') or []))} compared"),
+        ("payouts",         "Holder payouts", f"{usd(paid)} paid"),
+        ("stablecoins",     "Stablecoins",    f"{usd(l.get('stables_current'))} held"),
+    ]
+    out = ['<nav class="jump" aria-label="Sections">']
+    for anchor, label, stat in items:
+        out.append(
+            f'<a class="jump-card pixel" href="#{anchor}">'
+            f'<span class="jk">{escape(label)}</span>'
+            f'<span class="jv">{stat}</span></a>')
+    out.append("</nav>")
+    return "\n".join(out)
 
 
 def chain_summary(s, l, n, m, rw, lx, tvl):

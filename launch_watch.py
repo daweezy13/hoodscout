@@ -420,6 +420,9 @@ ZERO_TOPIC = "0x" + "0" * 64
 NFT_REGISTRY = OUT_DIR / "nft_registry.json"
 NFT_LEDGER = OUT_DIR / "nft_launches.jsonl"
 MAX_SPAN_BLOCKS = 1700          # ~2.9 min at ~101ms blocks, under the 10k cap
+# Roughly the 6h the NFT section displays. Past this the scanner is behind its
+# own window and the blocks it is chasing can no longer appear on the page.
+MAX_LAG_BLOCKS = int(6 * 3600 / 0.101)
 MINTER_CAP = 4000               # per-collection minter set ceiling, keeps the file bounded
 
 
@@ -466,6 +469,24 @@ def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6
     last = int(reg.get("_watermark") or 0)
     if not last:
         last = head - MAX_SPAN_BLOCKS          # cold start: one span back
+
+    # ⚠️ BOUND THE LAG, or a stall becomes permanent. This scanner covers at most
+    # max_calls x span blocks per poll (~24k) while the chain produces ~35.6k an
+    # hour, and any transport error breaks the loop WITHOUT advancing the
+    # watermark. MEASURED failure: a run of RPC errors left it 1,358,476 blocks
+    # -- 38 hours -- behind, reporting "no range scanned" on every poll for a day
+    # and a half while the NFT section rendered empty. It could never recover,
+    # because catching up costs more blocks than it can scan.
+    #
+    # The section only ever DISPLAYS a 6-hour window, so blocks older than that
+    # are worthless even if it did catch up. Skipping to the edge of the window
+    # trades history nobody can see for a scanner that is useful again on the
+    # next poll. The gap is reported rather than hidden.
+    skipped = 0
+    if head - last > MAX_LAG_BLOCKS:
+        skipped = (head - MAX_LAG_BLOCKS) - last
+        last = head - MAX_LAG_BLOCKS
+
     if head <= last:
         return {"ok": True, "scanned": 0, "collections": 0, "behind": 0}
 
@@ -491,6 +512,9 @@ def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6
         if len(logs) < 4000 and span < MAX_SPAN_BLOCKS:
             span = min(int(span * 1.5), MAX_SPAN_BLOCKS)
     to = cursor - 1
+    if skipped:
+        print(f"  nft: watermark was {skipped:,} blocks behind the display window "
+              f"-- skipped forward, that history is not recoverable", flush=True)
     if to < last + 1:
         return {"ok": False, "reason": "no range scanned", "behind": head - last}
     logs = all_logs
