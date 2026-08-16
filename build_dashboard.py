@@ -853,6 +853,20 @@ td.basket .pays {{ display:inline-block; margin:2px 0 2px 4px; }}
   border:var(--rule-w) solid var(--rule); background:var(--panel); }}
 .hero-side .tile {{ border-bottom:1px solid var(--line); }}
 .hero-side .tile:last-child {{ border-bottom:none; }}
+/* The hero's right panel is sized by the column beside it (TVL card + summary),
+   so its three tiles inherit whatever height is left over and were floating in
+   it at the same 21px the dense Chain-vitals grid uses. Equal rows plus vertical
+   centring, and type scaled to the space it actually occupies. Scoped to
+   .hero-side so the tile grid further down the page is untouched. */
+.hero-side {{ grid-auto-rows:1fr; }}
+.hero-side .tile {{
+  padding:18px 20px; display:flex; flex-direction:column;
+  justify-content:center; gap:5px;
+}}
+.hero-side .tile-label {{ font-size:11.5px; letter-spacing:.15em; }}
+.hero-side .tile-value {{ font-size:clamp(26px, 2.6vw, 36px); line-height:1.05; }}
+.hero-side .tile-sub {{ font-size:13px; }}
+.hero-side .tile-head {{ margin-bottom:2px; }}
 
 /* ---- audit strip ---- */
 .audit {{
@@ -1024,32 +1038,35 @@ td.sym {{ min-width:190px; }}
   display:flex; flex-direction:column; justify-content:center;
   font-size:15.5px; line-height:1.6; color:var(--ink-2); text-wrap:pretty;
 }}
-/* ---- jump cards: contents page and second summary in one row ---- */
+/* ---- jump cards: navigation, not statistics ---- */
 .jump {{
-  display:grid; gap:12px; margin:22px 0 4px;
-  grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
+  display:grid; gap:8px; margin:22px 0 4px;
+  grid-template-columns:repeat(8, minmax(0, 1fr));
 }}
 .jump-card {{
-  display:flex; flex-direction:column; gap:5px;
-  padding:12px 14px 11px; text-decoration:none;
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:12px 10px; text-decoration:none;
   background:var(--panel); border:var(--rule-w) solid var(--rule);
   color:var(--ink); transition:transform .12s ease, background .12s ease;
 }}
+/* Was 10px muted uppercase under a 14px bold number. The label IS the link, so
+   it takes the weight and the full-strength ink. */
 .jump-card .jk {{
-  font-family:var(--mono); font-size:10px; letter-spacing:.13em;
-  text-transform:uppercase; color:var(--muted);
+  font-family:var(--mono); font-size:11px; font-weight:700;
+  letter-spacing:.02em; color:var(--ink); line-height:1.2;
+  /* Eight labels across 1232px leaves ~145px each; the two longest were
+     wrapping to a second line and only those cards grew. */
+  white-space:nowrap;
 }}
-.jump-card .jv {{
-  font-family:var(--mono); font-size:14px; font-weight:700;
-  font-variant-numeric:tabular-nums; color:var(--ink);
-}}
-/* Lifts toward the accent on hover rather than shifting layout -- these sit in
-   a tight grid and any size change would nudge every neighbour. */
+.jump-card .ja {{ font-family:var(--mono); font-size:12px; color:var(--muted); flex:none; }}
 .jump-card:hover {{ background:var(--accent-soft); transform:translateY(-2px); }}
-.jump-card:hover .jk {{ color:var(--accent-ink); }}
+.jump-card:hover .ja {{ color:var(--accent-ink); }}
 .jump-card:focus-visible {{ outline:2px solid var(--accent); outline-offset:2px; }}
 @media (prefers-reduced-motion:reduce) {{ .jump-card {{ transition:none; }}
   .jump-card:hover {{ transform:none; }} }}
+/* Eight items: halve, then halve again. Every row stays full. */
+@media (max-width:1100px) {{ .jump {{ grid-template-columns:repeat(4, minmax(0, 1fr)); }} }}
+@media (max-width:560px)  {{ .jump {{ grid-template-columns:repeat(2, minmax(0, 1fr)); }} }}
 
 /* Anchored sections need headroom or the heading lands flush against the
    viewport edge and reads as cut off. */
@@ -2662,34 +2679,32 @@ def launchpad_index(path=None, top_n=10, tvl=None, min_coins=3):
 
 
 def nav_cards(s, l, n, m, rw, lx, nftl, padx=None):
-    """Jump links to each section, each carrying that section's headline number.
+    """Jump links to each section.
 
-    A bare menu would repeat words already visible in the headings below. Giving
-    every card the figure its section is about makes the row a contents page AND
-    a second summary -- the reader can see where the activity is before deciding
-    where to go. Numbers come from the same objects the sections render, so a
-    card cannot disagree with what it links to.
+    Labels only. Carrying each section's headline number here made the NUMBER
+    the loudest thing in the card -- brighter and larger than the section name
+    it was meant to label -- so the row read as a second stat strip rather than
+    as navigation, which is the one job it has. The figures already appear in
+    the summary beside it and again in the sections themselves.
+
+    Eight sections divides evenly, so the row is 8 across, then 4+4, then 2s --
+    never a ragged last line.
     """
-    bst = (rw.get("boosters") or {})
-    paid = (rw.get("total_distributed_usd") or 0) + (bst.get("total_distributed_usd") or 0)
-    c = (lx or {}).get("counts") or {}
-    alive = (c.get("winner", 0) + c.get("loser", 0) + c.get("flat", 0))
     items = [
-        ("vitals",          "Chain vitals",   f"{num(s.get('dau_current'))} wallets"),
-        ("memecoin-vitals", "Memecoin vitals", f"{num((lx or {}).get('total_pools'))} launched"),
-        ("nft-launches",    "NFT launches",   f"{num((nftl or {}).get('total') or 0)} collections"),
-        ("top-memecoins",   "Top memecoins",  f"{num(len((m or {}).get('tokens') or []))} by volume"),
-        ("top-nfts",        "Top NFTs",       f"{usd((n or {}).get('total_volume_usd'))} in fills"),
-        ("launchpads",      "Launchpads",     f"{num(len((padx or {}).get('pads') or []))} compared"),
-        ("payouts",         "Holder payouts", f"{usd(paid)} paid"),
-        ("stablecoins",     "Stablecoins",    f"{usd(l.get('stables_current'))} held"),
+        ("vitals",          "Chain vitals"),
+        ("memecoin-vitals", "Memecoin vitals"),
+        ("nft-launches",    "NFT launches"),
+        ("top-memecoins",   "Top memecoins"),
+        ("top-nfts",        "Top NFTs"),
+        ("launchpads",      "Launchpads"),
+        ("payouts",         "Holder payouts"),
+        ("stablecoins",     "Stablecoins"),
     ]
-    out = ['<nav class="jump" aria-label="Sections">']
-    for anchor, label, stat in items:
-        out.append(
-            f'<a class="jump-card pixel" href="#{anchor}">'
-            f'<span class="jk">{escape(label)}</span>'
-            f'<span class="jv">{stat}</span></a>')
+    out = ['<nav class="jump" aria-label="Jump to section">']
+    for anchor, label in items:
+        out.append(f'<a class="jump-card pixel" href="#{anchor}">'
+                   f'<span class="jk">{escape(label)}</span>'
+                   f'<span class="ja" aria-hidden="true">&#8595;</span></a>')
     out.append("</nav>")
     return "\n".join(out)
 
