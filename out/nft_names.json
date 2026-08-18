@@ -518,5 +518,76 @@
 "symbol": "CASHCOWS",
 "max": 6666,
 "minted": 6386
+},
+"0x566d832a6eb5f404423af23dbfee5e4ebbd059cb": {
+"name": "Manson Bulls",
+"symbol": "MBulls",
+"max": 3333,
+"minted": 3047
+},
+"0x333ace3cc420f7bb71739105ac5cd1b7478b1a20": {
+"name": "The Pickles \ud83e\udd52",
+"symbol": "The Pickles ",
+"max": 5555,
+"minted": 5555
+},
+"0xe55e7f404134ff6af7d92e02c863ca336fa2727c": {
+"name": "Cyber Ape Club",
+"symbol": "CAC",
+"max": null,
+"minted": 5034
+},
+"0x819cf20884b1fe2708285395e87035ae49d81866": {
+"name": "Cash Cat",
+"symbol": "CashCat",
+"max": 5555,
+"minted": 2513
+},
+"0x5d1388643ae17b34c8b7852d741c455d64d6d773": {
+"name": "StonkPenguins",
+"symbol": "9",
+"max": 4444,
+"minted": 4444
+},
+"0x2060f31e4050c85ea68c90db9684021f2a9ad258": {
+"name": "Froggy Chair",
+"symbol": "Froggy",
+"max": 10000,
+"minted": 10000
+},
+"0xc6c420b98a8decd09668358faa5c05fdf4300f37": {
+"name": "QUACK",
+"symbol": "Quack",
+"max": 1999,
+"minted": 1999
+},
+"0x468cea4a9a16cd82c847e24cd32c76b4104946ed": {
+"name": "The Rocks",
+"symbol": "ROCKS",
+"max": 2222
+},
+"0xc02531cb566546d34e4d8d12dd7e5bf24ce93504": {
+"name": "Onchain Menace",
+"symbol": "Onchain Mena",
+"max": 3333,
+"minted": 1965
+},
+"0x6f32e583668f311dfa332739b579ec8e1be79c33": {
+"name": "The Pickles",
+"symbol": "The Pickles",
+"max": 5555,
+"minted": 4269
+},
+"0x7b81865a89fe5ae9644582db4cd6cf6fb592489e": {
+"name": "Pico Pengus",
+"symbol": "Pico Pengus",
+"max": 3333,
+"minted": 1974
+},
+"0x192c3b82d8bdc2f4cbd2d38b24a5cfa28a99e52e": {
+"name": "Robin Brokers",
+"symbol": "RBRO",
+"max": 10000,
+"minted": 2120
 }
 }

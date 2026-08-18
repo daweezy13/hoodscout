@@ -64,7 +64,13 @@ jobs:
             git push -q || true
           }
           while [ "$(date +%s)" -lt "$END" ]; do
-            python3 launch_watch.py --prune-days 7 || true
+            # ⚠️ 2 days, not 7. The age-tiered follow-up multiplied observations
+          # per pool, and the ledger hit 115.28 MB -- past GitHub's 100 MB HARD
+          # limit, which blocked every push including this workflow's own. Two
+          # days is ~30 MB with room for a heavy day. Rows dropped here are not
+          # recoverable from upstream, so widening this again needs slimmer rows
+          # or LFS, not just a bigger number.
+          python3 launch_watch.py --prune-days 2 || true
             N=$((N+1))
             [ $((N % 5)) -eq 0 ] && save
             [ "$(date +%s)" -lt "$END" ] && sleep 180

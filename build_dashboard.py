@@ -1038,35 +1038,59 @@ td.sym {{ min-width:190px; }}
   display:flex; flex-direction:column; justify-content:center;
   font-size:15.5px; line-height:1.6; color:var(--ink-2); text-wrap:pretty;
 }}
-/* ---- jump cards: navigation, not statistics ---- */
-.jump {{
-  display:grid; gap:8px; margin:22px 0 4px;
-  grid-template-columns:repeat(8, minmax(0, 1fr));
+/* ---- floating jump dock ---- */
+.jumpdock {{
+  /* Sits in the gutter beside the 1232px content column. A wider button would
+     overlap the right-aligned value columns of the boards below. */
+  position:fixed; right:8px; top:50%; transform:translateY(-50%);
+  z-index:40; display:flex; align-items:center; gap:8px;
 }}
-.jump-card {{
-  display:flex; align-items:center; justify-content:space-between; gap:8px;
-  padding:12px 10px; text-decoration:none;
+/* The dock is a vertical bar: back-to-top above, section menu below. */
+.jump-stack {{ display:flex; flex-direction:column; gap:6px; }}
+.jump-btn, .jump-top {{
+  width:34px; height:34px; flex:none; cursor:pointer; padding:0;
+  display:flex; align-items:center; justify-content:center;
   background:var(--panel); border:var(--rule-w) solid var(--rule);
-  color:var(--ink); transition:transform .12s ease, background .12s ease;
+  color:var(--ink); font-family:var(--mono); font-size:17px; line-height:1;
+  transition:background .12s ease;
 }}
-/* Was 10px muted uppercase under a 14px bold number. The label IS the link, so
-   it takes the weight and the full-strength ink. */
-.jump-card .jk {{
-  font-family:var(--mono); font-size:11px; font-weight:700;
-  letter-spacing:.02em; color:var(--ink); line-height:1.2;
-  /* Eight labels across 1232px leaves ~145px each; the two longest were
-     wrapping to a second line and only those cards grew. */
-  white-space:nowrap;
+.jump-btn:hover, .jump-top:hover {{ background:var(--accent); color:var(--on-accent); }}
+.jump-btn:focus-visible, .jump-top:focus-visible {{
+  outline:2px solid var(--accent); outline-offset:2px; }}
+/* Hidden until there is something to scroll back from.
+   Uses display, not a height collapse: a zero-height button still paints its
+   borders and glyph outside the box, which left two stray bars stacked above
+   the menu button. */
+.jump-top {{ display:none; }}
+.jumpdock.scrolled .jump-top {{ display:flex; }}
+/* Opens leftward from the button. Collapsed it is inert and unreachable by
+   keyboard; visibility (not just opacity) is what takes it out of the tab
+   order, and the delay lets the fade finish before it disappears. */
+.jump-menu {{
+  display:flex; flex-direction:column; min-width:150px;
+  background:var(--panel); border:var(--rule-w) solid var(--rule);
+  opacity:0; visibility:hidden; transform:translateX(6px);
+  transition:opacity .13s ease, transform .13s ease, visibility 0s .13s;
 }}
-.jump-card .ja {{ font-family:var(--mono); font-size:12px; color:var(--muted); flex:none; }}
-.jump-card:hover {{ background:var(--accent-soft); transform:translateY(-2px); }}
-.jump-card:hover .ja {{ color:var(--accent-ink); }}
-.jump-card:focus-visible {{ outline:2px solid var(--accent); outline-offset:2px; }}
-@media (prefers-reduced-motion:reduce) {{ .jump-card {{ transition:none; }}
-  .jump-card:hover {{ transform:none; }} }}
-/* Eight items: halve, then halve again. Every row stays full. */
-@media (max-width:1100px) {{ .jump {{ grid-template-columns:repeat(4, minmax(0, 1fr)); }} }}
-@media (max-width:560px)  {{ .jump {{ grid-template-columns:repeat(2, minmax(0, 1fr)); }} }}
+.jumpdock.open .jump-menu {{
+  opacity:1; visibility:visible; transform:none; transition-delay:0s;
+}}
+.jump-menu a {{
+  font-family:var(--mono); font-size:11px; letter-spacing:.02em;
+  padding:9px 12px; text-decoration:none; color:var(--ink); white-space:nowrap;
+  border-bottom:1px solid var(--line);
+}}
+.jump-menu a:last-child {{ border-bottom:none; }}
+.jump-menu a:hover {{ background:var(--accent-soft); }}
+.jump-menu a.here {{ color:var(--accent-ink); font-weight:700; }}
+.jump-menu a.here::before {{ content:"\2192 "; }}
+@media (prefers-reduced-motion:reduce) {{
+  .jump-btn, .jump-top, .jump-menu {{ transition:none; }}
+}}
+/* Narrow screens: sit low-right, out of the way of a thumb reading the page. */
+@media (max-width:700px) {{
+  .jumpdock {{ top:auto; bottom:16px; transform:none; }}
+}}
 
 /* Anchored sections need headroom or the heading lands flush against the
    viewport edge and reads as cut off. */
@@ -2679,16 +2703,18 @@ def launchpad_index(path=None, top_n=10, tvl=None, min_coins=3):
 
 
 def nav_cards(s, l, n, m, rw, lx, nftl, padx=None):
-    """Jump links to each section.
+    """A floating jump control, pinned to the right edge.
 
-    Labels only. Carrying each section's headline number here made the NUMBER
-    the loudest thing in the card -- brighter and larger than the section name
-    it was meant to label -- so the row read as a second stat strip rather than
-    as navigation, which is the one job it has. The figures already appear in
-    the summary beside it and again in the sections themselves.
+    Was a row of eight cards under the hero. Navigation earned a full band of
+    vertical space above the first section and pushed the actual content down,
+    which is a poor trade for something a reader uses once or twice. Collapsed
+    to a single button that opens the list on demand: the same eight targets,
+    almost no page real estate, and it stays reachable after scrolling instead
+    of being stranded at the top.
 
-    Eight sections divides evenly, so the row is 8 across, then 4+4, then 2s --
-    never a ragged last line.
+    Self-contained markup + behaviour so the page template stays a template.
+    The JS is a plain string, not an f-string -- its braces are code, not
+    placeholders, and doubling them here would be noise.
     """
     items = [
         ("vitals",          "Chain vitals"),
@@ -2700,13 +2726,68 @@ def nav_cards(s, l, n, m, rw, lx, nftl, padx=None):
         ("payouts",         "Holder payouts"),
         ("stablecoins",     "Stablecoins"),
     ]
-    out = ['<nav class="jump" aria-label="Jump to section">']
-    for anchor, label in items:
-        out.append(f'<a class="jump-card pixel" href="#{anchor}">'
-                   f'<span class="jk">{escape(label)}</span>'
-                   f'<span class="ja" aria-hidden="true">&#8595;</span></a>')
-    out.append("</nav>")
-    return "\n".join(out)
+    links = "".join(
+        f'<a href="#{a}" role="menuitem">{escape(lab)}</a>' for a, lab in items)
+    js = """
+(function(){
+  var w=document.querySelector('.jumpdock'); if(!w) return;
+  var b=w.querySelector('.jump-btn'), p=w.querySelector('.jump-menu');
+  function set(open){
+    w.classList.toggle('open', open);
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  b.addEventListener('click', function(e){
+    e.stopPropagation(); set(!w.classList.contains('open'));
+  });
+  p.addEventListener('click', function(e){
+    if(e.target.tagName === 'A') set(false);
+  });
+  document.addEventListener('click', function(e){
+    if(!w.contains(e.target)) set(false);
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') set(false);
+  });
+  var top=w.querySelector('.jump-top');
+  top.addEventListener('click', function(){
+    set(false);
+    window.scrollTo({top:0, left:0});
+    // Nothing above the first section is focusable, so send the keyboard back
+    // to the start of the document rather than leaving it stranded down-page.
+    var h=document.querySelector('h1');
+    if(h){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); }
+  });
+  // Only useful once there is something to go back up to.
+  function reveal(){ w.classList.toggle('scrolled', window.scrollY > 500); }
+  addEventListener('scroll', reveal, {passive:true});
+  reveal();
+
+  // Mark the section currently in view so the open menu says where you are.
+  var ids = [].map.call(document.querySelectorAll('.jump-menu a'), function(a){
+    return a.getAttribute('href').slice(1);
+  });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      p.querySelectorAll('a').forEach(function(a){
+        a.classList.toggle('here', a.getAttribute('href') === '#' + en.target.id);
+      });
+    });
+  }, {rootMargin: '-45% 0px -50% 0px'});
+  ids.forEach(function(id){
+    var el = document.getElementById(id); if(el) obs.observe(el);
+  });
+})();
+"""
+    return ('<div class="jumpdock">'
+            f'<nav class="jump-menu pixel" role="menu" aria-label="Sections">{links}</nav>'
+            '<div class="jump-stack">'
+            '<button class="jump-top pixel" type="button" aria-label="Back to top">'
+            '<span aria-hidden="true">\u2191</span></button>'
+            '<button class="jump-btn pixel" type="button" aria-expanded="false"'
+            ' aria-haspopup="true" aria-label="Jump to section">'
+            '<span aria-hidden="true">\u2261</span></button>'
+            '</div></div>\n<script>' + js + "</script>")
 
 
 def chain_summary(s, l, n, m, rw, lx, tvl):
