@@ -623,5 +623,77 @@
 "symbol": "AWC",
 "max": 4555,
 "minted": 4555
+},
+"0x792b4721e109c56938362f14b82f70daf40ef52b": {
+"name": "Redacted Remilio Hoodies",
+"symbol": "RHEMILIO",
+"max": 9995,
+"minted": 7314
+},
+"0x46e81767008a6a3e50dc6dd418bff332eb07c450": {
+"name": "The Alt Punks",
+"symbol": "ALT",
+"max": 4444,
+"minted": 4444
+},
+"0xc7f487dddad1ce61acd38a2b81f4195494c7a0e0": {
+"name": "Dogezilla",
+"symbol": "dogezilla",
+"max": 5555,
+"minted": 4494
+},
+"0xdac82c9fce097f28ffd8ed8e101dc3b2dacc38d2": {
+"name": "GTR",
+"symbol": "FR",
+"max": 5555,
+"minted": 2043
+},
+"0x04aa72f91d254d6e0208366f47f3e0134bd0d692": {
+"name": "ERGER",
+"symbol": "YT",
+"max": 5555,
+"minted": 1966
+},
+"0x3bc6d8c650ff80ef19d7d470b971479b9ea212f2": {
+"name": "erferf",
+"symbol": "er",
+"max": 5555,
+"minted": 1977
+},
+"0x4dfe8ac4861981c174556731422d587e5cb371a1": {
+"name": "FDL21",
+"symbol": "FD",
+"max": 5555,
+"minted": 1963
+},
+"0x1b75b22c5b502e4ed17b8bd13b19369d99c19189": {
+"name": "RHGPMFGH",
+"symbol": "RHGDHDH",
+"max": 5555,
+"minted": 1940
+},
+"0x1dfd25b4f77c9b1cd1b3c099015f8f447849d639": {
+"name": "GHU",
+"symbol": "GH",
+"max": 5555,
+"minted": 1912
+},
+"0x5309b447cedcbc9c79498689b13e0cddcf58f4bf": {
+"name": "ASD",
+"symbol": "TUT",
+"max": 5555,
+"minted": 1886
+},
+"0xed31da055c7ba1b9614100ad07e4ec2b3ca8875b": {
+"name": "FDL13",
+"symbol": "FD",
+"max": 5555,
+"minted": 1880
+},
+"0xcc580471e800464da75521e2b1492ad60542fa45": {
+"name": "NJM",
+"symbol": "NJ",
+"max": 5555,
+"minted": 1910
 }
 }
