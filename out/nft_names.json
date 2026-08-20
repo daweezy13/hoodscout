@@ -695,5 +695,76 @@
 "symbol": "NJ",
 "max": 5555,
 "minted": 1910
+},
+"0x179c16caceb122fe429939cd752cc18bac2a7011": {
+"name": "Anon Brokers",
+"symbol": "ANON BROKERS",
+"max": 6666,
+"minted": 5770
+},
+"0xa02d10854a957a56a6db31e0e1f5ca22e5bace46": {
+"name": "H00DIESS",
+"symbol": "H00DIESS",
+"max": 10000,
+"minted": 6145
+},
+"0x2259e97ee543f4860aab0c44c706e2e16b37bae1": {
+"name": "\ud835\udc07\ud835\udc28\ud835\udc28\ud835\udc1d \ud835\udc0f\ud835\udc28\ud835\udc24\u00e9\ud835\udc26\ud835\udc28\ud835\udc27\ud835\udc2c",
+"symbol": "\ud835\udc0f\ud835\udc28\ud835\udc24\u00e9\ud835\udc26\ud835\udc28\ud835\udc27\ud835\udc2c",
+"max": 8888,
+"minted": 2379
+},
+"0xfefb412680f8b4ce04d21d904f3fc51657f2c56f": {
+"name": "Hood Kats",
+"symbol": "HK",
+"max": 1476,
+"minted": 1476
+},
+"0xae4ceea7dc7b06bb1e12dab5b87558422a7e11ad": {
+"name": "Nero Gang",
+"symbol": "Nerogang",
+"max": 5000,
+"minted": 1316
+},
+"0x233ea5ac02332b4ac6c979d47ef9b5503bee136e": {
+"name": "Hoodlings 555",
+"symbol": "HOOD555",
+"max": 555
+},
+"0x8fbf96c9bd42b2e3b9a759b01923ee79c9656beb": {
+"name": "MISTERYDOG",
+"symbol": "MDOG",
+"max": 999,
+"minted": 999
+},
+"0x066aa16c730ea74b118bd6eac5a662376b2306f0": {
+"name": "Ravenclaws",
+"symbol": "Ravenclaws",
+"max": 7777,
+"minted": 4828
+},
+"0x24989ccb54a7b786fb9d3951ba9ccec2a7c744f1": {
+"name": "GoOse",
+"symbol": "GoOse",
+"max": 6666,
+"minted": 6666
+},
+"0x433aafb245e3838c5092a4c98251b77ff2f844b5": {
+"name": "Platypeeps",
+"symbol": "Platypeeps",
+"max": 10000,
+"minted": 7533
+},
+"0xbe325e6e7f621eacf12fa6d5c193acd2cb7a3fdf": {
+"name": "Fortune Foes",
+"symbol": "Fortune Foes",
+"max": 7777,
+"minted": 5526
+},
+"0x25bee47e0715c2604a39c6e60e5f437dcdd0464b": {
+"name": "Broke Stonker",
+"symbol": "Brokestonker",
+"max": 3000,
+"minted": 320
 }
 }
