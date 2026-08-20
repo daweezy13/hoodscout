@@ -589,5 +589,182 @@
 "symbol": "RBRO",
 "max": 10000,
 "minted": 2120
+},
+"0xa7f7579cc09f4058d89af08b8a351059b9d52397": {
+"name": "Sanik",
+"symbol": "Sanik",
+"max": 7777,
+"minted": 7116
+},
+"0x1fb2cd3bf735c8323dce11108b4e86bf95791dc5": {
+"name": "Simple Strategic Fellas",
+"symbol": "FELLAS",
+"max": 5000
+},
+"0xcb20a2638dab4e6afa2eaee6b42155cf8d508a04": {
+"name": "Early Hood Member",
+"symbol": "EHM",
+"max": null
+},
+"0xed9094f53f5810d8af596f6f785b7f7de56e9747": {
+"name": "Project Touge",
+"symbol": "TOUGE",
+"max": 3333,
+"minted": 3333
+},
+"0xc647edafe1c4c06c6e204102318cb47f46cdacf2": {
+"name": "MS Paint Punks",
+"symbol": "MSPP",
+"max": null,
+"minted": 9943
+},
+"0x5de7eb662be1d8f06a2058f0898b31de7188b74e": {
+"name": "Awoo Cats",
+"symbol": "AWC",
+"max": 4555,
+"minted": 4555
+},
+"0x792b4721e109c56938362f14b82f70daf40ef52b": {
+"name": "Redacted Remilio Hoodies",
+"symbol": "RHEMILIO",
+"max": 9995,
+"minted": 7314
+},
+"0x46e81767008a6a3e50dc6dd418bff332eb07c450": {
+"name": "The Alt Punks",
+"symbol": "ALT",
+"max": 4444,
+"minted": 4444
+},
+"0xc7f487dddad1ce61acd38a2b81f4195494c7a0e0": {
+"name": "Dogezilla",
+"symbol": "dogezilla",
+"max": 5555,
+"minted": 4494
+},
+"0xdac82c9fce097f28ffd8ed8e101dc3b2dacc38d2": {
+"name": "GTR",
+"symbol": "FR",
+"max": 5555,
+"minted": 2043
+},
+"0x04aa72f91d254d6e0208366f47f3e0134bd0d692": {
+"name": "ERGER",
+"symbol": "YT",
+"max": 5555,
+"minted": 1966
+},
+"0x3bc6d8c650ff80ef19d7d470b971479b9ea212f2": {
+"name": "erferf",
+"symbol": "er",
+"max": 5555,
+"minted": 1977
+},
+"0x4dfe8ac4861981c174556731422d587e5cb371a1": {
+"name": "FDL21",
+"symbol": "FD",
+"max": 5555,
+"minted": 1963
+},
+"0x1b75b22c5b502e4ed17b8bd13b19369d99c19189": {
+"name": "RHGPMFGH",
+"symbol": "RHGDHDH",
+"max": 5555,
+"minted": 1940
+},
+"0x1dfd25b4f77c9b1cd1b3c099015f8f447849d639": {
+"name": "GHU",
+"symbol": "GH",
+"max": 5555,
+"minted": 1912
+},
+"0x5309b447cedcbc9c79498689b13e0cddcf58f4bf": {
+"name": "ASD",
+"symbol": "TUT",
+"max": 5555,
+"minted": 1886
+},
+"0xed31da055c7ba1b9614100ad07e4ec2b3ca8875b": {
+"name": "FDL13",
+"symbol": "FD",
+"max": 5555,
+"minted": 1880
+},
+"0xcc580471e800464da75521e2b1492ad60542fa45": {
+"name": "NJM",
+"symbol": "NJ",
+"max": 5555,
+"minted": 1910
+},
+"0x179c16caceb122fe429939cd752cc18bac2a7011": {
+"name": "Anon Brokers",
+"symbol": "ANON BROKERS",
+"max": 6666,
+"minted": 5770
+},
+"0xa02d10854a957a56a6db31e0e1f5ca22e5bace46": {
+"name": "H00DIESS",
+"symbol": "H00DIESS",
+"max": 10000,
+"minted": 6145
+},
+"0x2259e97ee543f4860aab0c44c706e2e16b37bae1": {
+"name": "\ud835\udc07\ud835\udc28\ud835\udc28\ud835\udc1d \ud835\udc0f\ud835\udc28\ud835\udc24\u00e9\ud835\udc26\ud835\udc28\ud835\udc27\ud835\udc2c",
+"symbol": "\ud835\udc0f\ud835\udc28\ud835\udc24\u00e9\ud835\udc26\ud835\udc28\ud835\udc27\ud835\udc2c",
+"max": 8888,
+"minted": 2379
+},
+"0xfefb412680f8b4ce04d21d904f3fc51657f2c56f": {
+"name": "Hood Kats",
+"symbol": "HK",
+"max": 1476,
+"minted": 1476
+},
+"0xae4ceea7dc7b06bb1e12dab5b87558422a7e11ad": {
+"name": "Nero Gang",
+"symbol": "Nerogang",
+"max": 5000,
+"minted": 1316
+},
+"0x233ea5ac02332b4ac6c979d47ef9b5503bee136e": {
+"name": "Hoodlings 555",
+"symbol": "HOOD555",
+"max": 555
+},
+"0x8fbf96c9bd42b2e3b9a759b01923ee79c9656beb": {
+"name": "MISTERYDOG",
+"symbol": "MDOG",
+"max": 999,
+"minted": 999
+},
+"0x066aa16c730ea74b118bd6eac5a662376b2306f0": {
+"name": "Ravenclaws",
+"symbol": "Ravenclaws",
+"max": 7777,
+"minted": 4828
+},
+"0x24989ccb54a7b786fb9d3951ba9ccec2a7c744f1": {
+"name": "GoOse",
+"symbol": "GoOse",
+"max": 6666,
+"minted": 6666
+},
+"0x433aafb245e3838c5092a4c98251b77ff2f844b5": {
+"name": "Platypeeps",
+"symbol": "Platypeeps",
+"max": 10000,
+"minted": 7533
+},
+"0xbe325e6e7f621eacf12fa6d5c193acd2cb7a3fdf": {
+"name": "Fortune Foes",
+"symbol": "Fortune Foes",
+"max": 7777,
+"minted": 5526
+},
+"0x25bee47e0715c2604a39c6e60e5f437dcdd0464b": {
+"name": "Broke Stonker",
+"symbol": "Brokestonker",
+"max": 3000,
+"minted": 320
 }
 }
