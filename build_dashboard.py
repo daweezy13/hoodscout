@@ -315,6 +315,23 @@ def reward_rows(projects):
 # Keyed by address, and deliberately narrow: there is no general way to know two
 # contracts are the same project, so this only ever holds pairs a project has
 # documented itself.
+# A retired generation whose total the project publishes but whose contract
+# address it does not. Added to the live contract's measured total so the row
+# reflects the project's whole history, and labelled "published" so the two
+# halves stay distinguishable -- one is measured from chain logs, one is taken
+# on the project's word. A retired contract's total no longer moves, so a
+# constant is safe here in a way it would not be for a live one.
+#
+# QUOTRONS v1: $113,849.84, from quotrons.cash. Their v2 figure counts WETH
+# CONVERTED IN (29.3 WETH) while ours counts stock actually delivered out, so
+# the two legs are not like-for-like; Dave's call is to sum them regardless.
+PUBLISHED_PRIOR = {
+    "0xe04fba61fd54ba78dd450a30d8af40167af5d3ec": {
+        "name": "QUOTRONS", "usd": 113_849.84, "label": "v1 published",
+        "live_label": "v2 measured",
+    },
+}
+
 PROJECT_GENERATIONS = {
     "0x038a7f4e4e89448ad74e044337c9ac25c11e726b": ("StonkBrokers", "v1 retired"),
     "0x1f12fe622c11947f93f53d63f68f7f46b6d081c9": ("StonkBrokers", "v2 active"),
@@ -350,6 +367,15 @@ def merge_generations(projects):
         if gen and gen.startswith("v2"):
             q["explorer_url"] = p.get("explorer_url") or q.get("explorer_url")
             q["idle_days"] = p.get("idle_days")
+    # Fold in a published prior generation where the project reports one.
+    for p in out:
+        prior = PUBLISHED_PRIOR.get((p.get("address") or "").lower())
+        if not prior:
+            continue
+        p["name"] = prior["name"]
+        p["distributed_usd"] = (p.get("distributed_usd") or 0) + prior["usd"]
+        p["gens"] = [prior["label"], prior["live_label"]]
+
     for q in byname.values():
         q["assets"].sort(key=lambda a: -(a.get("usd") or 0))
     out.sort(key=lambda x: -(x.get("distributed_usd") or 0))
@@ -615,7 +641,8 @@ def render(p, logo=None):
         "The mint scanner is warming up.")
 
     summary_html = chain_summary(s, l, n, m, rw, lxc, tvl_headline)
-    padx = launchpad_index(tvl=l.get("tvl_current"))
+    padx = launchpad_index(tokens=p.get("launchpad_tokens"),
+                           tvl=l.get("tvl_current"))
     _lead = (padx.get("pads") or [{}])[0]
     pad_note_idx = (
         f"Every launchpad's {padx.get('top_n', 10)} biggest live coins, valued together &mdash; "
@@ -2585,121 +2612,90 @@ def pad_rows(pads, top_n=10):
     return "\n".join(out)
 
 
-def launchpad_index(path=None, top_n=10, tvl=None, min_coins=3):
-    """Combined FDV of each launchpad's biggest live coins.
+def launchpad_index(tokens=None, top_n=10, tvl=None, min_coins=3, **_):
+    """Combined FDV of each launchpad's ten biggest live coins.
 
-    Ranks launchpads by the value of what they actually produced: the top
-    `top_n` coins each one launched, summed. Two guards matter.
+    Reads LIVE token records (GeckoTerminal, every dex on the chain) rather than
+    replaying the observation ledger. The ledger was only ever supplying FDV
+    here, and it supplied a stale one over a window bounded by retention -- the
+    same growth that took it past GitHub's 100 MB limit and blocked every push.
 
-    LIVE ONLY. A drained pool keeps reporting its last trade price forever --
-    FDV freezes when liquidity leaves -- so a rugged coin would carry its peak
-    valuation into its launchpad's total indefinitely. Only coins still holding
-    a real market are counted, which makes this an index of live value rather
-    than of high-water marks.
+    Attribution is by the token's EARLIEST pool across all dexes, which does the
+    work the ledger's first-sight FDV used to do: an established token opening a
+    new pool has an older pool elsewhere, so it credits the pad it actually
+    launched on instead of flattering the new venue. PIPEDOG no longer lands on
+    Uniswap v3 for opening a v3 pool.
 
-    ⚠️ AND AN ABSOLUTE CEILING, because summing changes what a bad number does.
-    observation_quality() deliberately leaves the HIGH side of fdv/liquidity
-    ungated -- a huge ratio just means a large nominal supply, and it cancels
-    out when a pool is measured against its own base. It cancels nothing in a
-    sum: the raw ledger contains an FDV of $5,629,578,765,665,840, which alone
-    would have made its launchpad the biggest on the chain by a factor of
-    30 million. MEASURED, the separation is unambiguous: those broken readings
-    sit at $5.6e15 and $2.3e12 while the largest real coin is $35M, so a cutoff
-    anywhere in that five-order gap excludes exactly the two and nothing else.
-    Pinned to chain TVL rather than a constant -- a single coin on this chain
-    cannot credibly be worth more than the chain it trades on -- so it tracks
-    the chain instead of going stale.
-
-    One entry per TOKEN, not per pool: a coin commonly has several pools on the
-    same pad, and counting each would multiply its FDV by its pool count.
+    ⚠️ Known limit: only each dex's busiest pools are fetched, so a token whose
+    original pool has gone quiet may be attributed to a later pad.
     """
-    p = Path(path) if path else LEDGER
-    if not p.exists():
-        return {"pads": [], "top_n": top_n}
     cap = tvl or 500_000_000
-
-    pools = {}
-    for line in p.read_text().splitlines():
-        try:
-            r = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        pool = r.get("pool")
-        if not pool:
-            continue
-        d = pools.setdefault(pool, {"dex": r.get("dex"), "sym": r.get("symbol"),
-                                    "tok": r.get("token"), "born": r.get("created_at"),
-                                    "liq": None, "fdv": None, "first_fdv": None})
-        lq = usable_liquidity(r)
-        if lq is not None:
-            d["liq"] = lq
-        if not observation_quality(r) and (r.get("fdv") or 0) > 0:
-            if d["first_fdv"] is None:
-                d["first_fdv"] = r["fdv"]
-            d["fdv"] = r["fdv"]
-        if r.get("symbol"):
-            d["sym"] = r["symbol"]
-
-    # ⚠️ A NEW POOL IS NOT A NEW TOKEN, and both ways of confusing them inflate
-    # a launchpad that did nothing.
-    #
-    # First, a token that already trades elsewhere can open a second pool on
-    # another dex; the feed reports that as new. MEASURED: 444 tokens (3.5%)
-    # appear on more than one pad, and the strays land precisely on the pads in
-    # question -- WALL, GP, STRIKE, SPCX, GME, PACK and RIPZ all launched on
-    # v4, Pons or Up and later opened a Uniswap v3 pool. So a token counts only
-    # for the pad of its EARLIEST pool.
-    #
-    # Second, and larger: an established token opening a new pool arrives
-    # already valuable. MEASURED, median FDV at first sight is $3.2k on Pons,
-    # $10.2k on v4 and $5.5k on v3 -- but v3's p90 is $44.8k and its intake
-    # includes PIPEDOG at $38.9M and USDG at $1.05 BILLION. PIPEDOG alone was
-    # $34.5M of v3's $55.1M index: a top-ten memecoin of the chain that merely
-    # opened a pool there. A launch starts small, so a pool whose FIRST quote is
-    # already above the ceiling is not one.
-    born_at = {}
-    for pool, d in pools.items():
-        tk = (d.get("tok") or "").lower()
-        if not tk or not d.get("born"):
-            continue
-        if tk not in born_at or d["born"] < born_at[tk][0]:
-            born_at[tk] = (d["born"], launchpad_of(d["dex"]))
-
     equities = _equity_addresses()
     by = {}
-    for pool, d in pools.items():
-        if not d["fdv"] or d["liq"] is None or d["liq"] < MIN_DEPTH_USD:
+    for tk in (tokens or []):
+        fdv = tk.get("fdv") or 0
+        liq = tk.get("liq") or 0
+        if fdv <= 0 or fdv > cap:
             continue
-        if d["fdv"] > cap:
+        if liq < MIN_DEPTH_USD:            # dead pools keep quoting a frozen price
             continue
-        if (d.get("first_fdv") or 0) > LAUNCH_FDV_CEILING:
-            continue                       # arrived already valuable: not a launch
-        sym = d["sym"] or "?"
+        sym = tk.get("sym") or "?"
         if (sym.upper() in INFRA_SYMBOLS or sym.upper() in WRAPPED_MAJORS
                 or STABLE_RE.search(sym)):
             continue
-        tk = (d.get("tok") or "").lower()
-        if tk and tk in equities:
+        if (tk.get("addr") or "").lower() in equities:
             continue
-        pad = born_at.get(tk, (None, launchpad_of(d["dex"])))[1]
-        key = (d.get("tok") or sym).lower()
-        seen = by.setdefault(pad, {})
-        if d["fdv"] > (seen.get(key, {}).get("fdv") or 0):
-            seen[key] = {"sym": sym[:14], "fdv": d["fdv"], "liq": d["liq"], "pool": pool}
+        pad = launchpad_of(tk.get("dex"))
+        by.setdefault(pad, []).append(
+            {"sym": sym[:14], "fdv": fdv, "liq": liq,
+             "pool": tk.get("addr") or "", "born": tk.get("born") or ""})
 
     out = []
-    for pad, toks in by.items():
-        coins = sorted(toks.values(), key=lambda x: -x["fdv"])
+    for pad, coins in by.items():
+        coins.sort(key=lambda c: -c["fdv"])
         if len(coins) < min_coins:
             continue
         top = coins[:top_n]
-        out.append({"pad": pad, "coins": len(coins), "index": sum(c["fdv"] for c in top),
+        out.append({"pad": pad, "coins": len(coins),
+                    "index": sum(c["fdv"] for c in top),
                     "liq": sum(c["liq"] for c in top), "top": top,
                     "launcher": pad in LAUNCHER_PADS,
                     "inferred": pad in INFERRED_PADS})
     out.sort(key=lambda x: -x["index"])
-    return {"pads": out, "top_n": top_n,
-            "total": sum(x["index"] for x in out)}
+    return {"pads": out, "top_n": top_n, "total": sum(x["index"] for x in out)}
+
+
+def pad_split(pads):
+    """Launchers and AMM venues, each ranked within its own group."""
+    return ([p for p in pads if p.get("launcher")],
+            [p for p in pads if not p.get("launcher")])
+
+
+def pad_rows(pads, top_n=10):
+    """One row per launchpad, with a proportional bar for the index.
+
+    The bar is LINEAR against the leader, not logarithmic. The spread is the
+    finding -- the busiest launchpad by coin count carries the smallest top-ten
+    value on the chain -- and a log scale would flatter the tail into looking
+    comparable when it is two orders of magnitude behind.
+    """
+    if not pads:
+        return ""
+    lead = max(p["index"] for p in pads) or 1   # scaled within the group
+    out = []
+    for i, p in enumerate(pads, 1):
+        names = " &middot; ".join(escape(c["sym"]) for c in p["top"][:3])
+        pct = max(p["index"] / lead * 100, 0.6)
+        out.append(f"""          <tr>
+            <td class="rank">{i}</td>
+            <td class="sym" data-v="{escape(p['pad'].lower())}">
+              <span class="sym-name">{escape(p['pad'])}{' <span class="badge warn">inferred</span>' if p.get('inferred') else ''}</span>
+              <span class="sym-sub">{names}</span>
+            </td>
+            <td class="n strong" data-v="{p['index']}">{escape(usd(p['index']))}
+              <div class="idxbar"><i style="width:{pct:.1f}%"></i></div></td>
+          </tr>""")
+    return "\n".join(out)
 
 
 def nav_cards(s, l, n, m, rw, lx, nftl, padx=None):
@@ -2716,15 +2712,18 @@ def nav_cards(s, l, n, m, rw, lx, nftl, padx=None):
     The JS is a plain string, not an f-string -- its braces are code, not
     placeholders, and doubling them here would be noise.
     """
+    # ⚠️ Must match the order the sections appear in the page. Stablecoins sits
+    # fourth in the document but was listed last here, so the menu disagreed
+    # with the scroll it drives.
     items = [
         ("vitals",          "Chain vitals"),
         ("memecoin-vitals", "Memecoin vitals"),
         ("nft-launches",    "NFT launches"),
+        ("stablecoins",     "Stablecoins"),
         ("top-memecoins",   "Top memecoins"),
         ("top-nfts",        "Top NFTs"),
         ("launchpads",      "Launchpads"),
         ("payouts",         "Holder payouts"),
-        ("stablecoins",     "Stablecoins"),
     ]
     links = "".join(
         f'<a href="#{a}" role="menuitem">{escape(lab)}</a>' for a, lab in items)

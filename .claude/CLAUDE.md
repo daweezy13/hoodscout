@@ -54,3 +54,47 @@ Token`, so the explorer's own search yields the asset universe without hardcodin
 POST `/v1/query` returns **402 Payment Required**; existing query ids still execute fine. Never
 repoint an existing id at new SQL — each one is in use by another section. New analysis has to
 run on the RPC.
+
+## ⚠️ `nft()` does NOT mean "pays an NFT collection" — LP position managers implement it
+Confirmed 2026-08-19. The third family's attribution test admits Uniswap-style infrastructure:
+a **CLPool clone answered `nft()`** pointing at its own `NonfungiblePositionManager`, and came
+out as the chain's largest holder payout at **$1,498,096 — 4× the real leader**. Its "recipients"
+were LPs taking swap output, not holders being paid.
+
+"Is the target a real ERC-721" does not separate them: that position manager has 21,543 supply
+and 1,196 holders, *more than any genuine collection on this chain*. What separates them is dex
+plumbing — it answers `factory()` and `WETH9()`; not one of the six real collections answers
+either. Corroborate the address `nft()` returns; never accept it on the strength of the call
+succeeding.
+
+Two more leaked in by a different door, so check both paths: `V3Utils` ($183,304) and
+`PonsV2LaunchAndBuy` ($68,990) implement no `nft()` at all and entered on the basket test at 11
+and 10 assets, under the ceiling of 12 — QUOTRONS legitimately pays 10, so **the asset ceiling
+cannot separate a router from a payer**. Read the verified ABI for SHAPE instead: router-shaped
+(`swap|liquidity|launch`) AND NOT payout-shaped (`claim|pending|distribut|accrue`) is
+infrastructure. ⚠️ Strip Ownable/AccessControl boilerplate first — `pendingOwner` contains
+"pending" and alone rescued PonsV2LaunchAndBuy from the test.
+
+## GeckoTerminal throttles on a rolling quota — pacing does not help, only fewer calls do
+MEASURED twice: at 2.2s between calls 8 of 14 were throttled; slowing to 3.0s made it **worse**
+(11 of 14). A 31-dex sweep spent 434 of its 650 seconds asleep in backoff. Retrying is also
+futile — use `tries=2`, not the default 6, and carry a persisted registry so a throttled run
+keeps the previous sweep's rows instead of dropping them.
+
+Do NOT "fix" this by swapping the per-dex sweep for the chain-wide `/pools` endpoint: it returns
+146 of the 577 tokens, ranked by volume, which deletes the small launchers (Mint Club, Hoodit)
+from the index entirely.
+
+## Any budgeted loop here needs a rotation, not just a deadline
+Three separate starvation bugs, same root cause: a wall-clock budget over a FIXED iteration order
+never reaches the tail. Measurement now sorts oldest-watermark-first; discovery offsets its start
+by day-of-year; the launchpad sweep visits least-recently-swept dexes first. A deadline alone
+converts "slow" into "permanently blind to the same items".
+
+Budgets are sized against a measured per-phase breakdown (`phase_seconds` in pulse.json).
+Everything except wage pools and launchpads totals ~220s; those two are the whole timeout story.
+
+## CI must commit the registries, or convergence never happens
+`refresh.yml` runs on a fresh checkout. `out/wage_pools.json` and `out/launchpad_tokens.json` are
+convergence state — watermarks and carry-over rows — so leaving them out of the commit step
+silently resets them every night and the budgeted loops restart from zero forever.

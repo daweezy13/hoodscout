@@ -75,7 +75,15 @@ jobs:
         run: |
           git config user.name  "hoodscout-bot"
           git config user.email "bot@hoodscout.local"
-          git add -f out/site out/nft_names.json out/nft_registry.json 2>/dev/null || true
+          # ⚠️ The registries are committed, not just the rendered site. Both
+          # wage_pools.json and launchpad_tokens.json are CONVERGENCE state:
+          # each run measures what its budget allows, stores a watermark, and
+          # resumes there next time. A runner starts from a fresh checkout, so
+          # a registry left uncommitted is a registry that resets every night --
+          # the budgets would never converge and the same early pools would be
+          # re-measured from block 0 forever.
+          git add -f out/site out/nft_names.json out/nft_registry.json \
+                     out/wage_pools.json out/launchpad_tokens.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "nothing changed"
           else

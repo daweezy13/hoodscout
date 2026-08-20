@@ -161,6 +161,15 @@ def _get(url, params=None, tries=6, timeout=45):
                 print(f"    [429] {url} -> backing off {wait}s", flush=True)
                 time.sleep(wait)
                 continue
+            # A 4xx is an ANSWER, not a failure to get one, so it is never
+            # retried. Blockscout 404s /smart-contracts/<addr> for every
+            # unverified contract, and the payout scan asks about a lot of
+            # them: at six tries with escalating sleeps that is ~22s to be told
+            # "unverified" -- twice per candidate, in a loop with no budget on
+            # it. Retrying still covers the cases that deserve it (5xx,
+            # timeouts, dropped connections), which are the transient ones.
+            if 400 <= r.status_code < 500:
+                return None
             r.raise_for_status()
             return r.json()
         except requests.RequestException as e:
@@ -808,8 +817,16 @@ def fetch_memecoins(pages=4, min_liquidity=MIN_LIQUIDITY_USD, top_n=TOP_N):
     for t in working:
         _corroborate(t, fetch_dexscreener_token(t["address"]))
         time.sleep(REQUEST_SLEEP)
+    # ⚠️ The unchecked tail still needs gt_liquidity. Only _corroborate sets it,
+    # and it runs on the working set alone, but the ranking loop below reads
+    # t["gt_liquidity"] for EVERY candidate. That is a latent KeyError that only
+    # fires when the chain shows more than top_n*3 distinct tokens across the
+    # four pages -- 32 one morning, past 60 that evening, which took the whole
+    # refresh down. Mirrors the assignment in _corroborate: unchecked means
+    # nobody corroborated the number, not that there isn't one.
     for t in candidates[top_n * 3:]:
         t["corroboration"] = "unchecked"
+        t["gt_liquidity"] = t["liquidity"]
         t["volume_ranked"] = t["volume_24h"]
 
     ranked, excluded = [], []
@@ -1281,9 +1298,33 @@ def fetch_reward_distributors(eth_price=None, min_usd=1.0):
     price_cache = {}
 
     def reward_price(addr):
+        """DexScreener's price, refused when the explorer flatly contradicts it.
+
+        ⚠️ MEASURED 2026-08-20: DexScreener quoted USDG -- this chain's dollar
+        stablecoin, the reward asset for most of these contracts -- at $503.54.
+        Blockscout reported exchange_rate 1.0 for the same token in the same
+        minute. Every USDG payout went out multiplied by ~503, and the board
+        published $4,064,517 against a true ~$65k. A $2.5M top row was $5,045.
+
+        The pipeline was already right to prefer market data over a number a
+        contract reports about itself -- but a market source is still ONE
+        source, and a bad pair quote is indistinguishable from a real move
+        unless something else is asked. So the two are compared: when they
+        disagree by more than 5x the explorer's rate wins, because a 5x gap is
+        not a price move, it is one of them being wrong, and the explorer's is
+        the conservative failure. Where Blockscout has no rate (most memecoins)
+        DexScreener stands alone exactly as before.
+        """
         if addr not in price_cache:
             ds = fetch_dexscreener_token(addr) or {}
-            price_cache[addr] = _f(ds.get("price_usd"))
+            dsp = _f(ds.get("price_usd"))
+            rate = _f((_get(f"{BLOCKSCOUT}/tokens/{addr}") or {}).get("exchange_rate"))
+            if dsp and rate and (dsp / rate > 5 or rate / dsp > 5):
+                print(f"        ⚠️ price disagreement on {addr[:10]}: "
+                      f"dexscreener ${dsp:,.4f} vs explorer ${rate:,.4f} "
+                      f"-- using the explorer", flush=True)
+                dsp = rate
+            price_cache[addr] = dsp or rate
             time.sleep(0.2)
         return price_cache[addr]
 
@@ -1502,7 +1543,91 @@ PAYOUT_INFRA = {
     "0x8366a39cc670b4001a1121b8f6a443a643e40951",   # Uniswap v4 PoolManager
     "0xb92fe925dc43a0ecde6c8b1a2709c170ec4fff4f",   # RelayRouterV3
     "0x0000000000000000000000000000000000000000",
+    # A CLPool clone (eip-1167 -> CLPool). Its swap outflow reached 1,196
+    # wallets and it answers nft() -- pointing at its own position manager --
+    # so it came out as the chain's largest "payout" at $1.5M, 4x the real
+    # leader. A concentrated-liquidity pool paying its LPs is not a project
+    # paying its holders.
+    "0x9d590437abaae12cf9fe0627caf4cfd633152599",
+    "0xb4acbc082b5e7ded571c98ee4257778a9d784b36",   # V3Utils, LP swap+mint helper
+    "0xe33e9e479df8802cb0866d5d05258bec4cf62948",   # PonsV2LaunchAndBuy, launchpad router
 }
+
+# What an nft() answer has to survive to be believed, and what a basket-path
+# candidate has to survive to be called a payer. Both are read off the
+# contract's own INTERFACE, never off a name badge or a self-reported number.
+#
+# An LP position manager is an ERC-721 with holders and supply, so "is it a real
+# collection" does not separate it -- 0x07f4 (NonfungiblePositionManager) has
+# 21,543 supply and 1,196 holders, more than any genuine collection here.
+# MEASURED across the seven collections currently on the board (StonkBrokers,
+# Zaibatsu, Stackers, RoboBrokers, LMRH, StonkPepe) plus the position manager:
+# the position manager answers factory() AND WETH9(); not one real collection
+# answers either. Dex plumbing is the thing a PFP contract has no reason to
+# carry.
+POSITION_MANAGER_SELECTORS = ("factory()", "WETH9()")
+
+# The basket path has no nft() to corroborate, so it reads the verified ABI for
+# SHAPE: a router exposes swap/liquidity/launch entry points, a payer exposes
+# distribution machinery. MEASURED on the four verified basket-path contracts:
+#   V3Utils              swapRouter, swapAndMint, swapAndIncreaseLiquidity  -- and
+#                        no claim, no pending, no distribute            REJECT
+#   PonsV2LaunchAndBuy   launchAndBuy, factory, rescue (8 functions total) REJECT
+#   QuotronReflectionsV2 claim, pending, basketPending, notifyFees         KEEP
+#   USDGBuyerDistributorV2 distributeBatch, accrued, eligible              KEEP
+# USDGBuyerDistributorV2 also carries router() and buyStocksV4Fallback --
+# a payer legitimately routes to BUY the reward -- so router words alone must
+# never reject. Only router-shaped AND NOT payout-shaped is infrastructure.
+#
+# ⚠️ Rejects only what it can positively identify. An unverified contract has no
+# ABI to read, so it is left to the existing basket and name tests rather than
+# being dropped on absence of evidence.
+# ⚠️ Ownership and role boilerplate is stripped BEFORE the payout vocabulary is
+# matched. Ownable2Step's `pendingOwner` contains "pending", which is enough to
+# read as payout machinery -- PonsV2LaunchAndBuy has eight functions, six of
+# them ownership boilerplate, and it was rescued from the router test by that
+# one word. These names say nothing about what a contract does with money.
+ABI_BOILERPLATE = {
+    "owner", "transferownership", "renounceownership", "acceptownership",
+    "pendingowner", "grantrole", "revokerole", "renouncerole", "hasrole",
+    "getroleadmin", "supportsinterface", "initialize", "pause", "unpause",
+    "paused", "implementation", "upgradeto", "upgradetoandcall", "rescue",
+}
+ROUTER_ABI_RE = re.compile(r"swap|liquidity|launch|multicall|exactinput|exactoutput", re.I)
+PAYOUT_ABI_RE = re.compile(
+    r"claim|pending|accrue|distribut|earned|harvest|reward|dividend|payout|eligible",
+    re.I)
+
+
+def _is_collection(addr):
+    """True if `addr` looks like a real NFT collection rather than dex plumbing.
+
+    The nft() accessor was meant to be the clean attribution test -- AMMs and
+    routers never implement it. LP position managers do, which is how a CLPool
+    clone came out as the chain's biggest holder payout. So the answer is
+    corroborated instead of taken at face value: it must be an ERC-721 the
+    explorer knows, and it must not carry a position manager's dex plumbing.
+    """
+    if not addr or not int(addr, 16):
+        return False
+    if any(_eth_call(addr, sel, "addr") for sel in POSITION_MANAGER_SELECTORS):
+        return False
+    return ((_get(f"{BLOCKSCOUT}/tokens/{addr}") or {}).get("type") or "") == "ERC-721"
+
+
+def _is_router(addr):
+    """True if the verified ABI is router-shaped and carries no payout machinery.
+
+    Unverified contracts return False: no ABI is no evidence, not evidence of
+    innocence, and the basket and name tests still apply to them.
+    """
+    abi = (_get(f"{BLOCKSCOUT}/smart-contracts/{addr}") or {}).get("abi") or []
+    fns = [f.get("name") or "" for f in abi if f.get("type") == "function"]
+    if not fns:
+        return False
+    names = " ".join(f for f in fns
+                     if f.lower().strip("_") not in ABI_BOILERPLATE)
+    return bool(ROUTER_ABI_RE.search(names)) and not PAYOUT_ABI_RE.search(names)
 
 # Discovery runs on the RPC, not Dune. The Dune account cannot create new saved
 # queries (the API 402s on POST /v1/query while existing query ids still
@@ -1526,6 +1651,119 @@ def discover_stock_tokens(limit=60):
         if STOCK_TOKEN_MARK in name and addr.startswith("0x"):
             out[addr] = it.get("symbol") or "?"
     return dict(list(out.items())[:limit])
+
+
+LAUNCHPAD_REGISTRY = OUT_DIR / "launchpad_tokens.json"
+
+
+def fetch_launchpad_pools(pages=2, sleep=2.2, budget_s=240):
+    """Every dex's top pools, live, with the fields the launchpad index needs.
+
+    Replaces replaying the observation ledger for this. The ledger was only ever
+    being asked for FDV here, and it answers with a STALE figure (whatever was
+    last polled) over a window bounded by retention -- which is what pushed it
+    to 115 MB and past GitHub's hard limit. GeckoTerminal answers with the
+    CURRENT figure, for every dex on the chain rather than the ~15 our poller
+    happened to sample, in about a minute.
+
+    Returned per token, not per pool: a coin routinely holds several pools on one
+    dex, and its EARLIEST pool across all dexes is what says where it launched.
+    That earliest-pool date also does the job the ledger's first-sight FDV used
+    to do -- an established token opening a new pool has an older pool elsewhere,
+    so it is attributed to that older pad and does not flatter the new one.
+
+    ⚠️ PACING DOES NOT FIX GECKOTERMINAL'S 429s -- MEASURED, twice. A 31-dex
+    sweep spent 434 of its 650 seconds asleep in backoff, and raising the gap
+    from 2.2s to 3.0s made it WORSE (8 of 14 calls throttled at 2.2s, 11 of 14
+    at 3.0s). The limit is a rolling quota over a long window, not a per-minute
+    rate, so a slower sweep buys nothing and simply runs longer.
+
+    The cost has to come off the CALL COUNT instead, and the per-dex sweep is
+    not negotiable: the index needs each pad's top ten coins BY FDV, and the
+    small launchers (Mint Club at 5 coins, Hoodit at 1) never surface in a
+    chain-wide ranking by volume -- a 10-page chain-wide sweep returned 146 of
+    the 577 tokens and would have deleted those pads from the board outright.
+
+    So the sweep persists, exactly like the wage-pool registry: what it reads is
+    merged into a stored set, a wall-clock budget bounds the run, and dexes are
+    visited LEAST-RECENTLY-SWEPT FIRST so a short run rotates through them
+    across days instead of always starving the same tail. A throttled run keeps
+    yesterday's record for the dexes it did not reach rather than dropping them.
+    """
+    reg = {}
+    if LAUNCHPAD_REGISTRY.exists():
+        try:
+            reg = json.loads(LAUNCHPAD_REGISTRY.read_text())
+        except (ValueError, OSError):
+            reg = {}
+    tokens = {t["addr"]: t for t in (reg.get("tokens") or []) if t.get("addr")}
+    swept = dict(reg.get("swept") or {})            # dex id -> ISO of last sweep
+    print(f"        {len(tokens)} tokens carried over from the last sweep", flush=True)
+
+    dexes = []
+    for page in (1, 2):
+        d = _get(f"{GECKOTERMINAL}/networks/{GT_NETWORK}/dexes", params={"page": page})
+        rows = (d or {}).get("data") or []
+        if not rows:
+            break
+        dexes += [r.get("id") for r in rows if r.get("id")]
+        time.sleep(sleep)
+    print(f"        {len(dexes)} dexes on chain", flush=True)
+
+    deadline = time.time() + budget_s
+    now = dt.datetime.now(dt.timezone.utc).isoformat()
+    done = 0
+    for dex in sorted(dexes, key=lambda d: swept.get(d) or ""):
+        if time.time() > deadline:
+            print(f"        launchpad budget reached after {done} of {len(dexes)} "
+                  f"dexes; the rest keep their stored pools", flush=True)
+            break
+        for page in range(1, pages + 1):
+            # tries=2, not the default 6: against a rolling quota a retry is
+            # just another throttled call, and six of them burn 30s to learn
+            # what two learn in six. The registry covers what this run missed.
+            d = _get(f"{GECKOTERMINAL}/networks/{GT_NETWORK}/dexes/{dex}/pools",
+                     params={"page": page, "include": "base_token",
+                             "sort": "h24_volume_usd_desc"}, tries=2)
+            rows = (d or {}).get("data") or []
+            if not rows:
+                break
+            inc = {x["id"]: (x.get("attributes") or {})
+                   for x in ((d or {}).get("included") or [])}
+            for r in rows:
+                a = r.get("attributes") or {}
+                rel = r.get("relationships") or {}
+                bid = ((rel.get("base_token") or {}).get("data") or {}).get("id")
+                bt = inc.get(bid) or {}
+                addr = (bt.get("address") or "").lower()
+                born = a.get("pool_created_at") or ""
+                if not addr or not born:
+                    continue
+                fdv = _f(a.get("fdv_usd")) or 0.0
+                liq = _f(a.get("reserve_in_usd")) or 0.0
+                prev = tokens.get(addr)
+                # earliest pool decides the launchpad; richest pool carries value
+                if prev is None or born < prev["born"]:
+                    tokens[addr] = {"addr": addr, "sym": bt.get("symbol") or "?",
+                                    "dex": dex, "born": born,
+                                    "fdv": fdv, "liq": liq}
+                else:
+                    prev["fdv"] = max(prev["fdv"], fdv)
+                    prev["liq"] = max(prev["liq"], liq)
+            # A short page is the last page. Asking for the next one costs a
+            # call against the quota to be told nothing, and most dexes here
+            # carry well under one page of pools.
+            if len(rows) < 20:
+                break
+            time.sleep(sleep)
+        swept[dex] = now
+        done += 1
+    LAUNCHPAD_REGISTRY.write_text(json.dumps(
+        {"tokens": sorted(tokens.values(), key=lambda t: t["addr"]),
+         "swept": swept}, indent=2))
+    print(f"        {len(tokens)} distinct tokens across those dexes "
+          f"({done} dexes swept this run)", flush=True)
+    return list(tokens.values())
 
 
 def _pending_usd(holder, assets, price_of):
@@ -1626,7 +1864,7 @@ def _fanout_scan(asset, from_block, to_block, rec, chunk=400_000):
 
 
 def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
-                         budget_s=420, measure_budget_s=600):
+                         budget_s=300, measure_budget_s=360):
     """Contracts paying an ERC-20 to the holders of a specific NFT collection.
 
     `known` is the set of addresses the other two families already claim, so a
@@ -1663,12 +1901,32 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
     print(f"        scanning {len(stocks)} stock tokens over {hours}h for payouts",
           flush=True)
     # Discovery is the open-ended part -- a heavily traded equity can carry a lot
-    # of Transfer logs -- and this runs unattended inside a 30-minute job that
-    # already spends ~9. So it gets a wall-clock budget: whatever is scanned by
-    # then is used, and the registry keeps every pool already proven. Better a
-    # late discovery than a refresh that times out and publishes nothing.
+    # of Transfer logs -- and this runs unattended inside a 30-minute job. So it
+    # gets a wall-clock budget: whatever is scanned by then is used, and the
+    # registry keeps every pool already proven. Better a late discovery than a
+    # refresh that times out and publishes nothing.
+    #
+    # 300s + 360s, down from 420 + 600. MEASURED per phase: everything else in
+    # the pull (chain stats, DefiLlama, memecoins, the Seaport scan, the ERC-20
+    # payers and the NFT boosters) comes to ~220s TOTAL, and the launchpad sweep
+    # is capped at 240s, so this phase is the entire difference between a
+    # 20-minute pull and the 59-minute one that overran CI's timeout. Cutting it
+    # costs nothing permanent now that BOTH loops rotate: measurement resumes at
+    # its stored watermark and discovery starts at a different equity each day,
+    # so a short run defers work rather than dropping it.
     deadline = time.time() + budget_s
     rec = defaultdict(lambda: (set(), set()))
+    # ⚠️ ROTATE THE START. The measurement loop was starving its tail until it
+    # was reordered oldest-watermark-first; discovery has the identical flaw and
+    # no watermark to sort by. Sweeping a fixed order under a wall-clock budget
+    # means the same trailing equities are never reached on ANY run, so a pool
+    # that only ever pays in one of them stays invisible forever rather than
+    # being found late. Offsetting by day-of-year walks the whole list across a
+    # few daily runs and needs no extra state to do it.
+    stocks = list(stocks)
+    if stocks:
+        off = dt.datetime.now(dt.timezone.utc).timetuple().tm_yday % len(stocks)
+        stocks = stocks[off:] + stocks[:off]
     for i, asset in enumerate(stocks):
         if time.time() > deadline:
             print(f"        discovery budget reached after {i} of {len(stocks)} "
@@ -1706,18 +1964,32 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
     # without readmitting LiFiDiamond, which claims nothing of the sort. Names
     # are weak evidence, so they only ever ADD to the asset test, never replace
     # it. A pool kept this way carries no collection link rather than a guess.
+    # A pool that has ALREADY been proven to pay is never re-litigated. The
+    # tests below are for identifying new candidates; re-running them on known
+    # payers means one transient RPC failure erases a real project from the
+    # registry permanently. Zaibatsu pays a single asset (GME), so it would fail
+    # the basket test and survive only on nft() answering -- every single run.
+    proven = {r["pool"]: r for r in reg if r.get("tallies")}
     pools = []
     for a in sorted(candidates):
         if a in claimed or a in PAYOUT_INFRA:
             continue
+        if a in proven:
+            pools.append({"addr": a, "nft": proven[a].get("nft")})
+            continue
         nft = _eth_call(a, "nft()", "addr")
-        if nft and int(nft, 16):
+        if nft and _is_collection(nft):
             pools.append({"addr": a, "nft": nft.lower()})
             continue
         n_assets = len(seen_assets.get(a, ()))
         if n_assets < 3:
             continue
+        # Router test LAST: it costs an ABI fetch, so it is only worth paying
+        # for a candidate that is otherwise about to be admitted (~20 a run,
+        # against ~35 that reach this point).
         if n_assets <= MAX_BASKET_ASSETS or PAYOUT_NAME_RE.search(_contract_name(a) or ""):
+            if _is_router(a):
+                continue
             pools.append({"addr": a, "nft": None})
     print(f"        {len(pools)} wage pools from {len(candidates)} candidates",
           flush=True)
@@ -1750,7 +2022,11 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
     # runs rather than timing out the refresh and never completing at all.
     m_deadline = time.time() + measure_budget_s
     by_pool = defaultdict(list)
-    for p in pools:
+    # ⚠️ OLDEST WATERMARK FIRST. Iterating in address order meant the budget
+    # always spent itself on the same early addresses and the tail was never
+    # reached -- Zaibatsu (0xf225...) and Quotron (0xe04f...) sit at the end of
+    # the alphabet and were starved every run.
+    for p in sorted(pools, key=lambda q: q.get("last_block") or 0):
         if time.time() > m_deadline:
             print(f"        measurement budget spent; {len(by_pool)} of "
                   f"{len(pools)} pools priced, rest resume next run", flush=True)
@@ -1764,7 +2040,16 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
         assets |= set(tallies)
         assets -= {WETH, USDG, NATIVE}
         topic1 = "0x" + p["addr"][2:].rjust(64, "0")
+        # ⚠️ The deadline is checked PER ASSET, not only per pool. Checking it
+        # once at the top of a pool bounds nothing: a pool carrying 18 assets
+        # reads ~13 chunked getLogs each, so one fat pool can run minutes past
+        # the budget after being admitted a second under it. That overshoot is
+        # what put the job past CI's 30-minute timeout.
+        finished = True
         for asset in assets:
+            if time.time() > m_deadline:
+                finished = False
+                break
             tal = tallies.setdefault(asset, {"raw": 0, "transfers": 0, "recipients": []})
             recips = set(tal.get("recipients") or [])
             raw, n = int(tal.get("raw") or 0), int(tal.get("transfers") or 0)
@@ -1789,8 +2074,36 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
             if n:
                 by_pool[p["addr"]].append({"asset": asset, "raw": raw,
                                            "transfers": n, "recipients": len(recips)})
+        # A pool abandoned mid-way keeps its PREVIOUS tallies and watermark, and
+        # its partial work this run is discarded. Committing half a pool would
+        # advance nothing safely: the watermark cannot move (the unscanned
+        # assets would skip those blocks forever) but leaving it while keeping
+        # the partial totals would re-add the same transfers from the old
+        # watermark next run and inflate the pool. Whole pools or nothing.
+        if not finished:
+            by_pool.pop(p["addr"], None)
+            print(f"        budget spent inside {p['addr'][:10]}; it resumes "
+                  f"from its stored watermark next run", flush=True)
+            break
         p["tallies"] = {a: v for a, v in tallies.items() if v.get("transfers")}
         p["last_block"] = head + 1
+
+    # ⚠️ Rows come from the PERSISTED tallies, not from what this run happened to
+    # scan. Emitting only freshly-measured pools made the board flicker between
+    # runs: a pool the budget did not reach vanished entirely, even though its
+    # cumulative total was sitting in the registry. Zaibatsu ($166k) and
+    # QuotronReflectionsV2 both disappeared from a published board this way.
+    # Tallies are cumulative and transfers are immutable, so a stored total is
+    # still true whether or not it was refreshed today.
+    for p in pools:
+        if by_pool.get(p["addr"]):
+            continue                       # measured this run; already current
+        for asset, tal in (p.get("tallies") or {}).items():
+            if tal.get("transfers"):
+                by_pool[p["addr"]].append({
+                    "asset": asset, "raw": tal.get("raw") or 0,
+                    "transfers": tal.get("transfers") or 0,
+                    "recipients": len(tal.get("recipients") or [])})
 
     # Written AFTER measuring: a registry saved before the scan would advance the
     # watermark past blocks whose transfers were never counted.
@@ -1805,11 +2118,37 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
     if dropped:
         print(f"        pruned {dropped} measured non-payers from the registry",
               flush=True)
-    WAGE_POOL_REGISTRY.write_text(json.dumps(
-        [{"pool": p["addr"], "nft": p["nft"],
-          "assets": sorted(seen_assets.get(p["addr"], [])),
-          "last_block": p.get("last_block", 0),
-          "tallies": p.get("tallies", {})} for p in keep], indent=2))
+    rows = [{"pool": p["addr"], "nft": p["nft"],
+             "assets": sorted(seen_assets.get(p["addr"], [])),
+             "last_block": p.get("last_block", 0),
+             "tallies": p.get("tallies", {})} for p in keep]
+
+    # ⚠️ THE REGISTRY IS APPEND-MOSTLY. It is rewritten from `pools`, so anything
+    # that shrinks `pools` silently discards proven payers -- their tallies AND
+    # their watermarks -- and the only way back is a full re-measure from block
+    # 0. Seen for real: a caller passing an over-broad `known` set excluded 19 of
+    # 20 pools as already-claimed, and the write truncated the registry to a
+    # single entry. `if not pools: return` above catches a total wipe; it does
+    # nothing about a partial one, which is the likelier accident.
+    #
+    # So a prior entry survives unless it was dropped ON PURPOSE: either it is
+    # known infrastructure, or it was measured this run and proved to pay
+    # nothing. Everything else is carried forward untouched. That keeps the
+    # deliberate prunes above working while making an accidental exclusion cost
+    # nothing.
+    measured_empty = {p["addr"] for p in pools
+                      if p.get("last_block") and not p.get("tallies")}
+    written = {r["pool"] for r in rows}
+    carried = [r for r in reg
+               if r.get("pool")
+               and r["pool"] not in written
+               and r["pool"] not in measured_empty
+               and r["pool"].lower() not in PAYOUT_INFRA
+               and r.get("tallies")]
+    if carried:
+        print(f"        carried {len(carried)} proven pools not reached this run",
+              flush=True)
+    WAGE_POOL_REGISTRY.write_text(json.dumps(rows + carried, indent=2))
 
     price_cache = {}
 
@@ -1890,16 +2229,32 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
                 nft_align="utc-day", skip_rewards=False):
     print("Robinhood Chain Pulse — pulling", flush=True)
 
+    # Per-phase wall clock, printed at the end. This job has a hard 30-minute
+    # CI timeout and overran it at 59 minutes; "the run is too slow" is not
+    # actionable without knowing WHICH phase spent the time, and the two that
+    # looked obvious (the Seaport scan, the wage pools) were not the whole
+    # story. Cheap to keep, and it is the only way to notice a phase drifting
+    # back over budget before the job starts failing.
+    phase_s, _t = {}, [time.time()]
+
+    def done(name):
+        phase_s[name] = time.time() - _t[0]
+        print(f"        [{name} took {phase_s[name]:.0f}s]", flush=True)
+        _t[0] = time.time()
+
     print("  [1/5] Blockscout stats (DAU, gas fees)...", flush=True)
     chain = fetch_blockscout(days=days)
+    done("blockscout")
 
     print("  [2/5] DefiLlama (TVL, stablecoins, app fees)...", flush=True)
     llama = fetch_defillama()
+    done("defillama")
 
     print("  [3/5] GeckoTerminal (memecoins)...", flush=True)
     memes = fetch_memecoins(min_liquidity=min_liquidity, top_n=top_n)
     print(f"        {len(memes['tokens'])} tokens kept, "
           f"{len(memes['excluded'])} excluded by the ${min_liquidity:,} floor", flush=True)
+    done("memecoins")
 
     nfts = {"collections": [], "skipped": True}
     if not skip_nfts:
@@ -1909,6 +2264,7 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
                                      eth_price=chain.get("eth_price_usd"),
                                      usdg_decimals=usdg_dec, align=nft_align)
         nfts["usdg_decimals"] = usdg_dec
+        done("seaport")
     else:
         print("  [4/5] Seaport scan SKIPPED (--skip-nfts)", flush=True)
 
@@ -1918,9 +2274,11 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
         rewards = fetch_reward_distributors(eth_price=chain.get("eth_price_usd"))
         print(f"        {len(rewards['projects'])} token projects, "
               f"${rewards['total_distributed_usd']:,.0f} to ERC-20 holders", flush=True)
+        done("erc20-payers")
         boosters = fetch_nft_boosters(dune_query)
         print(f"        {len(boosters.get('projects', []))} NFT boosters, "
               f"${boosters.get('total_distributed_usd', 0):,.0f} to NFT holders", flush=True)
+        done("nft-boosters")
 
         # Wage pools pay NFT holders exactly as boosters do, so they join the
         # same board rather than starting a third list nobody asked for. Pass
@@ -1928,6 +2286,7 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
         claimed = ([p["address"] for p in boosters.get("projects", [])]
                    + [p.get("address") for p in rewards.get("projects", [])])
         wage = fetch_nft_wage_pools(known=claimed)
+        done("wage-pools")
         if wage.get("projects"):
             boosters["projects"] = sorted(
                 boosters.get("projects", []) + wage["projects"],
@@ -1975,9 +2334,24 @@ def build_pulse(days=400, nft_hours=24, top_n=TOP_N,
         rewards["stale"] = False
         rewards["measured_at"] = dt.datetime.now(dt.timezone.utc).isoformat()
 
+    print("  [6/6] Launchpad pools (live, all dexes)...", flush=True)
+    try:
+        pads = fetch_launchpad_pools()
+    except Exception as e:                      # never block the pulse on this
+        print(f"        launchpad fetch failed: {e}", flush=True)
+        pads = []
+    done("launchpads")
+
+    print("  phase budget: "
+          + ", ".join(f"{k} {v:.0f}s" for k, v in sorted(phase_s.items(),
+                                                         key=lambda kv: -kv[1])),
+          flush=True)
+
     return {
         "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
         "chain": {"name": CHAIN_NAME, "chain_id": 4663},
+        "phase_seconds": phase_s,
+        "launchpad_tokens": pads,
         "stats": chain,
         "defillama": llama,
         "memecoins": memes,

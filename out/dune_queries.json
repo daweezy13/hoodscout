@@ -1,11 +1,11 @@
 {
   "dau": {
     "id": 8287346,
-    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    count(distinct \"from\")        as active_senders,\n    count(*)                      as txns\nfrom robinhood.transactions\nwhere block_time >= date_trunc('day', now() - interval '6' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
+    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    count(distinct \"from\")        as active_senders,\n    count(*)                      as txns\nfrom robinhood.transactions\nwhere block_time >= date_trunc('day', now() - interval '10' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
   },
   "gas": {
     "id": 8287347,
-    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    sum(cast(gas_used as double) * cast(effective_gas_price as double)) / 1e18 as gas_eth\nfrom robinhood.transactions\nwhere block_time >= date_trunc('day', now() - interval '6' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
+    "sql": "\nselect\n    date_trunc('day', block_time) as day,\n    sum(cast(gas_used as double) * cast(effective_gas_price as double)) / 1e18 as gas_eth\nfrom robinhood.transactions\nwhere block_time >= date_trunc('day', now() - interval '10' day)\n  and block_time <  date_trunc('day', now())\ngroup by 1\norder by 1 desc\n"
   },
   "seaport_range": {
     "id": 8309122,

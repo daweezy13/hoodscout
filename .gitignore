@@ -16,6 +16,10 @@ out/*
 !out/nft_names.json
 # verified wage-pool addresses: a discovery cache, re-measured every run
 !out/wage_pools.json
+# The launchpad sweep's carry-over set. GeckoTerminal throttles a full 31-dex
+# sweep on a rolling quota, so one run reaches only some of them; this is what
+# lets the rest keep yesterday's pools instead of vanishing from the index.
+!out/launchpad_tokens.json
 
 # ⚠️ Dune's saved-query IDs and the discovery caches MUST be committed.
 # Dune now 402s on POST /v1/query (creating a query) while existing ids still
