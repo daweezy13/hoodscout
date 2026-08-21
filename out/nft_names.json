@@ -766,5 +766,76 @@
 "symbol": "Brokestonker",
 "max": 3000,
 "minted": 320
+},
+"0x979b16589f186a01e3f8f7135dd8f3bcdcc8e00d": {
+"name": "Crazy Headz",
+"symbol": "HEADZ",
+"max": 5656,
+"minted": 3304
+},
+"0xa618a409bd8425941e30d4f5df285f6360fc3b03": {
+"name": "The Last Tribe",
+"symbol": "LT",
+"max": 8000,
+"minted": 5873
+},
+"0xbbfe5ec2b9667b1254106d3365c58e4ca9c25315": {
+"name": "Feline Brokers",
+"symbol": "FELINEBROKER",
+"max": 5555,
+"minted": 3647
+},
+"0x8c1435e7c472d720e17219d7b59903ffa1de3fc5": {
+"name": "Beard Bros",
+"symbol": "BEARD",
+"max": 6666,
+"minted": 6666
+},
+"0xb1fd09d5969f3fc21ff34f5dac29675b99808faa": {
+"name": "American Dream",
+"symbol": "AMERICAN",
+"max": 5555,
+"minted": 5555
+},
+"0x19adc36fe6ee3ebba0ea0c0e0370bc06c0ab6c72": {
+"name": "MarketMobs",
+"symbol": "MMOBS",
+"max": 3333,
+"minted": 3333
+},
+"0x11aefcd983670a32d2bf01327a301e776da2b8ae": {
+"name": "Robin Cows",
+"symbol": "RCW",
+"max": 555,
+"minted": 555
+},
+"0x4fd4350a3a14d9fb47c7046ed839599c44f63823": {
+"name": "TeddoraRH",
+"symbol": "Robinhood Ch",
+"max": 3333,
+"minted": 3331
+},
+"0x5ad93088c4497f3c351d680c9412913b0fa9ba1e": {
+"name": "Pixel Brothers",
+"symbol": "PIXELBRO",
+"max": 6666,
+"minted": 2427
+},
+"0x734cf359571db44a04c042450b10958d8d1541ea": {
+"name": "Apahace Yoig",
+"symbol": "Apacheyoig",
+"max": 1255,
+"minted": 1255
+},
+"0x7de3b4ec32929c7252276bc1b33e4a9fe724180f": {
+"name": "Pixelmon Genesis Capsule",
+"symbol": "PXGC",
+"max": null
+},
+"0x898798b79d58b6087df2a68a59fd88d7d637cdd9": {
+"name": "Djarwo Edhie",
+"symbol": "Djarwo Edhie",
+"max": 2222,
+"minted": 2182
 }
 }
