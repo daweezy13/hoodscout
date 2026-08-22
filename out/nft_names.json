@@ -837,5 +837,77 @@
 "symbol": "Djarwo Edhie",
 "max": 2222,
 "minted": 2182
+},
+"0x884dcc100222481291046e57d2fd0f32c446c2d1": {
+"name": "Quanto Residents",
+"symbol": "QRR",
+"max": 3338,
+"minted": 3338
+},
+"0xadb582f3c00f3792f769819177f05c225c1af3ac": {
+"name": "The Dubai Oil",
+"symbol": "Dubaioil",
+"max": 3100,
+"minted": 3100
+},
+"0xb016eb9048d3ce3bf1bc4028de2be5652f6b636d": {
+"name": "Smirk Ape",
+"symbol": "Smirk Ape",
+"max": 1000,
+"minted": 1000
+},
+"0xe7e9adccc328c18f3413589360e730e17c5c1b94": {
+"name": "Nales",
+"symbol": "Nales",
+"max": 1111,
+"minted": 871
+},
+"0x997f0f428a1f0e6c0aee170d1d9bc300b99d2d7e": {
+"name": "Robin Hood Reels",
+"symbol": "RHR",
+"max": 6969,
+"minted": 1988
+},
+"0x70f2b5a2177ec4a0979627c8fd1fdb4583628372": {
+"name": "Broken Dream",
+"symbol": "BDREAM",
+"max": 3000,
+"minted": 2818
+},
+"0xa9894113f7219cde2b3f92ed12ee605f3d8feee4": {
+"name": "Dazed Reptilians",
+"symbol": "reptil",
+"max": 10000,
+"minted": 7522
+},
+"0xc5dc462540b288537eafba3200f05fc372cbdc2c": {
+"name": "Kids Story Hood",
+"symbol": "Kidstorey",
+"max": 4100,
+"minted": 1301
+},
+"0xdd3435cc2b281849b1d5ed6a2892970980cc2ebf": {
+"name": "Squikies",
+"symbol": "Squikies",
+"max": 7777,
+"minted": 5049
+},
+"0xb8bb541bcaec2b28482faaf373798427dce46e34": {
+"name": "SkeleBuddies",
+"symbol": "SkeleBuddies",
+"max": 4444,
+"minted": 1886
+},
+"0x8c730fb273576b359602f4ba31eb8d24b9b8ff81": {
+"name": "MUTANROCKINS",
+"symbol": "MUTAN",
+"max": 7777,
+"minted": 1076
+},
+"0x2c15d479361cc5c07d24717efde841caebee39c0": {
+"name": "NitroCode",
+"symbol": "NitroCode",
+"max": 3000,
+"minted": 2501
 }
 }
