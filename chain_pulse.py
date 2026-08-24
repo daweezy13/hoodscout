@@ -1603,7 +1603,36 @@ PAYOUT_INFRA = {
     "0x9d590437abaae12cf9fe0627caf4cfd633152599",
     "0xb4acbc082b5e7ded571c98ee4257778a9d784b36",   # V3Utils, LP swap+mint helper
     "0xe33e9e479df8802cb0866d5d05258bec4cf62948",   # PonsV2LaunchAndBuy, launchpad router
+    # A venue, not a payer: 57% of the wallets it pays also SEND it tokens.
+    # Unverified eip1967 proxy at a leading-zero vanity address, moving ten
+    # tokenised equities -- it passed the basket test and would have published
+    # as a $271,152 row, top three on the board.
+    "0x00000000e91fc5bad977c0cc4ad60557c06886a2",
+    # Same one-way-flow test, same run: 35.3% and 55.2% of their recipients also
+    # send them tokens. Together they would have published $4,087,544 -- the top
+    # two rows, dwarfing every real project on the board.
+    #
+    # ⚠️ NAME IS NOT THE TELL. "TransparentUpgradeableProxy" is a venue, but
+    # "BeaconProxy" ($90,603) and "ProtocolProxy" ($57,866) score 0.0% and are
+    # real payers -- ProtocolProxy pays 150 wallets and receives from none. A
+    # generic proxy name means the verified name is the wrapper's, nothing more.
+    "0x1195c074f898b7644ba732407619c9804dfe6dce",
+    "0x2ca37ff95caf25366ef16fc2e655b78a165d125f",
 }
+
+# ⚠️ THE TEST THAT CAUGHT IT, worth generalising: a payout contract's flow is
+# ONE-WAY. Its recipients are holders, and holders do not send it the asset back.
+# A venue's counterparties are the same wallets in both directions. MEASURED on
+# the explorer's per-address transfer index, which answers this in a few pages:
+#
+#   QuotronReflectionsV2   out=30  in=1   overlap=0    (0.0%)
+#   Zaibatsu wage pool     out=124 in=12  overlap=4    (3.2%)
+#   0x00000000e9 (venue)   out=28  in=32  overlap=16  (57.1%)
+#
+# Clean separation with an empty middle, like the basket-size split. Interface
+# and ABI tests both said "maybe" here -- unverified, no nft() -- and BEHAVIOUR
+# answered decisively. Not yet wired into discovery; it is the next filter to
+# add if another of these appears.
 
 # What an nft() answer has to survive to be believed, and what a basket-path
 # candidate has to survive to be called a payer. Both are read off the

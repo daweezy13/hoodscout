@@ -3318,6 +3318,31 @@ def main():
     (site / "index.html").write_text(
         standalone(html, pulse, args.base_url, public=args.public))
     (site / "card.html").write_text(card_html(pulse, logo))
+
+    # robots.txt + sitemap.xml. Dropping the noindex meta makes the page
+    # ELIGIBLE to be indexed; these are what make it findable in practice --
+    # a crawler with no sitemap discovers a single-page site only if something
+    # already links to it, which is the situation a new site is in by
+    # definition. lastmod comes from the pulse so it is honest about freshness
+    # rather than being the build clock.
+    #
+    # ⚠️ card.html is the social-card SOURCE, rendered to card.png by the
+    # screenshot step. It is not a page and must not be indexed on its own.
+    if args.public:
+        (site / "robots.txt").write_text(
+            "User-agent: *\n"
+            "Allow: /$\n"
+            "Disallow: /card.html\n"
+            f"Sitemap: {args.base_url.rstrip('/')}/sitemap.xml\n")
+        lastmod = str(pulse.get("generated_at") or "")[:10]
+        (site / "sitemap.xml").write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+            f"  <url><loc>{args.base_url.rstrip('/')}/</loc>"
+            f"{f'<lastmod>{lastmod}</lastmod>' if lastmod else ''}"
+            "<changefreq>daily</changefreq><priority>1.0</priority></url>\n"
+            "</urlset>\n")
+        print(f"Wrote {site / 'robots.txt'} and sitemap.xml")
     print(f"Wrote {site / 'index.html'} and card.html (base {args.base_url})")
 
 

@@ -909,5 +909,113 @@
 "symbol": "NitroCode",
 "max": 3000,
 "minted": 2501
+},
+"0x25991c1f3f364f4366b52e1d77f70500c0e05835": {
+"name": "The Bandits",
+"symbol": "BANDIT",
+"max": 10000,
+"minted": 10000
+},
+"0x600037977c587e6f53ab35d20c6fa1ed5fb1d2b2": {
+"name": "CyberLeek Genesis",
+"symbol": "CLG",
+"max": 5000,
+"minted": 5000
+},
+"0x45ce024f314a2f74c63a8a51743677df97a8d99e": {
+"name": "MIU",
+"symbol": "MIU",
+"max": 4000,
+"minted": 2666
+},
+"0x17eb0d53e87c9960a5333d1b3a6978c8dda5aa68": {
+"name": "Cult Cats",
+"symbol": "9",
+"max": 7800,
+"minted": 4498
+},
+"0x0d77e2b193ca6549c3bba68bf7b4516d14376534": {
+"name": "The Doll Club",
+"symbol": "DOLL",
+"max": 3333,
+"minted": 2400
+},
+"0x89c5fb852feda7be0a6aeff0a0528d56a9463806": {
+"name": "Punks hood",
+"symbol": "Punks",
+"max": 2222,
+"minted": 1860
+},
+"0x3fbc331a3b9e1b9f476b14cd834f169362fef3a7": {
+"name": "robverse",
+"symbol": "rvs",
+"max": 7777,
+"minted": 6205
+},
+"0xb3214603c4a44a3b9fa1233810f6a53700c0ecae": {
+"name": "Hood Lords",
+"symbol": "8453",
+"max": 7000,
+"minted": 1372
+},
+"0x27deb0025392015ae148cd1d9857dc0d313b7f92": {
+"name": " Robin Krakens ",
+"symbol": "Rk",
+"max": 10000,
+"minted": 8286
+},
+"0x6987a83e5e0ae9f03f51c14a047c10f11d33b8ca": {
+"name": "TESTINGqs",
+"symbol": "TSTSs",
+"max": 100000,
+"minted": 3441
+},
+"0xa00d868ea9464f3da5e06eba83754e8b3e500920": {
+"name": "Shellies NFTs",
+"symbol": "SN",
+"max": 8888,
+"minted": 3307
+},
+"0x2a5d59c62e811f74f2a79b8fe8f8bc82a50e4200": {
+"name": "Crockletshood NFT",
+"symbol": "Crocklets",
+"max": 10000,
+"minted": 3245
+},
+"0xb12eb4b9b6841f689d703dd814ef2ab390ccb4a2": {
+"name": "Pixel Cats Hood",
+"symbol": "PCH",
+"max": 10000,
+"minted": 8214
+},
+"0x2e5982e5861efe07f94f7423e0459a2afe390d1d": {
+"name": "Mitsuri",
+"symbol": "MTS",
+"max": null,
+"minted": 9329
+},
+"0xdb6bac8e7f2286e01d583d7f9296b985694a4de2": {
+"name": "Robin's Rogues",
+"symbol": "ROGUES",
+"max": null,
+"minted": 5000
+},
+"0x85dc779e691ab28434dc364e5e4f90b0c73a241c": {
+"name": "Hood Doll Club",
+"symbol": "8453",
+"max": 3333,
+"minted": 1274
+},
+"0x841c72cd140bf8f4f603e6f47b9f4c6c9eab4451": {
+"name": "Ghost Punks",
+"symbol": "GP",
+"max": 4000,
+"minted": 3139
+},
+"0x084d70c9b886709c9c7ab24f40e61fe0ff2e06ab": {
+"name": "InkNoirHeads",
+"symbol": "Robinhood Ch",
+"max": 5555,
+"minted": 5060
 }
 }

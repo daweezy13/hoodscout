@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /$
+Disallow: /card.html
+Sitemap: https://hoodscout.pages.dev/sitemap.xml

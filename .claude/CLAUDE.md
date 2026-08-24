@@ -22,7 +22,8 @@ Robinhood Chain has heavy squatting on popular project names — 40+ results for
 - Read-only — no wallet signing, no transactions sent, pure on-chain/API data analysis.
 - No dry-run needed currently for the same reason. If write/transaction logic is ever added, dry-run mode becomes required per global convention.
 - Reusable, parameterized functions over one-off scripts.
-- Artifacts (the likely dashboard output) run under a strict CSP with no external network access from the browser — data pulls happen server-side (this Python/script layer), not client-side; "live" means periodic re-pull + republish unless a specific live-data capability is deliberately adopted.
+- **The output is the Cloudflare Pages site** (hoodscout.pages.dev), built from `out/site/` and deployed by `refresh.sh` / `refresh.yml`. The Claude Artifact was a look-and-feel surface during build-out and was removed 2026-08-24 — do not reintroduce it.
+- The page is fully static with no external network access from the browser: data pulls happen server-side (this Python/script layer), never client-side. "Live" means periodic re-pull + redeploy.
 - No extra files not explicitly asked for.
 
 ## ⚠️ Verification and burn stats are forgeable here — only markets aren't
