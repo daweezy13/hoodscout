@@ -767,40 +767,35 @@
 "max": 3000,
 "minted": 320
 },
-"0xab75f3d72509cd3b3a386a03de2b82854f0060e5": {
-"name": "MUGS",
-"symbol": "MUG",
-"max": null
-},
-"0xfe2966d2c36ff612f78da503f6308b29584e694f": {
-"name": "Ketss",
-"symbol": "ketss",
-"max": 4444,
-"minted": 2632
-},
 "0x979b16589f186a01e3f8f7135dd8f3bcdcc8e00d": {
 "name": "Crazy Headz",
 "symbol": "HEADZ",
 "max": 5656,
-"minted": 3303
+"minted": 3304
 },
 "0xa618a409bd8425941e30d4f5df285f6360fc3b03": {
 "name": "The Last Tribe",
 "symbol": "LT",
 "max": 8000,
-"minted": 5862
+"minted": 5873
 },
-"0x42ab072bd5e4596fc685cfd6c8e87a92313ba12a": {
-"name": "Pixel Degen Club",
-"symbol": "PXD",
-"max": 1111,
-"minted": 1111
+"0xbbfe5ec2b9667b1254106d3365c58e4ca9c25315": {
+"name": "Feline Brokers",
+"symbol": "FELINEBROKER",
+"max": 5555,
+"minted": 3647
 },
 "0x8c1435e7c472d720e17219d7b59903ffa1de3fc5": {
 "name": "Beard Bros",
 "symbol": "BEARD",
 "max": 6666,
-"minted": 4646
+"minted": 6666
+},
+"0xb1fd09d5969f3fc21ff34f5dac29675b99808faa": {
+"name": "American Dream",
+"symbol": "AMERICAN",
+"max": 5555,
+"minted": 5555
 },
 "0x19adc36fe6ee3ebba0ea0c0e0370bc06c0ab6c72": {
 "name": "MarketMobs",
@@ -832,298 +827,87 @@
 "max": 1255,
 "minted": 1255
 },
+"0x7de3b4ec32929c7252276bc1b33e4a9fe724180f": {
+"name": "Pixelmon Genesis Capsule",
+"symbol": "PXGC",
+"max": null
+},
 "0x898798b79d58b6087df2a68a59fd88d7d637cdd9": {
 "name": "Djarwo Edhie",
 "symbol": "Djarwo Edhie",
 "max": 2222,
 "minted": 2182
 },
-"0x9b11f8f7d2959722118b77637b69a64cf038bdda": {
-"name": "Gambler Goats",
-"symbol": "GAMBLE",
-"max": 5000,
-"minted": 5000
+"0x884dcc100222481291046e57d2fd0f32c446c2d1": {
+"name": "Quanto Residents",
+"symbol": "QRR",
+"max": 3338,
+"minted": 3338
 },
-"0x6cd64a5a7159e48b1d10db5b691686af8348a168": {
-"name": "TestDrop",
-"symbol": "TD",
-"max": 100000,
-"minted": 5666
+"0xadb582f3c00f3792f769819177f05c225c1af3ac": {
+"name": "The Dubai Oil",
+"symbol": "Dubaioil",
+"max": 3100,
+"minted": 3100
 },
-"0xfd493ed5dbb5dbffa72aa43cbe4e815644aa66e6": {
-"name": "Cats Society",
-"symbol": "9",
-"max": 5800,
-"minted": 3683
+"0xb016eb9048d3ce3bf1bc4028de2be5652f6b636d": {
+"name": "Smirk Ape",
+"symbol": "Smirk Ape",
+"max": 1000,
+"minted": 1000
 },
-"0x20afbf6acfc8eebc6fa7d7581dc72f5fc8f1689b": {
-"name": "Broker Penguins",
-"symbol": "BPENG",
-"max": 9999,
-"minted": 4073
+"0xe7e9adccc328c18f3413589360e730e17c5c1b94": {
+"name": "Nales",
+"symbol": "Nales",
+"max": 1111,
+"minted": 871
 },
-"0x1f785e26d4b528aaa51e953e2a711a4df30dbc95": {
-"name": "Crazy Beanz",
-"symbol": "9",
-"max": 6666,
-"minted": 5044
+"0x997f0f428a1f0e6c0aee170d1d9bc300b99d2d7e": {
+"name": "Robin Hood Reels",
+"symbol": "RHR",
+"max": 6969,
+"minted": 1988
 },
-"0x39f7354601cbabe8e19059e949d4421b11617846": {
-"name": " Wasteland",
-"symbol": " Wasteland",
-"max": 3333,
-"minted": 3333
+"0x70f2b5a2177ec4a0979627c8fd1fdb4583628372": {
+"name": "Broken Dream",
+"symbol": "BDREAM",
+"max": 3000,
+"minted": 2818
 },
-"0x30cf0d099ea3c4fc82c2c6e9366f40ced46c8344": {
-"name": "ughs",
-"symbol": "UGH",
+"0xa9894113f7219cde2b3f92ed12ee605f3d8feee4": {
+"name": "Dazed Reptilians",
+"symbol": "reptil",
+"max": 10000,
+"minted": 7522
+},
+"0xc5dc462540b288537eafba3200f05fc372cbdc2c": {
+"name": "Kids Story Hood",
+"symbol": "Kidstorey",
+"max": 4100,
+"minted": 1301
+},
+"0xdd3435cc2b281849b1d5ed6a2892970980cc2ebf": {
+"name": "Squikies",
+"symbol": "Squikies",
+"max": 7777,
+"minted": 5049
+},
+"0xb8bb541bcaec2b28482faaf373798427dce46e34": {
+"name": "SkeleBuddies",
+"symbol": "SkeleBuddies",
 "max": 4444,
-"minted": 4444
+"minted": 1886
 },
-"0x4d2a4f7650774f6f465e140741f59926285e6ae6": {
-"name": "Rekt Guys",
-"symbol": "RKT",
-"max": 2222,
-"minted": 2161
+"0x8c730fb273576b359602f4ba31eb8d24b9b8ff81": {
+"name": "MUTANROCKINS",
+"symbol": "MUTAN",
+"max": 7777,
+"minted": 1076
 },
-"0x8b0b5b983f555f1b5cebecddb9ba3b0ecc144ba7": {
-"name": "Moshikins",
-"symbol": "MOSHI",
-"max": 2222,
-"minted": 1339
-},
-"0x8b18cfed9488befa1e897d587d5f70faccc95e65": {
-"name": "The Void Experiment ",
-"symbol": "Voidexp",
-"max": 3800,
-"minted": 3800
-},
-"0x32e5eef9968601760f94a6899ee8708bda8a3f3c": {
-"name": "WRONGS",
-"symbol": "9@82",
-"max": 3333,
-"minted": 847
-},
-"0x6c0db931b9ecc750e01ff1d540f1c8e28d62ceaf": {
-"name": "Rekt Punks",
-"symbol": "REPN",
-"max": 2222,
-"minted": 2219
-},
-"0xba6cf620cf3c165e365fa7f04ac770982c101d4e": {
-"name": "Mogly Cat",
-"symbol": "Maglycat",
-"max": 4999,
-"minted": 3107
-},
-"0x4400e6bf72d1ebb0746593b7a071cf689c937192": {
-"name": "FACELESS",
-"symbol": "FACELESS",
-"max": 4444,
-"minted": 2273
-},
-"0xe350dd0d855f34d63aa542f1db5e56b22fd129ed": {
-"name": "Trump Hood",
-"symbol": "Trump Hood",
-"max": 2222,
-"minted": 2222
-},
-"0x8793d8e0a70cb5f9668d2d1cc725f02048906495": {
-"name": "BitcoinCat",
-"symbol": "BCAT",
-"max": 5555,
-"minted": 5555
-},
-"0x1778134ff4549c88827f0c5ea9f7c65a1631aed6": {
-"name": "LIZARD",
-"symbol": "LIZARD",
-"max": 10000,
-"minted": 9020
-},
-"0x0330febb9f8b78ce43fa25e9aabd6a418a29d65d": {
-"name": "Raised Fist",
-"symbol": "Raisedfist",
-"max": 5499,
-"minted": 1827
-},
-"0xf7dfde20a6593cfa39fee9d225c89d924a731532": {
-"name": "FIH Project",
-"symbol": "FIHPROJ",
-"max": 4444,
-"minted": 3491
-},
-"0x97a7b70dd05794ffa86ffc14f1d3b661bbe64f0a": {
-"name": "AlphaRekt",
-"symbol": "Arekt",
-"max": 5432,
-"minted": 5163
-},
-"0x9763132948c6ea258983e68f1540a83fd4cb6451": {
-"name": "Chibi",
-"symbol": "Chibi",
-"max": 5000,
-"minted": 5000
-},
-"0xa21ff64de599819f2042ccee74c5912be8d7d0da": {
-"name": "FlockFall",
-"symbol": "FlockFall",
-"max": 4444,
-"minted": 4444
-},
-"0x24e9142e6750f7932f146ebea141cddb465d6483": {
-"name": "darkhood",
-"symbol": "darkhood",
-"max": 10000,
-"minted": 6797
-},
-"0xe4914fc4af55505fb3d373bbffb85001ffd66f75": {
-"name": "Chog",
-"symbol": "Chog",
-"max": 10000,
-"minted": 6715
-},
-"0x197b31966915db5113a873527573b3ffb2ed641b": {
-"name": "Hood Cat",
-"symbol": "HOODCAT",
-"max": 10000,
-"minted": 8895
-},
-"0x712616f8b03c7f01f578a41769ea335aa17f36fc": {
-"name": "The Daily Life Of Kitten",
-"symbol": "9",
-"max": 6500,
-"minted": 5492
-},
-"0xcfbef80cff0d77d09b757e6de45accee590f894b": {
-"name": "Cathod",
-"symbol": "Cathod",
-"max": 9999,
-"minted": 5069
-},
-"0x5620c5c2cba2d01656b11c072145b9898b3b78ac": {
-"name": "ouulala",
-"symbol": "OULALA",
-"max": 10000,
-"minted": 10000
-},
-"0x5c7c3ad8390b4970527e87b247f7ffc015ddfded": {
-"name": "CrabHood",
-"symbol": "Crab",
-"max": 3333,
-"minted": 3333
-},
-"0x769b4da95910612c24e2abfd55498f7583cd01d7": {
-"name": "Broker Pixel Ape",
-"symbol": "BPA",
-"max": 1595,
-"minted": 1595
-},
-"0x918866b6cde4c4a67df6a04266954941e18b596a": {
-"name": "Broker Pixel Ape",
-"symbol": "BPA",
-"max": 1595,
-"minted": 1595
-},
-"0x4b883072009adb3c3f599d5d88cbad615f6eac2e": {
-"name": "xcnft",
-"symbol": "xc",
-"max": 5000,
-"minted": 1438
-},
-"0xf3494e70e97f5fe5e4e561855d38e85b9fc2fe95": {
-"name": "Melo",
-"symbol": "Melo",
-"max": 3333,
-"minted": 1415
-},
-"0x588c250921c3b2507d52f24931bab7a8f7f62bda": {
-"name": "HOOD ISOPEPE",
-"symbol": "8453",
-"max": 2555,
-"minted": 1096
-},
-"0x8b59e8c7d9ad768316ff34c3c94cfcde9fe0262e": {
-"name": "Tsuki",
-"symbol": "tsuki",
-"max": 11111,
-"minted": 2743
-},
-"0x3dc93d93d5db9e3c490678ef94a0eb35b3dc2de8": {
-"name": "FurNads",
-"symbol": "Furnads",
-"max": 5555,
-"minted": 2094
-},
-"0x25991c1f3f364f4366b52e1d77f70500c0e05835": {
-"name": "The Bandits",
-"symbol": "BANDIT",
-"max": 10000,
-"minted": 10000
-},
-"0x693f4ae8b80a197d14aee2029d6c8544287e5d85": {
-"name": "ASCII BIRDS",
-"symbol": "BIRDS",
-"max": 4096,
-"minted": 4096
-},
-"0x600037977c587e6f53ab35d20c6fa1ed5fb1d2b2": {
-"name": "CyberLeek Genesis",
-"symbol": "CLG",
-"max": 5000,
-"minted": 5000
-},
-"0x45ce024f314a2f74c63a8a51743677df97a8d99e": {
-"name": "MIU",
-"symbol": "MIU",
-"max": 4000,
-"minted": 2656
-},
-"0x17eb0d53e87c9960a5333d1b3a6978c8dda5aa68": {
-"name": "Cult Cats",
-"symbol": "9",
-"max": 7800,
-"minted": 4394
-},
-"0x0d77e2b193ca6549c3bba68bf7b4516d14376534": {
-"name": "The Doll Club",
-"symbol": "DOLL",
-"max": 3333,
-"minted": 2144
-},
-"0xb3214603c4a44a3b9fa1233810f6a53700c0ecae": {
-"name": "Hood Lords",
-"symbol": "8453",
-"max": 7000,
-"minted": 1372
-},
-"0x27deb0025392015ae148cd1d9857dc0d313b7f92": {
-"name": " Robin Krakens ",
-"symbol": "Rk",
-"max": 10000,
-"minted": 8286
-},
-"0x6987a83e5e0ae9f03f51c14a047c10f11d33b8ca": {
-"name": "TESTINGqs",
-"symbol": "TSTSs",
-"max": 100000,
-"minted": 3375
-},
-"0xa00d868ea9464f3da5e06eba83754e8b3e500920": {
-"name": "Shellies NFTs",
-"symbol": "SN",
-"max": 8888,
-"minted": 3307
-},
-"0x2a5d59c62e811f74f2a79b8fe8f8bc82a50e4200": {
-"name": "Crockletshood NFT",
-"symbol": "Crocklets",
-"max": 10000,
-"minted": 3245
-},
-"0xac2ec84c1aa82fa6bc64672080c8ecb79b30ad57": {
-"name": "StonkRobots NFT",
-"symbol": "SN",
-"max": 10000,
-"minted": 1072
+"0x2c15d479361cc5c07d24717efde841caebee39c0": {
+"name": "NitroCode",
+"symbol": "NitroCode",
+"max": 3000,
+"minted": 2501
 }
 }
