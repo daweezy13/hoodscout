@@ -564,6 +564,52 @@ def scan_nft_mints(registry_path=NFT_REGISTRY, ledger=NFT_LEDGER, window_hours=6
 
 
 
+def prune_registry(path=None, days=7):
+    """Trim the NFT registry to collections first seen in the last N days.
+
+    ⚠️ THIS FILE WAS NEVER PRUNED and it broke the whole publishing pipeline.
+    prune_ledger covers the two .jsonl ledgers only, so the registry grew
+    unbounded -- 11,309 collections holding 2,722,492 minter addresses, 118.8 MB
+    on disk, past GitHub's 100 MB HARD limit. Every poller push was rejected
+    from 2026-08-22, and because poll.yml ends its push with `|| true` the
+    workflow reported SUCCESS for two days while nothing landed. The daily
+    refresh then built the site from stale ledgers and both the Memecoin vitals
+    and NFT launches sections rendered their "warming up" empty state.
+
+    Same retention as the ledgers, for the same reason: the section reads a
+    6-hour window and the thresholds calibrate on 48h, so anything older is
+    weight without a reader. At 2 days this holds ~1,278 collections and 18.7 MB.
+
+    The cost of pruning is that a collection still minting after the cutoff is
+    re-reported as newly seen. That is the same trade prune_ledger already makes
+    and it is worth it against a pipeline that silently stops publishing.
+    """
+    p = Path(path) if path else NFT_REGISTRY
+    if not p.exists():
+        return 0
+    try:
+        reg = json.loads(p.read_text())
+    except (ValueError, OSError):
+        return 0
+    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)
+    kept, dropped = {}, 0
+    for k, v in reg.items():
+        if not isinstance(v, dict):        # `_watermark` and friends stay
+            kept[k] = v
+            continue
+        try:
+            fresh = dt.datetime.fromisoformat(v["first_seen"]) >= cutoff
+        except (KeyError, TypeError, ValueError):
+            fresh = True                   # undated entry: keep rather than guess
+        if fresh:
+            kept[k] = v
+        else:
+            dropped += 1
+    if dropped:
+        p.write_text(json.dumps(kept))
+    return dropped
+
+
 def prune_ledger(path, days=7):
     """Trim the ledger to the last N days.
 
@@ -661,8 +707,14 @@ def main():
     if args.prune_days:
         d1 = prune_ledger(Path(args.out), args.prune_days)
         d2 = prune_ledger(NFT_LEDGER, args.prune_days)
-        if d1 or d2:
-            print(f"  pruned {d1:,} + {d2:,} rows older than {args.prune_days}d")
+        d3 = prune_registry(days=args.prune_days)
+        if d1 or d2 or d3:
+            print(f"  pruned {d1:,} + {d2:,} rows and {d3:,} registry entries "
+                  f"older than {args.prune_days}d")
+        mb = NFT_REGISTRY.stat().st_size / 1048576 if NFT_REGISTRY.exists() else 0
+        if mb > 80:
+            print(f"  ** nft_registry.json at {mb:.1f} MB — GitHub rejects at 100 **",
+                  flush=True)
     if gap:
         note = "  ** GAP SUSPECTED: raise --pages **" if gap["gap_suspected"] else ""
         print(f"  {gap['new_to_us']}/{gap['polled']} pools new to the ledger{note}")

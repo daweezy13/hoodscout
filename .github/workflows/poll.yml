@@ -61,22 +61,46 @@ jobs:
             git diff --cached --quiet && return 0
             git commit -q -m "ledger: $(date -u '+%Y-%m-%dT%H:%MZ') [skip ci]"
             git pull --rebase --autostash -q origin main || true
-            git push -q || true
+            # ⚠️ A swallowed push failure hid a two-day outage. out/nft_registry.json
+            # grew past GitHub's 100 MB hard limit on 2026-08-22; every push was
+            # rejected, `|| true` reported success, and the daily refresh kept
+            # building the site from frozen ledgers -- Memecoin vitals and NFT
+            # launches both rendered their "warming up" empty state the whole time.
+            #
+            # Still non-fatal (a lost push is recoverable next cycle, and killing
+            # the job would lose the observations in flight) but it must be LOUD
+            # and it must fail the step's annotation so it shows up in the run list.
+            if ! git push -q; then
+              echo "::error title=ledger push rejected::git push failed — the ledger is NOT reaching origin. Check file sizes against GitHub's 100 MB limit:"
+              du -m out/*.json out/*.jsonl 2>/dev/null | sort -rn | head -5
+              PUSH_FAILED=1
+            fi
           }
           while [ "$(date +%s)" -lt "$END" ]; do
-            # ⚠️ 2 days, not 7. The age-tiered follow-up multiplied observations
-          # per pool, and the ledger hit 115.28 MB -- past GitHub's 100 MB HARD
-          # limit, which blocked every push including this workflow's own. Two
-          # days is ~30 MB with room for a heavy day. Rows dropped here are not
-          # recoverable from upstream, so widening this again needs slimmer rows
-          # or LFS, not just a bigger number.
-          python3 launch_watch.py --prune-days 2 || true
+            # ⚠️ 1 day, not 2, and not 7. This number has now caused TWO outages.
+          # The 7 -> 2 change came after the ledger hit 115.28 MB, past GitHub's
+          # 100 MB HARD limit, blocking every push including this workflow's own.
+          # Two days was ~30 MB then. At 2026-08-24 launch volume it is 95 MB --
+          # five points from the same failure again.
+          #
+          # One day is sufficient, not a compromise: load_launch_traces reads at
+          # most a 24h window (`for _win in (6, 12, 24)`), so the second day was
+          # weight no reader ever asked for. This also prunes nft_registry.json,
+          # which was never pruned at all and is what actually broke on 08-22.
+          #
+          # ⚠️ Rows dropped here are NOT recoverable from upstream. The durable
+          # fix is slimmer rows -- one row per pool per observation carries
+          # repeated immutable fields -- not a smaller number next time.
+          python3 launch_watch.py --prune-days 1 || true
             N=$((N+1))
             [ $((N % 5)) -eq 0 ] && save
             [ "$(date +%s)" -lt "$END" ] && sleep 180
           done
           save
           echo "completed $N polls this hour"
+          if [ "${PUSH_FAILED:-0}" = "1" ]; then
+            echo "::warning::at least one ledger push was rejected this run"
+          fi
 
       # (committing happens inside the loop above so a lost runner costs
       #  at most ~15 minutes of observations, not the whole hour)
