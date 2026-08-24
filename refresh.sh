@@ -54,7 +54,7 @@ else
 fi
 
 # 3. Render.
-if ! "$PYTHON" build_dashboard.py --base-url "$SITE_URL" >> "$LOG" 2>&1; then
+if ! "$PYTHON" build_dashboard.py --base-url "$SITE_URL" --public >> "$LOG" 2>&1; then
     say "FAILED: build_dashboard.py"
     exit 1
 fi

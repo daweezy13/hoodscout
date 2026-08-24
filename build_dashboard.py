@@ -1311,7 +1311,13 @@ button.more {{
   background:var(--panel); color:var(--ink); border:1.5px solid var(--rule);
   padding:2px 8px; cursor:pointer; font-weight:700;
 }}
-button.more:hover {{ background:var(--accent); }}
+button.more:hover:not(:disabled) {{ background:var(--accent); }}
+button.more:disabled {{ opacity:.35; cursor:default; }}
+.pager {{ display:inline-flex; align-items:center; gap:6px; }}
+.pager-ind {{
+  font-family:var(--mono); font-size:10px; letter-spacing:.08em;
+  color:var(--muted); min-width:34px; text-align:center;
+}}
 .board-foot .foot-r {{ margin-left:auto; }}
 
 
@@ -1936,6 +1942,11 @@ function makeSortable(table) {{
         if (rk) rk.textContent = i + 1;
         body.appendChild(r);
       }});
+      // Re-sorting reorders every row, so whatever page you were on now shows
+      // different data under the same page number. Reset to the first page and
+      // let the pager repaint.
+      const bd = table.closest('.board');
+      if (bd) bd.dispatchEvent(new CustomEvent('board:sorted'));
     }};
     th.addEventListener('click', run);
     th.addEventListener('keydown', e => {{
@@ -1947,17 +1958,60 @@ function makeSortable(table) {{
 document.querySelectorAll('.board table').forEach(makeSortable);
 
 
-/* Boards open at 10 rows. At 20 each board ran ~1,220px and the page passed
-   6,000px total, so the lower half was rarely reached. */
+/* Boards page at 10 rows. At 20 each board ran ~1,220px and the page passed
+   6,000px total, so the lower half was rarely reached.
+   
+   PAGED rather than an expand toggle: "show all 20" answered "is there more?"
+   but not "how much more", and it solved length by doubling it -- the reason
+   the toggle existed in the first place. A pager keeps every board a fixed
+   height whatever the row count, and the "n / m" reads as a promise that the
+   tail is reachable rather than hidden. It also scales: the boards can now
+   carry more than 20 rows without the page growing at all. */
 document.querySelectorAll('.board').forEach(board => {{
+  const tbody = board.querySelector('tbody');
   const btn = board.querySelector('button.more');
-  if (!btn) return;
-  const total = board.querySelectorAll('tbody tr').length;
-  if (total <= 10) {{ btn.remove(); return; }}
-  const label = () => {{ btn.textContent = board.classList.contains('expanded')
-      ? 'show top 10' : 'show all ' + total; }};
-  label();
-  btn.addEventListener('click', () => {{ board.classList.toggle('expanded'); label(); }});
+  if (!tbody) return;
+  const PAGE = 10;
+  const rows = () => Array.from(tbody.rows);
+  const total = rows().length;
+  if (total <= PAGE) {{ if (btn) btn.remove(); return; }}
+  const pages = Math.ceil(total / PAGE);
+  let page = 1;
+
+  const nav = document.createElement('span');
+  nav.className = 'pager';
+  const mk = (txt, lab) => {{
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'more'; b.textContent = txt;
+    b.setAttribute('aria-label', lab);
+    return b;
+  }};
+  const prev = mk('\u2039', 'previous page');
+  const next = mk('\u203a', 'next page');
+  const ind = document.createElement('span');
+  ind.className = 'pager-ind';
+  ind.setAttribute('aria-live', 'polite');
+  nav.append(prev, ind, next);
+  if (btn) btn.replaceWith(nav);
+  else (board.querySelector('.board-foot') || board).appendChild(nav);
+
+  function render() {{
+    const rs = rows();
+    const lo = (page - 1) * PAGE, hi = page * PAGE;
+    rs.forEach((r, i) => {{
+      // drop the server-rendered `over` class: it hid rows 11+ via CSS, and
+      // with a pager the visibility is decided here for every row.
+      r.classList.remove('over');
+      r.style.display = (i >= lo && i < hi) ? '' : 'none';
+    }});
+    ind.textContent = page + ' / ' + pages;
+    prev.disabled = page === 1;
+    next.disabled = page === pages;
+  }}
+  prev.addEventListener('click', () => {{ if (page > 1) {{ page--; render(); }} }});
+  next.addEventListener('click', () => {{ if (page < pages) {{ page++; render(); }} }});
+  board.addEventListener('board:sorted', () => {{ page = 1; render(); }});
+  render();
 }});
 
 

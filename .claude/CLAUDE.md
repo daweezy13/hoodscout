@@ -98,3 +98,58 @@ Everything except wage pools and launchpads totals ~220s; those two are the whol
 `refresh.yml` runs on a fresh checkout. `out/wage_pools.json` and `out/launchpad_tokens.json` are
 convergence state — watermarks and carry-over rows — so leaving them out of the commit step
 silently resets them every night and the budgeted loops restart from zero forever.
+
+## ⚠️ The RPC silently IGNORES null placeholders in `eth_getLogs` topics
+Confirmed 2026-08-23. Filtering `topics: [TOPIC0, null, null, tokenIdTopic]` to find one ERC-721
+token's transfers returned **0 logs** for a token that demonstrably exists and had transfers.
+Measured on the same block window against the same address: no filter → 4 logs, null-placeholder
+filter → **0 logs**.
+
+It does not error. It returns an empty list, which reads exactly like "this never happened."
+
+Two-element filters (`[TOPIC0, senderTopic]`) are fine — that is what the payout scans use. Only
+positional nulls break. To filter on a LATER indexed arg, fetch on topic0 and filter client-side,
+or use Blockscout's instance endpoint for a single token:
+`/api/v2/tokens/<collection>/instances/<id>/transfers` (2 rows, instant — the low-volume lookup
+Blockscout is good at).
+
+## QUOTRONS pays StonkBrokers holders, and its ids are StonkBrokers ids
+`QuotronReflectionsV2.brokers()` = `0x539cdd042c2f3d93ebc5be7dfff0c79f3b4fabf0` — the StonkBrokers
+ERC-721. `quotron()` returns an **ERC-20** (1,867 supply), NOT the payee collection. So a "quotron
+id" in that contract is a StonkBrokers token id, and `attrCount()` = 4444 matches that collection.
+
+⚠️ Rewards are NOT pro-rata. `tierWeights` = **[100, 150, 250, 500]** — a 5x spread — and three ids
+sit outside the weighted pot entirely: `BASKET_BPS` 1250 (12.5%) splits across ids 4441–4443, and
+`GOLD_BPS` 500 (5%) goes to id 4444 alone. `terminals(id)` reads all-zero for basket ids because
+they accrue via `basketAcc`/`basketClaimed`, not the weighted path — that is expected, not a bug.
+Any "share of rewards" claim here is meaningless without a token id and tier.
+
+Measure per token, never by apportioning a total: `basketClaimed(id, stock)` over the ten
+`floorStocks(0..9)` is the exact received amount. The basket pays equal DOLLAR value per stock, not
+equal token counts (id 4443: 22.56 GME vs 0.58 SPY, all ~$447) — that even spread is itself a
+corroboration signal.
+
+⚠️ `LegacyCredited` has **zero events chain-wide** — the v1→v2 legacy-credit path was never used for
+any id. v1 payouts are not observable from V2; the $113,849.84 stays a published figure.
+
+⚠️ `basketClaimed` is keyed on the TOKEN, not the holder. Use the `Claimed(id indexed, to indexed,
+stock, amount)` event to attribute to a wallet. And an NFT can be owned by a contract —
+StonkBrokers #4443 is held by `StonkNFTAMMVault`, so its owner and its claim recipient are
+different addresses.
+
+## ⚠️ NEVER discard the error from `_rpc("eth_getLogs", ...)`
+`logs, e = _rpc(...)` then `for l in (logs or []):` turns a FAILED request into "no events found".
+It shipped in the wage-pool measurement loop and it is the worst version of this bug, because:
+
+* `_rpc` returns a JSON-RPC error **without retrying** (the 10k-log cap takes that path), and
+* the loop then advances `last_block`, so the unread blocks are never revisited, and
+* tallies are cumulative and additive, so the undercount **never heals** — the pool reports low
+  forever.
+
+Caught it after the same pattern in an ad-hoc script reported 80 claim events where there were
+**340**, giving a confidently wrong answer about who received a token's rewards.
+
+Use `_get_logs_chunked(..., topics=[...], quiet=True, gaps=gaps)` — it halves on error instead of
+trusting the cap, and appends anything it still cannot read to `gaps`. **If `gaps` is non-empty the
+watermark must not move.** Reconcile against a cumulative on-chain accessor where one exists
+(`basketClaimed` vs summed `Claimed` events) — that is what exposed the gap.

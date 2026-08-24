@@ -50,7 +50,9 @@ jobs:
         run: python3 verify_dune.py --days 10
 
       - name: Render
-        run: python3 build_dashboard.py --base-url https://hoodscout.pages.dev
+        # --public drops the noindex guard. The site was a staging surface
+        # until launch; it is meant to be found now.
+        run: python3 build_dashboard.py --base-url https://hoodscout.pages.dev --public
 
       - name: Render social card
         run: |

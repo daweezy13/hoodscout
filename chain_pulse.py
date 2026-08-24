@@ -98,7 +98,13 @@ PAY_ITEM_TYPES = (IT_NATIVE, IT_ERC20)
 # keeping legitimate USDG-quoted pairs like nvda/USDG and spacex/USDG.
 MIN_LIQUIDITY_USD = 25_000
 WASH_RATIO_FLAG = 75.0          # 24h volume / liquidity above this = flagged, not dropped
-TOP_N = 20
+# 30, not 20. The boards used to expand to their full height to show the tail,
+# so every extra row was page length you paid for whether or not anyone looked.
+# Paged boards are a fixed height at any row count, which makes the cut a
+# question of what is worth ranking rather than what fits. 20 was leaving real
+# coins off: HMM (0x7fe995a8, $895k liquidity, $1.7M daily volume) sat ~23rd
+# and was invisible, while three tokenised equities held slots above it.
+TOP_N = 30
 
 # Cross-source corroboration. GeckoTerminal and DexScreener index the same
 # chain independently, so querying both BY CONTRACT ADDRESS gives two readings
@@ -607,10 +613,22 @@ def fetch_dexscreener_token(address):
     counted, to match how the GeckoTerminal side is aggregated.
     """
     d = _get(f"{DEXSCREENER}/token-pairs/v1/{GT_NETWORK}/{address}")
-    if not isinstance(d, list):
-        return None
-    base = [p for p in d
+    base = [p for p in (d if isinstance(d, list) else [])
             if ((p.get("baseToken") or {}).get("address") or "").lower() == address.lower()]
+    if not base:
+        # ⚠️ token-pairs/v1 returns an EMPTY LIST for tokens that latest/dex
+        # /tokens indexes perfectly well -- measured on HMM (0x7fe995a8),
+        # $897k liquidity across 12 pairs, invisible on the first endpoint and
+        # complete on the second. An empty list is not "no market", it is one
+        # index not covering the token, and treating the two as the same thing
+        # silently dropped corroboration for whole tokens. Any token failing
+        # corroboration falls back to GeckoTerminal's liquidity, which is the
+        # figure known to go NEGATIVE here -- so this gap fed straight into the
+        # $25k floor and removed real coins from the board.
+        alt = _get(f"{DEXSCREENER}/latest/dex/tokens/{address}") or {}
+        base = [p for p in (alt.get("pairs") or [])
+                if ((p.get("baseToken") or {}).get("address") or "").lower() == address.lower()
+                and (p.get("chainId") or "") == GT_NETWORK]
     if not base:
         return None
     socials, websites = set(), set()
@@ -803,7 +821,26 @@ def fetch_memecoins(pages=4, min_liquidity=MIN_LIQUIDITY_USD, top_n=TOP_N):
                 if t["price_usd"] is None:
                     t["price_usd"] = _f(a.get("base_token_price_usd"))
 
-    candidates = [t for t in tokens.values() if t["symbol"].upper() not in INFRA_SYMBOLS]
+    # ⚠️ Tokenised equities are not memecoins, and they were ranking high enough
+    # to take four of the twenty slots (SPCX 3rd, NVDA 5th, SPY 15th by volume)
+    # -- pushing real coins off the board entirely.
+    #
+    # Excluded by ADDRESS, never by symbol. The distinction is the whole game
+    # here: 0xdaa8f3f5 trades as HOOD and is "TheGreenHood", a memecoin with
+    # 1,074 holders and a 1.01e27 supply, while three OTHER contracts also
+    # answer to HOOD and are genuinely Robinhood Markets equity. A symbol
+    # blocklist would delete the memecoin and keep whichever equity happened to
+    # be indexed; matching the address deletes exactly the right ones.
+    equities = set()
+    try:
+        equities = {a.lower() for a in discover_stock_tokens()}
+    except Exception as e:                       # never lose the board over this
+        print(f"        equity list unavailable ({e}); not filtering", flush=True)
+    candidates = [t for t in tokens.values()
+                  if t["symbol"].upper() not in INFRA_SYMBOLS
+                  and t["address"].lower() not in equities]
+    if equities:
+        print(f"        {len(equities)} tokenised equities excluded by address", flush=True)
     candidates.sort(key=lambda x: -x["volume_24h"])
 
     # Corroborate BEFORE applying the floor. GeckoTerminal reports negative
@@ -929,34 +966,49 @@ def _find_block_at(target_ts, latest_bn, latest_ts):
 
 
 def _get_logs_chunked(address, topic0, from_block, to_block,
-                      chunk=SEAPORT_CHUNK_BLOCKS, depth=0):
+                      chunk=SEAPORT_CHUNK_BLOCKS, depth=0, topics=None,
+                      quiet=False, gaps=None):
     """eth_getLogs across a range, splitting on the 10k-log cap.
 
     The cap error also fires transiently on ranges that are nowhere near it,
     so a failed chunk is retried by halving rather than being trusted as a
     genuine "too many logs" signal.
+
+    `topics` overrides the single-topic0 filter for callers that also pin an
+    indexed argument. `gaps` is an optional list that collects any range this
+    could not read even at minimum chunk size -- a caller that persists a
+    watermark MUST check it, because a silent gap plus an advanced watermark
+    makes the loss permanent.
+
+    ⚠️ Never pass positional nulls in `topics` to skip an indexed slot. This
+    RPC ignores them and returns an EMPTY LIST rather than an error, which is
+    indistinguishable from "no such events". Filter on the topics you can pin
+    from the left and match the rest client-side.
     """
     logs = []
     start = from_block
     while start <= to_block:
         end = min(start + chunk - 1, to_block)
         res, err = _rpc("eth_getLogs", [{
-            "address": address, "topics": [topic0],
+            "address": address, "topics": topics or [topic0],
             "fromBlock": hex(start), "toBlock": hex(end),
         }])
         if err:
             if chunk <= 500:
                 print(f"    [skip] {start}-{end} irreducible: {err}", flush=True)
+                if gaps is not None:
+                    gaps.append((start, end))
                 start = end + 1
                 continue
             sub = _get_logs_chunked(address, topic0, start, end,
-                                    chunk=max(chunk // 4, 500), depth=depth + 1)
+                                    chunk=max(chunk // 4, 500), depth=depth + 1,
+                                    topics=topics, quiet=quiet, gaps=gaps)
             logs.extend(sub)
             start = end + 1
             continue
         logs.extend(res or [])
         start = end + 1
-        if depth == 0:
+        if depth == 0 and not quiet:
             print(f"    blocks {start - 1:,}/{to_block:,}  logs={len(logs):,}", flush=True)
     return logs
 
@@ -1641,15 +1693,36 @@ def _is_router(addr):
 STOCK_TOKEN_MARK = "Robinhood Token"
 
 
-def discover_stock_tokens(limit=60):
-    """Addresses of the tokenised equities, by their naming convention."""
-    d = _get(f"{BLOCKSCOUT}/search", params={"q": STOCK_TOKEN_MARK}) or {}
-    out = {}
-    for it in (d.get("items") or []):
-        name = str(it.get("name") or "")
-        addr = (it.get("address") or it.get("address_hash") or "").lower()
-        if STOCK_TOKEN_MARK in name and addr.startswith("0x"):
-            out[addr] = it.get("symbol") or "?"
+_STOCK_TOKEN_CACHE = {}
+
+
+def discover_stock_tokens(limit=200, pages=4):
+    """Addresses of the tokenised equities, by their naming convention.
+
+    ⚠️ PAGINATED. It read page one only and returned exactly 50 while the
+    explorer was still handing back `next_page_params` -- so the equity
+    universe was silently truncated at whatever the first page held, and every
+    caller that excludes equities was working from a partial list.
+
+    Cached per process: three separate sections ask for this set, and it does
+    not change within a run.
+    """
+    if _STOCK_TOKEN_CACHE:
+        return dict(_STOCK_TOKEN_CACHE)
+    out, params = {}, {"q": STOCK_TOKEN_MARK}
+    for _ in range(pages):
+        d = _get(f"{BLOCKSCOUT}/search", params=params) or {}
+        for it in (d.get("items") or []):
+            name = str(it.get("name") or "")
+            addr = (it.get("address") or it.get("address_hash") or "").lower()
+            if STOCK_TOKEN_MARK in name and addr.startswith("0x"):
+                out[addr] = it.get("symbol") or "?"
+        nxt = d.get("next_page_params")
+        if not nxt or len(out) >= limit:
+            break
+        params = {"q": STOCK_TOKEN_MARK, **nxt}
+        time.sleep(0.2)
+    _STOCK_TOKEN_CACHE.update(out)
     return dict(list(out.items())[:limit])
 
 
@@ -2053,23 +2126,38 @@ def fetch_nft_wage_pools(known=(), min_usd=1.0, min_recipients=40, hours=8,
             tal = tallies.setdefault(asset, {"raw": 0, "transfers": 0, "recipients": []})
             recips = set(tal.get("recipients") or [])
             raw, n = int(tal.get("raw") or 0), int(tal.get("transfers") or 0)
-            start = frm
-            while start <= head:
-                end = min(start + 3_000_000 - 1, head)
-                logs, e = _rpc("eth_getLogs", [{
-                    "fromBlock": hex(start), "toBlock": hex(end),
-                    "address": asset, "topics": [TRANSFER_TOPIC, topic1]}])
-                for l in (logs or []):
-                    tp = l.get("topics") or []
-                    if len(tp) != 3:
-                        continue
-                    recips.add(tp[2][-40:])
-                    n += 1
-                    try:
-                        raw += int(l.get("data") or "0x0", 16)
-                    except ValueError:
-                        pass
-                start = end + 1
+            # ⚠️ WAS: a raw _rpc whose error was bound and never checked, so
+            # `for l in (logs or [])` turned a FAILED request into "no
+            # transfers". Two ways that goes wrong here and both are permanent:
+            # the 10k-log cap returns a JSON-RPC error that _rpc does not retry,
+            # and the watermark below advances past the blocks that were never
+            # read. Tallies are cumulative and additive, so an undercount never
+            # heals -- the pool just reports low forever.
+            #
+            # _get_logs_chunked already solved this for the Seaport scan: halve
+            # on error rather than trusting the cap, and report what it could
+            # not read. `gaps` is the part that matters -- a gap means the
+            # watermark must NOT move.
+            gaps = []
+            logs = _get_logs_chunked(asset, TRANSFER_TOPIC, frm, head,
+                                     chunk=3_000_000, quiet=True,
+                                     topics=[TRANSFER_TOPIC, topic1], gaps=gaps)
+            if gaps:
+                print(f"        unreadable range on {p['addr'][:10]}/{asset[:10]}: "
+                      f"{len(gaps)} gap(s); pool resumes from its stored "
+                      f"watermark", flush=True)
+                finished = False
+                break
+            for l in logs:
+                tp = l.get("topics") or []
+                if len(tp) != 3:
+                    continue
+                recips.add(tp[2][-40:])
+                n += 1
+                try:
+                    raw += int(l.get("data") or "0x0", 16)
+                except ValueError:
+                    pass
             tal.update(raw=raw, transfers=n, recipients=sorted(recips))
             if n:
                 by_pool[p["addr"]].append({"asset": asset, "raw": raw,
