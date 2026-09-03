@@ -1017,5 +1017,74 @@
 "symbol": "Robinhood Ch",
 "max": 5555,
 "minted": 5060
+},
+"0x1319005a1be02c750028a2cb35d43766f2e4f50b": {
+"name": "Cash Machines",
+"symbol": "CASH",
+"max": 10000,
+"minted": 9538
+},
+"0x2042e372d211b11239b334434642e874700caa5d": {
+"name": "ROBINCAT",
+"symbol": "ROBINCAT",
+"max": 10000,
+"minted": 6208
+},
+"0x73fab74dc88c5c52afdd49b15d2ef6e806721812": {
+"name": "Birb Nation",
+"symbol": "BIRB",
+"max": 2222,
+"minted": 2222
+},
+"0x0ab5d08280608ea5f6abc268349953bef2ed9966": {
+"name": "PonsChill",
+"symbol": "PonsChill",
+"max": 333,
+"minted": 288
+},
+"0x621342f15f86fd5620c5141d0cc1a6cefdae28ee": {
+"name": "NetNet Gear",
+"symbol": "GEAR",
+"max": null
+},
+"0xbba9e63bd04008f20a83a1efebd8f5b3ccec466d": {
+"name": "Hoodboodies",
+"symbol": "HOOD",
+"max": 9999
+},
+"0x2d8397bf846d2dad6122c1bf1d308d7883fb3a3b": {
+"name": "Hoardlings",
+"symbol": "HOARDLING",
+"max": null,
+"minted": 1116
+},
+"0x45326dd85c015be917c03bf008af97b1693b32fa": {
+"name": "We Remain",
+"symbol": "REMAIN",
+"max": 3333,
+"minted": 1178
+},
+"0x42baec696e8840648f5a4b316fd031fda4c2c4f9": {
+"name": "888sport",
+"symbol": "888",
+"max": 100,
+"minted": 19
+},
+"0x2e5ac9353c3e30ef7439124de13af8fc350ad836": {
+"name": "people online",
+"symbol": "people",
+"max": 2001
+},
+"0xb40945d9b6b6fb951bfd602dca417943b3aeec07": {
+"name": "SUPPER CHIMS",
+"symbol": "SRCS",
+"max": 2222,
+"minted": 1859
+},
+"0xcf16896d4573b5b0e1c8f84def79d204081efc37": {
+"name": "PIXXEL BUNZ",
+"symbol": "PXXB",
+"max": 4444,
+"minted": 2993
 }
 }
