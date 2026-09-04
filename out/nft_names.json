@@ -1086,5 +1086,77 @@
 "symbol": "PXXB",
 "max": 4444,
 "minted": 2993
+},
+"0x70dc3186e0d5040077ce99843adce9242280f399": {
+"name": "The Artificial Inus",
+"symbol": "AI",
+"max": 10000,
+"minted": 10000
+},
+"0xc9c09d9533e12ae769e2e6d86118f735c3a1ed70": {
+"name": "RTX RIG Machine",
+"symbol": "RTX",
+"max": 6000,
+"minted": 6000
+},
+"0x6cf7db4b76a6a242da319aa450df3be7abba05a3": {
+"name": "Unrealized Losses",
+"symbol": "LOSSES",
+"max": 4444,
+"minted": 4444
+},
+"0x962da825d90f01017d172dfe11ea18e614034d12": {
+"name": "Hayao",
+"symbol": "HAY",
+"max": 10000,
+"minted": 768
+},
+"0x64c2987f55f5e0104b0b25d54a9bd13a8592ecf3": {
+"name": "PonsKids",
+"symbol": "PONSKID",
+"max": 10000,
+"minted": 7311
+},
+"0x38759562a7213a528a338bd9087c635efe61bbf7": {
+"name": "Ronin X",
+"symbol": "RONX",
+"max": 4747,
+"minted": 4747
+},
+"0x3a291a2021ef7f282507039a98d9549a7cd6670f": {
+"name": "The Doons",
+"symbol": "TD",
+"max": 4500,
+"minted": 92
+},
+"0x9732301183a168fa6f74c80e3233be434b4389be": {
+"name": "Dudes Craft",
+"symbol": "Robinhood ch",
+"max": 1999,
+"minted": 1999
+},
+"0xf92320f951f370292f783a51a72bbf3f8e933c03": {
+"name": "Anthropic",
+"symbol": "Anthropic",
+"max": 1500,
+"minted": 394
+},
+"0x3d46b89968abb53708b68abd316d1ef34a450c96": {
+"name": "BrokerDesk",
+"symbol": "BrokersDesk",
+"max": 2222,
+"minted": 17
+},
+"0x979f306dd8a5bfa887d48e6f9783197019ca7929": {
+"name": "Dudes Craft",
+"symbol": "Robinhood ch",
+"max": 1999,
+"minted": 264
+},
+"0x7c0699a9e50cd58b95f0111cf8fe8b3d44ca58f7": {
+"name": "OTOMATE",
+"symbol": "OTOMATE",
+"max": 4040,
+"minted": 30
 }
 }
