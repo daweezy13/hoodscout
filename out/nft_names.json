@@ -1109,7 +1109,7 @@
 "name": "Hayao",
 "symbol": "HAY",
 "max": 10000,
-"minted": 768
+"minted": 10000
 },
 "0x64c2987f55f5e0104b0b25d54a9bd13a8592ecf3": {
 "name": "PonsKids",
@@ -1158,5 +1158,71 @@
 "symbol": "OTOMATE",
 "max": 4040,
 "minted": 30
+},
+"0xf642415bbfa288fef8db833a8a6c206c6cf9ba36": {
+"name": "Groovies On Robinhood",
+"symbol": "GROOVY",
+"max": 8888,
+"minted": 8888
+},
+"0x5213dc31e4bfc7b8e199640ebe73683324f42e3a": {
+"name": "Opaline Fishy",
+"symbol": "OPA",
+"max": 5555,
+"minted": 1192
+},
+"0xb73868a4857a8fca2d5da0f9e973441b783c37fa": {
+"name": "Risota",
+"symbol": "RISOTA",
+"max": 8888,
+"minted": 503
+},
+"0xd2e503497cf12d3829e395d92ef81f90c442c906": {
+"name": "Goblin verse",
+"symbol": "Robinhood Ch",
+"max": 6969,
+"minted": 352
+},
+"0x8c219728ee45f19c3705b64e1e2507fa4bf0058a": {
+"name": "INVALUABLE",
+"symbol": "IV",
+"max": 999,
+"minted": 340
+},
+"0x710de91dd1f1d23fadb3b6aebb0e9f9220fc3c85": {
+"name": "Rat - The Brokers",
+"symbol": "ByRat",
+"max": 2222,
+"minted": 566
+},
+"0x25d2c90daf04d648f81f84321984c9e19dedf1d1": {
+"name": "Major Ovols",
+"symbol": "MAS",
+"max": 5300,
+"minted": 3620
+},
+"0x8be7c08d19c8f882b0ea4b10b3a9d1bdceaffd33": {
+"name": "City Cowboyz",
+"symbol": "CCZ",
+"max": 4800,
+"minted": 4060
+},
+"0x17d8166836d716a87ade6b782e79ed751bf3bbb7": {
+"name": "BALL13",
+"symbol": "B",
+"max": 5555,
+"minted": 21
+},
+"0x569dcdc995bac15aa3f9745ff6f92fec3f3b48e2": {
+"name": "LILBEET PX",
+"symbol": "Robinhood Ch",
+"max": 6337,
+"minted": 11
+},
+"0x409eab4fa20b5b61d35d2b447b14f384e8ac90e5": {
+"name": "Builder Bots AI",
+"symbol": "BuilderBotsA",
+"max": 333,
+"minted": 260
 }
 }
