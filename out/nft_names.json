@@ -1062,7 +1062,7 @@
 "name": "We Remain",
 "symbol": "REMAIN",
 "max": 3333,
-"minted": 1178
+"minted": 1454
 },
 "0x42baec696e8840648f5a4b316fd031fda4c2c4f9": {
 "name": "888sport",
@@ -1295,5 +1295,70 @@
 "symbol": "BBAG",
 "max": 4020,
 "minted": 234
+},
+"0x3b782444d20168bd9da6412b754e9144216c6ce0": {
+"name": "Reeve",
+"symbol": "Reeve",
+"max": 5000,
+"minted": 644
+},
+"0x94e112230d82439658f964cfec23fe71df2a9300": {
+"name": "Animus Pass",
+"symbol": "APASS",
+"max": 128
+},
+"0x1d13c2c541eca920116edcbba4188654862f7f10": {
+"name": "ClayBiter",
+"symbol": "CB",
+"max": 4444,
+"minted": 3106
+},
+"0x3ae903a7b29b01c05132a7f4bcb859a312b1f9d5": {
+"name": "JustBannersNFT",
+"symbol": "BANNER",
+"max": null,
+"minted": 278
+},
+"0x3335d70fcde2055cdc114a58a57a418bdc37c91c": {
+"name": "MIXELS",
+"symbol": "MIXELS",
+"max": 6000,
+"minted": 574
+},
+"0xc0bf2cab92d522e8d6f67f8d8d9d437a42ac9910": {
+"name": "Rhobots",
+"symbol": "Rhobots",
+"max": 3333,
+"minted": 279
+},
+"0x59e8d6810a894d0916fabc5834c355d2c25022a0": {
+"name": "aurasea",
+"symbol": "aurasea",
+"max": 10000,
+"minted": 200
+},
+"0x209d6cc79e2c6284511588b86c9bdb48edbbd5b4": {
+"name": "HeroPolis ",
+"symbol": "HeroPolis ",
+"max": 10000,
+"minted": 170
+},
+"0xe7e21a0ff08e3c5fa1ad457896fffe210eca879f": {
+"name": "hoodminers",
+"symbol": "hoodminers",
+"max": 10000,
+"minted": 142
+},
+"0x57e23a8049a1ea7da6e0a742ab13756f3e70e405": {
+"name": "XLords",
+"symbol": "XLords",
+"max": 10000,
+"minted": 130
+},
+"0x06de30e7a48a6fa0372071f610d963bd387fb61b": {
+"name": "RhgooleNFT",
+"symbol": "Rh",
+"max": 10000,
+"minted": 154
 }
 }
