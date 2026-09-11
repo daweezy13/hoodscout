@@ -1360,5 +1360,74 @@
 "symbol": "Rh",
 "max": 10000,
 "minted": 154
+},
+"0x4d5f599ff3cee939061e4f03b871ebcf0eb12b5e": {
+"name": "INFERNAL PIXELBORN",
+"symbol": "INFERNAL PIX",
+"max": 8888
+},
+"0xc154e033a25d5844dbdf54ae8e8acc14028863c3": {
+"name": "Block Titans",
+"symbol": "Block Titans",
+"max": 5555,
+"minted": 5555
+},
+"0x3b799c2b9e672e2c6ba7b834f4800d84c3460692": {
+"name": "Ciput RH",
+"symbol": "CRH",
+"max": 5555,
+"minted": 499
+},
+"0xfb49008b59534f0755334f683a0a225aae64ced7": {
+"name": "Elementborns",
+"symbol": "Robinhood ch",
+"max": 777
+},
+"0x78f45952f7da5a6e9d1789cb320404ac6032df59": {
+"name": "Relicshood ",
+"symbol": "RHH",
+"max": 3333,
+"minted": 163
+},
+"0x53fb2f7e471d773c2e807ba76b9d59e535e77b14": {
+"name": "Smilers NFT",
+"symbol": "SMIL",
+"max": 4444,
+"minted": 1229
+},
+"0x7028cf583f9175c119a34071df919122bfbe6d66": {
+"name": "Hooded Ape Club",
+"symbol": "HAC",
+"max": 2500,
+"minted": 1931
+},
+"0xa340813a0ea35b693cee577e98a914e40a829873": {
+"name": "Fuck All Brokers",
+"symbol": "FUCK",
+"max": 4444,
+"minted": 2272
+},
+"0x027aca2794e44f24950d81227dcd516ffbb49d6e": {
+"name": "QUOTRONS",
+"symbol": "QUOTRON",
+"max": null
+},
+"0x2c7078a6418d10a4500abc887a93719fff6b0f77": {
+"name": "GRIT.gang",
+"symbol": "GGANG",
+"max": null,
+"minted": 2322
+},
+"0x3f1071fbc1df4886a11e607a3c0dcebb2cb7f3fd": {
+"name": "SpiralMachinesHQ",
+"symbol": "Robinhood Ch",
+"max": 3333,
+"minted": 296
+},
+"0xd1ca4f594433e949830e9b58957a0b4f0b1a1225": {
+"name": "Pixel Deck",
+"symbol": "pixeldeck",
+"max": 3333,
+"minted": 1588
 }
 }
