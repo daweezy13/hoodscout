@@ -1429,5 +1429,74 @@
 "symbol": "pixeldeck",
 "max": 3333,
 "minted": 1588
+},
+"0x8f07c798db22fd35cd704e07a89ab0cf2f6c4d83": {
+"name": "Cash Computers",
+"symbol": "CC",
+"max": 6666,
+"minted": 6600
+},
+"0x47484196a99df52bf8fe53fb664c54821c13219d": {
+"name": "Ape Hood",
+"symbol": "APEH",
+"max": 3333,
+"minted": 3333
+},
+"0x42567763aeb7e6c8af84e61303cc93650865d817": {
+"name": "OrbitLabs",
+"symbol": "OrbitLabs",
+"max": 3333,
+"minted": 3333
+},
+"0xd49598549208b4f05d47834cc1e3b81d446a760d": {
+"name": "Joe the Emoji",
+"symbol": "JOE",
+"max": 9999
+},
+"0x25a40b6b088bb62833ae1464840612e05dcc4f48": {
+"name": "Arcade Heroes",
+"symbol": "ARCH",
+"max": 888,
+"minted": 888
+},
+"0x64cbe00bebf0be2bfa84b447850f5ec98fff5b13": {
+"name": "Hoodlrz Gen Kids",
+"symbol": "KIDS",
+"max": 3333
+},
+"0x989b4a4ed43af705714bcaf20465006dee6c000b": {
+"name": "Sharkiez",
+"symbol": "SHARKIEZ",
+"max": null,
+"minted": 1250
+},
+"0x505a22ffed8d37ebe580ffd98d2cdb0021189146": {
+"name": "CCFF00",
+"symbol": "CCFF00",
+"max": 10000,
+"minted": 3921
+},
+"0x8810209b7059f848c2015a6a49ac9bba29c8b126": {
+"name": "HashFrogs",
+"symbol": "HFROG",
+"max": null
+},
+"0x0f881df7c0b8beecaeea77378633d7daf9a1fa77": {
+"name": "Argonauts 2.0",
+"symbol": "Argonauts20",
+"max": 2222,
+"minted": 563
+},
+"0x0644dae396305461e971f01fee50f64abfca9f6f": {
+"name": "HashFrogs RH",
+"symbol": "H",
+"max": 4444,
+"minted": 169
+},
+"0xfeb68b749abe72eb1c27bbd93451e9083698ff8f": {
+"name": "Neko",
+"symbol": "NEKO",
+"max": 7777,
+"minted": 79
 }
 }
