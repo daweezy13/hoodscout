@@ -1570,5 +1570,74 @@
 "symbol": "FREE",
 "max": 8888,
 "minted": 767
+},
+"0xf2b493ed881b7cbfcf664692267893e171109621": {
+"name": "Skelrams",
+"symbol": "SKEL",
+"max": null,
+"minted": 5517
+},
+"0xfa3a6c74b3afe80614f12ade3aa6821309f845a3": {
+"name": "ROBO",
+"symbol": "ROBO",
+"max": 5555,
+"minted": 2006
+},
+"0xf9da93d08c6045bf66dad230fab5df6e83e74a3d": {
+"name": "Antares",
+"symbol": "Rh",
+"max": 2000,
+"minted": 255
+},
+"0x762d1384e5658c6774dc2ff3ce4d8748a0b90405": {
+"name": "AUREX RACKS",
+"symbol": "ARX",
+"max": null,
+"minted": 931
+},
+"0xd108951abedd321f40ff5f344c4fff53231affd4": {
+"name": "Wrong Platform",
+"symbol": "wrng",
+"max": 1111,
+"minted": 162
+},
+"0xefaa9cd7de970f95b1c6b784ef877370d613b6c9": {
+"name": "T.o.B.",
+"symbol": "BRICK",
+"max": null
+},
+"0x35ab1a1166ddb8d8f3b7a77d22de2ec5c5854be8": {
+"name": "Out Of Order",
+"symbol": "OOO",
+"max": 1111,
+"minted": 134
+},
+"0xf0f8c058c91525a6df72ce15d77d7f9f0461dcbb": {
+"name": "INSERT CULT GEAR",
+"symbol": "GEAR",
+"max": null
+},
+"0x4397688ac8828c25c9b18a31e86757384ec967fa": {
+"name": "Frost Items",
+"symbol": "FROST",
+"max": 10000,
+"minted": 5501
+},
+"0x1d947c5a3c54e8f942db5694766e38997a79b3bd": {
+"name": "testtest2",
+"symbol": "test2",
+"max": 100,
+"minted": 8
+},
+"0xd35e9ca72f64c7f93be30fad67524323396b36d7": {
+"name": "Fee Beneficiary",
+"symbol": "FEEB",
+"max": null
+},
+"0x782cae65644452e08cf370597b78059fe4f86369": {
+"name": "whyyoukeepdletemytestfuckopens",
+"symbol": "fuckopensea",
+"max": 11111,
+"minted": 21
 }
 }
