@@ -1639,5 +1639,74 @@
 "symbol": "fuckopensea",
 "max": 11111,
 "minted": 21
+},
+"0x34a568bacab425284a86ead208afa4a06348af0c": {
+"name": "Hoodwraiths",
+"symbol": "HOOD",
+"max": 6666
+},
+"0x5b9e105b28e6313222ee6572a90374c91a296639": {
+"name": "CCFF00 Cubes",
+"symbol": "CUBE",
+"max": 1000
+},
+"0x2454fb526c78e6f6ffad33b04a3479214e236c79": {
+"name": "Tokyo Youth Battle",
+"symbol": "TYB",
+"max": 4444,
+"minted": 1068
+},
+"0x5e2072127e76ac075b97b1fca5bed72af922e5fa": {
+"name": "Just Verified",
+"symbol": "VRFD",
+"max": 8888,
+"minted": 8888
+},
+"0xed03e3a071673c7a616b634f7e3286526d239b09": {
+"name": "PIXEL BOYS",
+"symbol": "PIXELBOYS",
+"max": 8888,
+"minted": 742
+},
+"0x7d30af37efa8790a17cd4860c52512fd9ecdbfe8": {
+"name": "Nyan Dogecoin RH ",
+"symbol": "Nyan Dogecoi",
+"max": 10000,
+"minted": 211
+},
+"0x30a1e2519af4ece5ca000c28b2ad6e039ccfa03b": {
+"name": "cats",
+"symbol": "robinhood",
+"max": 4000,
+"minted": 364
+},
+"0x11f362b2f63c4462fb024042c8f770708f72ab26": {
+"name": "NyanCat NFT ",
+"symbol": "Nyan Cat",
+"max": 3500,
+"minted": 171
+},
+"0xa72e28d2c186916240b0ffae1c73ea1321cb163c": {
+"name": "GOONRS NFT ",
+"symbol": "GOONRS",
+"max": 10000,
+"minted": 437
+},
+"0x3d7e8da174ec14594b7c342ca35cdd7978a992df": {
+"name": "denobodies",
+"symbol": "DENOBODIES",
+"max": 15000
+},
+"0xfcdaf9a9169825c236f9232a8fe6209a6a24e2ba": {
+"name": "Hash Machines",
+"symbol": "MACHINE",
+"max": 8888,
+"minted": 952
+},
+"0x2c43c168bd23bf6a12e0c0de7ce20c2499f6f530": {
+"name": "The Furnace",
+"symbol": "Robinhood Ch",
+"max": 3232,
+"minted": 231
 }
 }
