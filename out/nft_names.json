@@ -1708,5 +1708,77 @@
 "symbol": "Robinhood Ch",
 "max": 3232,
 "minted": 231
+},
+"0xfd52bf57080b3b52b95b618b94cd3ae0d376d91d": {
+"name": "Marbles",
+"symbol": "MARBLES",
+"max": 10000,
+"minted": 7792
+},
+"0x1ae656206c2daaabffb230aebdb5d217264dc9bd": {
+"name": "",
+"symbol": "",
+"max": 150,
+"minted": 150
+},
+"0x8b8841e72ac302ec2aa6db17501985222260787d": {
+"name": "Macarune RH",
+"symbol": "Rh",
+"max": 2000,
+"minted": 403
+},
+"0x5116312bd510a49b2376fa31841e69a4825d340c": {
+"name": "Goya Pepes",
+"symbol": "peperado",
+"max": 1515,
+"minted": 1108
+},
+"0xf48e9fec87ef96fd2c56a8756918fa275b289e22": {
+"name": "HoodAG",
+"symbol": "HoodAG",
+"max": 333,
+"minted": 191
+},
+"0x85f15fb270998c8fce16faa1bb3589df1c1087b2": {
+"name": "KRYVON",
+"symbol": "Kryvon",
+"max": 1212,
+"minted": 416
+},
+"0x1850186f69e7c168c73432e052d70ef464b8e1f9": {
+"name": "Genius CAT",
+"symbol": "Genius CAT",
+"max": 50,
+"minted": 50
+},
+"0x9190399885a05c95802a16e3fdeedaa5661aae50": {
+"name": "Bundler Test",
+"symbol": "BTEST",
+"max": 1000,
+"minted": 167
+},
+"0xee381c35528ae4562339a59fbdce704fff5e7cbe": {
+"name": "Deneme",
+"symbol": "Deneme",
+"max": 1000,
+"minted": 36
+},
+"0x30825310bbbc44ff4e64f16c711d514794312b4a": {
+"name": "ZED Horse Hood",
+"symbol": "9",
+"max": 14000,
+"minted": 3451
+},
+"0x3c1a8fcf888b91f82687ed9eac46b8403aaeca95": {
+"name": "TRENDIND FOMO",
+"symbol": "TF",
+"max": 2900,
+"minted": 2829
+},
+"0x7d7f5251436d908cb589c8230038a4ab6ffa79f2": {
+"name": "Janitor",
+"symbol": "Janitor",
+"max": 50,
+"minted": 27
 }
 }
