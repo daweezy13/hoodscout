@@ -1767,7 +1767,7 @@
 "name": "ZED Horse Hood",
 "symbol": "9",
 "max": 14000,
-"minted": 3451
+"minted": 4347
 },
 "0x3c1a8fcf888b91f82687ed9eac46b8403aaeca95": {
 "name": "TRENDIND FOMO",
@@ -1780,5 +1780,70 @@
 "symbol": "Janitor",
 "max": 50,
 "minted": 27
+},
+"0x4bb4a9d6e78ea0ded570c5ac3299ca4582d567df": {
+"name": "ANATOMI",
+"symbol": "ANATOMI",
+"max": 3333
+},
+"0xec4353f43492aa70c63da2dee99bea75a2a1ece0": {
+"name": "One Pocket Ape",
+"symbol": "OPA",
+"max": 3333,
+"minted": 2676
+},
+"0x1ead31566968f2e3ac18cfc8ddbfe9085d705534": {
+"name": "TERMINAL",
+"symbol": "Terminal",
+"max": 4444,
+"minted": 834
+},
+"0x87f883d2290c0f8d33b1af95ad17ed6095c03fc8": {
+"name": "Exit Founders Nft",
+"symbol": "Exit Founder",
+"max": 5555,
+"minted": 253
+},
+"0x53aaad0e0a011f00271a7b279d8f7b852d118b55": {
+"name": "dddddd",
+"symbol": "ddd",
+"max": 10000,
+"minted": 135
+},
+"0xe0e34624f7145d380ccb0c8a485dd6a3e77636a4": {
+"name": "Radio Relic",
+"symbol": "Radiorelic",
+"max": 4000,
+"minted": 2164
+},
+"0x655804784dc2b792daf6839522da20c2924bf3f1": {
+"name": "ScreenFreakz",
+"symbol": "ScreenFreakz",
+"max": 3333,
+"minted": 431
+},
+"0x689fb2f3615acffb4967b27f0d2daf5d08d993cc": {
+"name": "DNDaliens",
+"symbol": "Robinhood ch",
+"max": 1111,
+"minted": 191
+},
+"0x2eeec0f5a367ba5d0816248c4a94dbf997bc7f06": {
+"name": "Pinko",
+"symbol": "RobinHood",
+"max": 10000,
+"minted": 274
+},
+"0xbe823f6eda27dae45c392ffb6b7fc74d695ab238": {
+"name": "ROB BEES",
+"symbol": "BEE",
+"max": 4444,
+"minted": 59
+},
+"0x1a90fb34869f1cc157469f4a345cd4c3af7f1268": {
+"name": "Screenfreakz ",
+"symbol": "Robinhood Ch",
+"max": 3333,
+"minted": 191
 }
 }
