@@ -1845,5 +1845,77 @@
 "symbol": "Robinhood Ch",
 "max": 3333,
 "minted": 191
+},
+"0x17553fae5c425bce87ed73a866271c36873dfcf3": {
+"name": "Sir Jackalot-MOGxYield Fields",
+"symbol": "MOG-YF",
+"max": 3333,
+"minted": 3333
+},
+"0xe7ad5d16c90ba809b2dc61b8b5679a2035f1019c": {
+"name": "odd ones ",
+"symbol": "ODO",
+"max": 4222,
+"minted": 2845
+},
+"0x42658129a43b9c091c5618cd3925a0422f84b73d": {
+"name": "Shark Bros",
+"symbol": "sharkbros",
+"max": 10000,
+"minted": 7179
+},
+"0x12a291bf44503aa0feebbc619755a8fc4d31a2a9": {
+"name": "Stonk Cat",
+"symbol": "9",
+"max": 1024,
+"minted": 195
+},
+"0x47b18490d151147f0f663f0dd184e4f731cdaf47": {
+"name": "BrokerFarm RH",
+"symbol": "B",
+"max": 10000,
+"minted": 686
+},
+"0x474d1f7457b438fc6ff980c900bf7f6c44a67d15": {
+"name": "OJUJU PIXELS DROPS",
+"symbol": "99",
+"max": 600,
+"minted": 181
+},
+"0xdfc3287260ee9e6d2554693a7f15c1581634f329": {
+"name": "DogHoob",
+"symbol": "Robinhood Ch",
+"max": 4444,
+"minted": 140
+},
+"0xad4ec64f48ac74f5f54699c4600cf9daed208588": {
+"name": "Cifer Ghost",
+"symbol": "cit",
+"max": 4000,
+"minted": 66
+},
+"0x3d0b16b4ba36eac90711c92afb2db4ae95062ac9": {
+"name": "Dino Bits",
+"symbol": "Dinobits",
+"max": 5555,
+"minted": 917
+},
+"0x8dc78c936fca55697420dc9f6d094bc97e026f58": {
+"name": "Alpha Roboverse RH",
+"symbol": "Robinhood Ch",
+"max": 4444,
+"minted": 85
+},
+"0xe0cb74628c6e7975db903d342e8d62d4f603204a": {
+"name": "NeonVerse",
+"symbol": "NeonVerse",
+"max": 2000,
+"minted": 2000
+},
+"0xb59eb52d348bd6cf5f02966aab69c7e806071376": {
+"name": "Ghost",
+"symbol": "Ghost",
+"max": 2222,
+"minted": 363
 }
 }
