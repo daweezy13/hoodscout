@@ -1917,5 +1917,76 @@
 "symbol": "Ghost",
 "max": 2222,
 "minted": 363
+},
+"0x58daec3116aae6d93017baaea7749052e8a04fa7": {
+"name": "Uniswap v4 Positions NFT",
+"symbol": "UNI-V4-POSM",
+"max": null
+},
+"0x0baab757a3e4cfee8a1b87dd402a3f4485091b17": {
+"name": "D'Diddy",
+"symbol": "ddiddy",
+"max": 2222,
+"minted": 1609
+},
+"0xcec941569a3dcf7b961c6e510a3e485891fc7b89": {
+"name": "Hood Ratty",
+"symbol": "hoodratty",
+"max": 3333,
+"minted": 1437
+},
+"0xc7a90107fd46cf0cab6daf0303bc8675f785b36e": {
+"name": "Fudbits",
+"symbol": "FUDBIT",
+"max": null,
+"minted": 574
+},
+"0x2cb8ecf64bc4a97c75182ab411d2c8c83f77ddb8": {
+"name": "cat 5",
+"symbol": "cat",
+"max": 9996,
+"minted": 511
+},
+"0x73991a25c818bf1f1128deaab1492d45638de0d3": {
+"name": "Uniswap V3 Positions NFT-V1",
+"symbol": "UNI-V3-POS",
+"max": null,
+"minted": 855555
+},
+"0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
+"name": "Pixel Characters (PC)",
+"symbol": "PC",
+"max": 1111,
+"minted": 1111
+},
+"0xb24291abf46c7ebc2483f39082d1b96049b22337": {
+"name": "Butterfly ",
+"symbol": "20",
+"max": 499,
+"minted": 499
+},
+"0xf6086462fcce2771f112aad369fdd36074ecff17": {
+"name": "Berry Special Edition",
+"symbol": "Rh",
+"max": 1000,
+"minted": 424
+},
+"0x734c30d7d2da2e27a851f0df97348627824e5432": {
+"name": "BBW",
+"symbol": "BBW",
+"max": 2222,
+"minted": 1603
+},
+"0x4815ce655ac4f32b0def08a26d8181d4c338ba90": {
+"name": "GAS",
+"symbol": "GAS",
+"max": null,
+"minted": 737
+},
+"0xfc52636748152a249630011640bc40b539be52dc": {
+"name": "Credits Strategy Genesis",
+"symbol": "9",
+"max": 3983,
+"minted": 727
 }
 }
