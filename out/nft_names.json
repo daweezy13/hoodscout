@@ -1988,5 +1988,71 @@
 "symbol": "9",
 "max": 3983,
 "minted": 727
+},
+"0x2e4765372a9b8e7775502cbab373b3eff6772ab7": {
+"name": "Robinhood ATM Card",
+"symbol": "RHATM",
+"max": 10000,
+"minted": 3180
+},
+"0xb98d33473c48f9ba569d86eed9300739008d6341": {
+"name": "Suspecti Waifus",
+"symbol": "SSW",
+"max": 9999,
+"minted": 9999
+},
+"0xcbdbe990924389e12342ff3419473bd1817cbf17": {
+"name": "hazro Test2",
+"symbol": "HZT",
+"max": 200000000,
+"minted": 20600
+},
+"0x64b235809a848933a360b38b237cb12a1d5e7cbd": {
+"name": "DigitalBird",
+"symbol": "Digitalbird",
+"max": 5555,
+"minted": 5555
+},
+"0xdbf44d3298b725f693129b90c0daa6628c37d180": {
+"name": "Chain Punks",
+"symbol": "Chain Punks",
+"max": 10000,
+"minted": 5474
+},
+"0x6187723a8ddc44ecccd7b5f7926eaa9325418071": {
+"name": "The Mutual Fun",
+"symbol": "Robinhood ch",
+"max": 2000,
+"minted": 2000
+},
+"0x7bf45ac38972f00ea49cb8620d42a16ac2b6de94": {
+"name": "Fomies",
+"symbol": "Fomies",
+"max": 4000,
+"minted": 1554
+},
+"0x636e51d762aba040ba07567c0d9e0439ffcf478a": {
+"name": "BonBoni",
+"symbol": "Boni",
+"max": 4444,
+"minted": 3437
+},
+"0x4093ec841289f50d1722f04ad4b407002c735be6": {
+"name": "PureCa$h Terminals",
+"symbol": "pcash",
+"max": 3333,
+"minted": 759
+},
+"0x68b3e3f5f8ae9d63ae79d32c180cb2f214a19540": {
+"name": "Chain Punks RH",
+"symbol": "CPP",
+"max": 2222,
+"minted": 2104
+},
+"0x197d313860606f078e62e77ba5b362900292f21e": {
+"name": "Robin Wood Plank",
+"symbol": "RWP",
+"max": 4444,
+"minted": 402
 }
 }
