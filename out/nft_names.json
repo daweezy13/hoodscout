@@ -2054,5 +2054,77 @@
 "symbol": "RWP",
 "max": 4444,
 "minted": 402
+},
+"0x62f0175093730d950b4eb41a87d86bc6ca9f8690": {
+"name": "RH Ape Goblin",
+"symbol": "RHAG",
+"max": 9999,
+"minted": 9999
+},
+"0x9badb30c242e6b0e3136bc56d4c54c58b138bb74": {
+"name": "Tiny Pengs",
+"symbol": "TINYPENGS",
+"max": 2222,
+"minted": 1913
+},
+"0xac234e9a3d40a964671143cb2f3fa587756d3ebe": {
+"name": "BOB IN THE HOOD",
+"symbol": "Robinhood Ch",
+"max": 4444,
+"minted": 1881
+},
+"0xe448fbf5bd91eec8ae7ff054c5da250377372641": {
+"name": "ACID SHINIGAMI",
+"symbol": "SHNGM",
+"max": 2500,
+"minted": 298
+},
+"0xcf77fe9f881d6374312c93d427ef6fd3de1ffb49": {
+"name": "Robinhood Pickles Pepe",
+"symbol": "RPP",
+"max": 8600,
+"minted": 2850
+},
+"0x081bc4fe71980dec60b6e8a2173621b34a111ecb": {
+"name": "SkeleBuddies",
+"symbol": "Rh",
+"max": 4444,
+"minted": 424
+},
+"0xcab7450cd33e34e026eda9b1ff534bf676246080": {
+"name": "ACID SHINIGAMI",
+"symbol": "SHNGM",
+"max": 2500,
+"minted": 2500
+},
+"0x3fa79c81f378fc446dbbd308f4157bcd3094adc7": {
+"name": "CCFF00 Bugs",
+"symbol": "CCFF00 Bugs",
+"max": 333,
+"minted": 333
+},
+"0x717b4ce9b096504f06d278e925e52432e0ff89ae": {
+"name": "Square Wif Hat",
+"symbol": "SWF",
+"max": 10000,
+"minted": 717
+},
+"0x861430b8552ce96d8369a09398b1f3038c3df009": {
+"name": "ORIN",
+"symbol": "ORIN",
+"max": 3333,
+"minted": 61
+},
+"0xb280b51ce529368d4fc64d52d910c83907973754": {
+"name": "Daisy Melanins",
+"symbol": "melanins",
+"max": 1111,
+"minted": 320
+},
+"0xc02ceb3d5e275893ff7b5fd4a505cf4bb6b9cf9e": {
+"name": "Pons Punk Club",
+"symbol": "PPC",
+"max": 10000,
+"minted": 957
 }
 }
