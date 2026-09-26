@@ -2126,5 +2126,77 @@
 "symbol": "PPC",
 "max": 10000,
 "minted": 957
+},
+"0x076815c57a1d8384ef794f99eff5d47759af36c8": {
+"name": "PC Pals",
+"symbol": "PALS",
+"max": null,
+"minted": 7777
+},
+"0x56fe6fffa386747e16d7ec83b9a94e91e9f5e5a4": {
+"name": "HoodPowerCore NFT ",
+"symbol": "HoodPowerCor",
+"max": 5900,
+"minted": 5900
+},
+"0x8af42e6e220522d36977cfa48b2e5508570a474b": {
+"name": "FomoDisk",
+"symbol": "FomoDisk",
+"max": 10000,
+"minted": 464
+},
+"0x26e3214e112ea2a6548eb40bdfc316217d0e80bd": {
+"name": "Hood Yacht Club",
+"symbol": "HYC",
+"max": 5555,
+"minted": 3538
+},
+"0xffa2878ec80c5e3a7172096b5c6c49ce6d8cee5b": {
+"name": "Derivative Hood Apes",
+"symbol": "DHA",
+"max": 10000,
+"minted": 694
+},
+"0xf3db4c7e01135b65ff1171481afe3f6d099a8548": {
+"name": "RH Digital",
+"symbol": "RD",
+"max": 10000,
+"minted": 755
+},
+"0x9d19913d0e38ccfbebca57e7d2cb972051f6593b": {
+"name": "b00ms Hood",
+"symbol": "BH",
+"max": 10000,
+"minted": 635
+},
+"0xde2c31ca8ccb42150ee0098ab6b112b453b35d2f": {
+"name": "Minerals",
+"symbol": "MNRL",
+"max": 10000,
+"minted": 530
+},
+"0x88dd43a4742a6ac259d74c7c26af25018688df84": {
+"name": "FOMOKI",
+"symbol": "FOMOKI",
+"max": 8888,
+"minted": 258
+},
+"0x8ad07d5030d341617bf3d503e9c50bbb9d4c60ff": {
+"name": "NEC DOGs",
+"symbol": "DOG",
+"max": 85000,
+"minted": 1258
+},
+"0x56a92f56b1a953b7f39e90b351a16e563ebd3f4d": {
+"name": "The Hollow Ones",
+"symbol": "The Hollow O",
+"max": 3333,
+"minted": 112
+},
+"0x9f782b8e1c48f01ed5e086b27baac1d33df1ac23": {
+"name": "Bob In The Hood",
+"symbol": "BITH",
+"max": 1111,
+"minted": 720
 }
 }
