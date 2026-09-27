@@ -2198,5 +2198,77 @@
 "symbol": "BITH",
 "max": 1111,
 "minted": 720
+},
+"0x59207467ec308e2eb048f8d6610d28a1173b75cc": {
+"name": "3D JIGGLETTES",
+"symbol": "3D JIGGLETTE",
+"max": 1111,
+"minted": 731
+},
+"0x974905a8c3a5a941946e3617d1defdc20e640a02": {
+"name": "@CreditsUni",
+"symbol": "@CreditsUni",
+"max": 15000,
+"minted": 1048
+},
+"0x95244712683f178ffd4e250534efbef523659f26": {
+"name": "Web3 Horses",
+"symbol": "Web3 Horses",
+"max": 10000,
+"minted": 7067
+},
+"0xf18a43d0041c95b41a61dba3f28d75351c825b4e": {
+"name": "Airmail Pigeons",
+"symbol": "Airmail Pige",
+"max": 2888,
+"minted": 1155
+},
+"0x3bbdfe4c01fb1ff4f181d6e7ec83397afa55926a": {
+"name": "Drosophila melanogaster",
+"symbol": "97@2",
+"max": 5555,
+"minted": 454
+},
+"0xcd1e7adc28f1b0043abd53b993e33c5c5fdb0705": {
+"name": "DuckHood",
+"symbol": "Duckhood",
+"max": 4444,
+"minted": 4444
+},
+"0xad7d250f0e24fce2cc4d5b335cd0a4fcc20f79bd": {
+"name": "Hash Dogs",
+"symbol": "HDOG",
+"max": 5000,
+"minted": 2279
+},
+"0xe5458a58f555bd1d57a18e92e69f779933e0bdd6": {
+"name": "wagie wojaks",
+"symbol": "wag",
+"max": 2222,
+"minted": 69
+},
+"0xa1ba5f2063429a854f9835444913a6599138b0a4": {
+"name": "wqwq",
+"symbol": "sad",
+"max": 21,
+"minted": 21
+},
+"0x0a8f1b6afd906c8cfb05045b4fbd97b8e8ac583a": {
+"name": "GONGSIN \u529f\u81e3",
+"symbol": "GONGSIN",
+"max": 8888,
+"minted": 1205
+},
+"0x7e70192b191bba655baa38ca548bbb63052abf49": {
+"name": "Hood Street Alpha",
+"symbol": "HS Alpha",
+"max": 1000,
+"minted": 230
+},
+"0xe9231a688391dc98aedac4942ba9bf5a7dc46a4e": {
+"name": "asd",
+"symbol": "sad",
+"max": 20,
+"minted": 20
 }
 }
