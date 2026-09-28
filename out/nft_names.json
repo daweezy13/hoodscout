@@ -2270,5 +2270,76 @@
 "symbol": "sad",
 "max": 20,
 "minted": 20
+},
+"0xe84a4f1e5751b0eeeab5a7e64c7973a03091f344": {
+"name": "Moon Rollers",
+"symbol": "MOON",
+"max": 4444
+},
+"0x85df420411f2b8e2b7556600999082a785016d99": {
+"name": "thousand",
+"symbol": "thousand",
+"max": 1000,
+"minted": 152
+},
+"0x86a905c1f79a2dd49ba1d4ec466911e48f0cf3a0": {
+"name": "Candles",
+"symbol": "Rh",
+"max": 4444,
+"minted": 426
+},
+"0xc0e38759308802bd00ab45759c6f9cc7ef878645": {
+"name": "Robotic Geckos",
+"symbol": "RCG",
+"max": 2222,
+"minted": 307
+},
+"0xe95c9ead4ef52e532b5b93b3650930b83845149a": {
+"name": "Ruxxells",
+"symbol": ".",
+"max": 556,
+"minted": 135
+},
+"0x34c8d3abb8fed91516914811be7108c406552bac": {
+"name": "BUNNY WTF",
+"symbol": "BUNNY WTF",
+"max": 3333,
+"minted": 214
+},
+"0x7c8868f3e0c143bd3adc34c8107f679d5b4364bd": {
+"name": "Project Shiesty",
+"symbol": "Project Shie",
+"max": 5555,
+"minted": 163
+},
+"0x7303120a548b67e810b07733b7f98f46e1c2caa4": {
+"name": "Hood Vandalz",
+"symbol": "Hood Vandalz",
+"max": 3333,
+"minted": 64
+},
+"0xd5de079f7cc308b0e860341122ad8ec746ad7721": {
+"name": "RUMBLE KINGDOM",
+"symbol": "RUMBLE",
+"max": 1111,
+"minted": 171
+},
+"0xf8ddf59090cd2780ed70ff97fe911c70276d4a44": {
+"name": "Frontier Outlaws",
+"symbol": "OUTLAW",
+"max": 15000,
+"minted": 5607
+},
+"0x368a38b41271a65356c221bf973bf1f73b5615df": {
+"name": "EXILED GODS",
+"symbol": "DEGODS",
+"max": 1111,
+"minted": 150
+},
+"0x8daa534c13c8b6164d73163f521fe3c94889dfc9": {
+"name": "The Plank Press",
+"symbol": "PRESS",
+"max": null,
+"minted": 1124
 }
 }
