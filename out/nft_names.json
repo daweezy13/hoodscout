@@ -2413,5 +2413,77 @@
 "symbol": "T",
 "max": 10000,
 "minted": 903
+},
+"0xc69fdadcface4eed3415556a901468946c8e885f": {
+"name": "LastZHood",
+"symbol": "LastZHood",
+"max": 3333,
+"minted": 2099
+},
+"0xf5ea2ce986ba11e5977062954e58e777db3554bc": {
+"name": "Astradots",
+"symbol": "ASTRA",
+"max": 2222,
+"minted": 2222
+},
+"0x5d3691e7aa8859fcf0e83c5ebbe1b462994bb49c": {
+"name": "HANDMADE HEADS",
+"symbol": "HH",
+"max": 10000,
+"minted": 1946
+},
+"0x4478043f0b5bbeda25921b135c7dd2eda8afaddc": {
+"name": "Digital brid Nft",
+"symbol": "Dbn",
+"max": 4444,
+"minted": 719
+},
+"0xfc4ba48d626d66668306e47c7161e37ac62e274f": {
+"name": "OnChain Pippy Seer",
+"symbol": "OPS",
+"max": 10000,
+"minted": 1527
+},
+"0x7ff75f31a762f777892a76f5568125e4f779f634": {
+"name": "Nullform",
+"symbol": "Rh",
+"max": 3868,
+"minted": 397
+},
+"0x184de53734142bef7ff7d8181f74378ab31d0cf9": {
+"name": "Send To Zero Chapter 2",
+"symbol": "Rh",
+"max": 3333,
+"minted": 397
+},
+"0x467e9c8bfa9e66677885d6fc5031853f0ee32f74": {
+"name": "HANDMADE HEADS HOOD",
+"symbol": "Hhh",
+"max": 5555,
+"minted": 605
+},
+"0xacc1af18a8766e7fe12350c81e3d02306f4f4421": {
+"name": "Unresolved Pixel",
+"symbol": "Unrepixel",
+"max": 3000,
+"minted": 81
+},
+"0xe936d6c2014f36c5bfd592c3f9c649370b50291c": {
+"name": "Nullform",
+"symbol": "Nullform",
+"max": 3868,
+"minted": 267
+},
+"0x4a011203562ac92d704b32b2a106f3ffac94e7d6": {
+"name": "Reef Rascals",
+"symbol": "RASC",
+"max": 3333,
+"minted": 1994
+},
+"0x6b2aa09642e03a397e2789d8ee3f77da4dfc2d31": {
+"name": "musegod",
+"symbol": "musegod",
+"max": 999,
+"minted": 134
 }
 }
