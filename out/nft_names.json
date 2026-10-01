@@ -2485,5 +2485,75 @@
 "symbol": "musegod",
 "max": 999,
 "minted": 134
+},
+"0x938be461cb362787a7539a0c1765afab434f7440": {
+"name": "Dicky",
+"symbol": "Di",
+"max": 2222,
+"minted": 405
+},
+"0x72073c99aa032aa1f6cf61500e07b831577838fd": {
+"name": "Tessa",
+"symbol": "TESSA",
+"max": 1000
+},
+"0xdd679ecf65f6b95c273899d80b9114be28fc0be1": {
+"name": "HotDog Rise",
+"symbol": "HotDog Rise",
+"max": 5555,
+"minted": 125
+},
+"0x120c1ac033c179d40f1f3ce65dea20f3fc81da14": {
+"name": "ABSTRATICA AI",
+"symbol": "abstratica",
+"max": 1111,
+"minted": 220
+},
+"0x89effb63578a09065c2bbfdd729e161be7d479da": {
+"name": "FlightPass",
+"symbol": "FPASS",
+"max": null,
+"minted": 224
+},
+"0x01385278b8439f6d5559bd15ef833d76db85a1b8": {
+"name": "October Dog",
+"symbol": "DOG",
+"max": 8000,
+"minted": 176
+},
+"0xdfa40133fd4b672d79ee28c50ad5a7593c3465b2": {
+"name": "HoodVale Citizens",
+"symbol": "Hvcs",
+"max": 1000,
+"minted": 260
+},
+"0xa0b88722d9d6d4ac1baca7c8daa6526c2fd07e97": {
+"name": "ApexMoney Printer",
+"symbol": "apexmoney",
+"max": 8888,
+"minted": 1149
+},
+"0x8f5542fa30fb442d6da4c52e657a1097a79bc782": {
+"name": "Orvex V4 Positions NFT",
+"symbol": "ORVEX-V4",
+"max": null
+},
+"0xda99d5007fa9c577a70a52c8c895547616fefd7d": {
+"name": "Inner God",
+"symbol": "INN",
+"max": 10000,
+"minted": 212
+},
+"0x073e85f5735b389f44a28a81681b575d44cbf6a3": {
+"name": "Action Frogs",
+"symbol": "FRO",
+"max": 7777,
+"minted": 982
+},
+"0x492ad5475b5b734ad8e336ab470452249e275e42": {
+"name": "Octopus  NAN",
+"symbol": "NAN",
+"max": 10000,
+"minted": 302
 }
 }
