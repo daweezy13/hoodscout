@@ -2555,5 +2555,77 @@
 "symbol": "NAN",
 "max": 10000,
 "minted": 302
+},
+"0xb7b550e8eb13fa5c3b0ea27f5e42767d245d799b": {
+"name": "CommandersVrax",
+"symbol": "CommandersVr",
+"max": 10000,
+"minted": 6717
+},
+"0x92bfb7e17a2d3b6df5b1bfdfdfb5e66a13d416a3": {
+"name": "The V3RSE Founder's Edition",
+"symbol": "89",
+"max": 3330,
+"minted": 1580
+},
+"0xcc9e69be69edf5dd59c11f8822d9ac769408e711": {
+"name": "CCFF00 RUBIK",
+"symbol": "CCFF00 RUBIK",
+"max": 1000,
+"minted": 784
+},
+"0x46e01893584075c2f91d556f5c6517defb169c1a": {
+"name": "Frost Society ",
+"symbol": "FS",
+"max": 8888,
+"minted": 6886
+},
+"0xc020a39bce1effaf1da86bc41a0f9f739c3bb37d": {
+"name": "bytekinn",
+"symbol": "bytz",
+"max": 3000,
+"minted": 508
+},
+"0x89bbfabade9c031966f1812d47c29b1fd307dc53": {
+"name": "Robin Blupets blupix",
+"symbol": "Rbb",
+"max": 5555,
+"minted": 738
+},
+"0x7d565595508edbccfc2c556d8f6d88fbec7e9ee0": {
+"name": "Catapult Trade",
+"symbol": "9",
+"max": 4444,
+"minted": 118
+},
+"0xd7a12ae4c737d68e1d836fc419b65954de129b32": {
+"name": "GRADUS",
+"symbol": "Gr",
+"max": 5000,
+"minted": 394
+},
+"0x01c380b44e44363f3c6d305e27fa2a0dd48658a5": {
+"name": "WIF Outlaws hood",
+"symbol": "Woh",
+"max": 5555,
+"minted": 357
+},
+"0xb4c7b12597e5451067c4ec30aa507921664070a1": {
+"name": "Hood Engineers Nft",
+"symbol": "Ehn",
+"max": 5555,
+"minted": 345
+},
+"0x0fd9db136cb9ca7d2cb4dba72804059c221f3883": {
+"name": "Statement",
+"symbol": "Statement",
+"max": 200000000,
+"minted": 142
+},
+"0x9218ed46c9c0580a2f72ad988ad536f4a3c17fe7": {
+"name": "BROKER MINE",
+"symbol": "BRKR",
+"max": 3333,
+"minted": 123
 }
 }
