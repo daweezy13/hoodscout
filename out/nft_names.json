@@ -2627,5 +2627,77 @@
 "symbol": "BRKR",
 "max": 3333,
 "minted": 123
+},
+"0x37803ca177271ead4d0cc8c35847786eb2b20c79": {
+"name": "Universe Cosmic Bears",
+"symbol": "UCB",
+"max": 3333,
+"minted": 3333
+},
+"0x5d92a1311850174f6292904e8108424dee177102": {
+"name": "C0F0CF",
+"symbol": "C0F0CF",
+"max": 5000,
+"minted": 3567
+},
+"0xf2bbcd348af73a55f558e433b7f2293c915c61bc": {
+"name": "Unknown Ugly Pixel",
+"symbol": "UUP",
+"max": 1000,
+"minted": 1000
+},
+"0xb9a10b7977b6fa94039a051e9e4a94ba90a0f966": {
+"name": "OnChainMons",
+"symbol": "OnChainMons",
+"max": 444,
+"minted": 444
+},
+"0xf78226171ba0f98d94245b39f75c2885acefe54b": {
+"name": "X&O",
+"symbol": "X&O",
+"max": 3333,
+"minted": 677
+},
+"0x75c1b22a135935780359ccd64115f1d07e4951ea": {
+"name": "The Heist",
+"symbol": "heist",
+"max": 3333,
+"minted": 1629
+},
+"0xa7faff26a9b5fce3a846cb073df7ae8670e64048": {
+"name": "Frog Pond",
+"symbol": "FROG",
+"max": 5000,
+"minted": 504
+},
+"0x22ae3e58e25d70d3999cb27c06a94a64b5b71889": {
+"name": "Hood Beauties",
+"symbol": "HoodBeauties",
+"max": 555,
+"minted": 276
+},
+"0xe03bd908defea89ad9166c2d759de18ee891bc31": {
+"name": "Hood Cabals",
+"symbol": "HC",
+"max": 3333,
+"minted": 1200
+},
+"0x84dcb14508c8e4ba70b9a35f9cd124b1ebe8ee65": {
+"name": "World of Defense",
+"symbol": "Rh",
+"max": 5000,
+"minted": 586
+},
+"0xea96888731e987d230817cdb8dda8c379a1fb724": {
+"name": "RHT2",
+"symbol": "RHT2",
+"max": 100000,
+"minted": 25324
+},
+"0x92b93c449677d99a448fbf65a1eaf72c12c4d2f5": {
+"name": "16 - BIT PIXEL",
+"symbol": "BP",
+"max": 10000,
+"minted": 944
 }
 }
