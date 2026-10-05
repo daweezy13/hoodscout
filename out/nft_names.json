@@ -2699,5 +2699,77 @@
 "symbol": "BP",
 "max": 10000,
 "minted": 944
+},
+"0xece7f9e957638e2497e1c3b3cea0020692f5efbb": {
+"name": "IMD Punks",
+"symbol": "IMD PUNKS",
+"max": 2000,
+"minted": 1486
+},
+"0x6857dce9c94cbb5b8fccec2d3d002ec0c602a61b": {
+"name": "Fake NFTs",
+"symbol": "FakeNFTs",
+"max": 10000,
+"minted": 10000
+},
+"0xf7f4e98fc917fc5b1c0e7a43016229c06ab0c228": {
+"name": "STONEWATCH",
+"symbol": "sth",
+"max": 999,
+"minted": 999
+},
+"0x696d3a652e7bdbd3c6bc7729bcd33eab76e0dfa6": {
+"name": "Ribbita TIBBIR",
+"symbol": "Ribbita TIBB",
+"max": 2999,
+"minted": 1012
+},
+"0x12a8a1d981b380ceb015d8b25c3f4f1aea1eb79d": {
+"name": "Robinhood Houses",
+"symbol": "RENT",
+"max": 3333,
+"minted": 2754
+},
+"0x564798e6059a96b00d5ee8f4504ce77ca80795cd": {
+"name": "Golden Arrows NFT",
+"symbol": "GARROW",
+"max": 666,
+"minted": 666
+},
+"0x177a7f9a37f9d7963d48e65c398a0286c494a2b5": {
+"name": "Degens of Wall Street",
+"symbol": "DWS",
+"max": 3333,
+"minted": 3333
+},
+"0x48944e84f734937d95fcfa842a8e50171954930b": {
+"name": "Stock Pocks Genesis",
+"symbol": "GPOCK",
+"max": 10000,
+"minted": 5307
+},
+"0x0130fbe99cef161b2467bf7a71e8c667b6c61b22": {
+"name": "Roaring Piggies",
+"symbol": "Roaring Pigg",
+"max": 1111,
+"minted": 497
+},
+"0x59b2442b66287173bd55ed52d0a4676b77cda139": {
+"name": "BrokerMechanic",
+"symbol": "BROKER",
+"max": 3333,
+"minted": 3333
+},
+"0x8e66d7169773bb4a8ef92ca88c09945afe1c0009": {
+"name": "Hoodraffe",
+"symbol": "hoodraffe",
+"max": 1111,
+"minted": 540
+},
+"0x57afead972bf6b04319dff19deea933f1e746032": {
+"name": "AllCtCollection",
+"symbol": "AllCtCollect",
+"max": 10000,
+"minted": 572
 }
 }
