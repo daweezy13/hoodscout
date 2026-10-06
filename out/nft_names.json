@@ -1951,7 +1951,7 @@
 "name": "Uniswap V3 Positions NFT-V1",
 "symbol": "UNI-V3-POS",
 "max": null,
-"minted": 855555
+"minted": 893318
 },
 "0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
 "name": "Pixel Characters (PC)",
@@ -2771,5 +2771,64 @@
 "symbol": "AllCtCollect",
 "max": 10000,
 "minted": 572
+},
+"0xe705bf79ecce0f5bebe5ebfed4b0f2ca4a0d2ecc": {
+"name": "NearCat",
+"symbol": "NCAT",
+"max": 4444
+},
+"0x2dc2c2fdf17ede225353ec3445759eef5af8c75c": {
+"name": "enchnt",
+"symbol": "ENCHNT",
+"max": null,
+"minted": 2702
+},
+"0x21fd9e682521faf6f490ea344d23207b982c6fde": {
+"name": "league of hood ",
+"symbol": "loh",
+"max": 5553,
+"minted": 1627
+},
+"0x9783fada0231d5c48d9ec98d561dd516c38d51c0": {
+"name": "The Hood Rover",
+"symbol": "Rover",
+"max": 1111,
+"minted": 1111
+},
+"0x97f2149d205df9a10c7e57fd858ce6cd3d997088": {
+"name": "StreetHood Riders",
+"symbol": "StreetHoodRi",
+"max": 1111,
+"minted": 1111
+},
+"0x13497e364d0856bcb9d82fc4a3b3cebfbfee4590": {
+"name": "Fantasy Inpact ",
+"symbol": "FICT",
+"max": 4884,
+"minted": 4884
+},
+"0x7c55d4b0ce93455239ae4fea5dbd5d39a4bba5ce": {
+"name": "Super Ishikawa",
+"symbol": "Super Ishika",
+"max": 3800,
+"minted": 1295
+},
+"0x2a282ad40c902f673837626210b34473c84669a4": {
+"name": "St. Waggles",
+"symbol": "stwaggles",
+"max": 5555,
+"minted": 4462
+},
+"0xb63548497be7c08d4e3cedd76da3a54d86a3d144": {
+"name": "Rock Ethernals",
+"symbol": "RockEthernal",
+"max": 6666,
+"minted": 6666
+},
+"0x4ed368a517207f26e81fc8a4ff823a8fb368806d": {
+"name": "Boni",
+"symbol": "BONI",
+"max": 3333,
+"minted": 3333
 }
 }
