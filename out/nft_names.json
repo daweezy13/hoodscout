@@ -2830,5 +2830,77 @@
 "symbol": "BONI",
 "max": 3333,
 "minted": 3333
+},
+"0xa62e0d5ea805903494e7ca506f4acb4095e61fc6": {
+"name": "Charles Robinson",
+"symbol": "CharlesRobin",
+"max": 2222,
+"minted": 1083
+},
+"0x8203cb3b43de58a0e689c69df5292d73447a20a8": {
+"name": "Head punk RH",
+"symbol": "HpRH",
+"max": 5555,
+"minted": 5555
+},
+"0x7218d0f7724bf47ba4c78b2dad83d30b24504fb3": {
+"name": "RoboHood RH",
+"symbol": "RHH",
+"max": 1666,
+"minted": 1501
+},
+"0x9d3ea059d196586ea6d07b963c84d6f47f29c7de": {
+"name": "ElfTown 4663",
+"symbol": "ELF",
+"max": 4663,
+"minted": 688
+},
+"0x93bec0561d6bc64a67157c16f0cd6972a2110c58": {
+"name": "Limpo Dolls",
+"symbol": "limpo",
+"max": 1111,
+"minted": 516
+},
+"0x5087bb569ce1465e3314c188255edcf15fa12790": {
+"name": "Slippy ",
+"symbol": "Slippy Club",
+"max": 5252,
+"minted": 615
+},
+"0x4bc50a4ca37bddfb43a3b63665c25827c8fef640": {
+"name": "Goonz Undead",
+"symbol": "undeadz",
+"max": 1111,
+"minted": 570
+},
+"0x8df02981f566fd67a17ab4c9650dfaed693949c4": {
+"name": "Tauronomics",
+"symbol": "Ta",
+"max": 4000,
+"minted": 584
+},
+"0x978455cba5bba04bdc1267762c7a4707b57dec7e": {
+"name": "ACCRETION by MDV",
+"symbol": "Acc",
+"max": 3333,
+"minted": 94
+},
+"0x457a7ab88dba7851043d6912d8b5d9c63b80c8f5": {
+"name": "HooTang Clan \ud83e\udd89",
+"symbol": "HooTang Clan",
+"max": 5555,
+"minted": 41
+},
+"0x5c4863651368ba25a9a75685fd32366cd6b6f91f": {
+"name": "up Position.hood",
+"symbol": "Uph",
+"max": 4444,
+"minted": 96
+},
+"0xc81b3e7b3978786a62b3e3e773d4d9f4a2e6fd1b": {
+"name": "RYFT CORP",
+"symbol": "RYFT CORP",
+"max": 5555,
+"minted": 37
 }
 }
