@@ -2853,7 +2853,7 @@
 "name": "ElfTown 4663",
 "symbol": "ELF",
 "max": 4663,
-"minted": 688
+"minted": 3693
 },
 "0x93bec0561d6bc64a67157c16f0cd6972a2110c58": {
 "name": "Limpo Dolls",
@@ -2902,5 +2902,71 @@
 "symbol": "RYFT CORP",
 "max": 5555,
 "minted": 37
+},
+"0x4e8abc5acb36b7591cb878044b85d3eb8e03df81": {
+"name": "MAKEITFREEE",
+"symbol": "FREEE",
+"max": 2200,
+"minted": 2200
+},
+"0x142bd9e9cb23d2449c07c6bab41e92ee20e63e77": {
+"name": "BLACKTIDE: Stormbound Fleet",
+"symbol": "BTSF",
+"max": 2000,
+"minted": 1148
+},
+"0x84368d00114ad6ce4d9e95fb6bca9a09562994b1": {
+"name": "Cambria Charters By Chambria",
+"symbol": "9",
+"max": 777,
+"minted": 777
+},
+"0x176bcbb17b89221ec8ac5a01cfab052aeaf8de3f": {
+"name": "IMD WORKERS",
+"symbol": "9",
+"max": 3333,
+"minted": 3207
+},
+"0x89a2a2c5a0ea7156ae72549897c18d1eaa4c8b64": {
+"name": "Streets",
+"symbol": "Streets",
+"max": 3333,
+"minted": 369
+},
+"0x8d8b452420f98337415f36f418df859f5d9e2cfa": {
+"name": "Onchain Colors",
+"symbol": "OnchainColor",
+"max": 2222,
+"minted": 2222
+},
+"0x1fe1ac7ae403e7565e91a00dfa6062674405cf92": {
+"name": "Project Sphere",
+"symbol": "pro",
+"max": 2000,
+"minted": 121
+},
+"0x0f0ab239111b1b83157f26f3d39b9ab25f2597c1": {
+"name": "UNVAULT",
+"symbol": "Un",
+"max": 6250,
+"minted": 586
+},
+"0x5f21f43f7da8ff1074a30a5360cd05748e334f72": {
+"name": "Degens Casino",
+"symbol": "deo",
+"max": 2222,
+"minted": 63
+},
+"0x981a51ebd2260ef81f9a016e051fa31b6f424890": {
+"name": "frefre",
+"symbol": "ererfref",
+"max": 666,
+"minted": 666
+},
+"0xeb0a12bc73bc2acb2423df15ce360e7e23c93ccb": {
+"name": "HOOD GENESIS PASS",
+"symbol": "HGP",
+"max": 10000,
+"minted": 10000
 }
 }
