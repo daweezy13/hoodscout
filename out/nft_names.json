@@ -2968,5 +2968,77 @@
 "symbol": "HGP",
 "max": 10000,
 "minted": 10000
+},
+"0x904890f7525a58f6bf16543cc6b5e1d772434aa1": {
+"name": "Naughty Rabbit",
+"symbol": "NR",
+"max": 3333,
+"minted": 3333
+},
+"0x33568d70e213388a53ea69201bce6bffd216267d": {
+"name": "Project X Legends",
+"symbol": "PXL",
+"max": 7575,
+"minted": 7575
+},
+"0xc717f45a12f4df5adda1f04c403171eb0dba2a8d": {
+"name": "Giwa Signals",
+"symbol": "Giwa Signals",
+"max": 2222,
+"minted": 851
+},
+"0x2f2653d26ba001d282a1ca0ec96d2b281b6512f6": {
+"name": "NerdGuys",
+"symbol": "Nerds",
+"max": 888,
+"minted": 657
+},
+"0x0490871d52e240681ec1255b537e7ad17b169eb9": {
+"name": "101 Days",
+"symbol": "101Days",
+"max": 1000,
+"minted": 587
+},
+"0x65d90a385cce3c478d95a09f4cbda407c7458643": {
+"name": "Zygnal Dungeons",
+"symbol": "Zygnal",
+"max": 7777,
+"minted": 904
+},
+"0x8b7716a531a1a1136d44639360fa9788a1a7cb86": {
+"name": "Cruggy's Cudables",
+"symbol": "Cruggy's",
+"max": 2222,
+"minted": 936
+},
+"0x31647d241c328f46ca3a3d3c9fc1588210a08636": {
+"name": "Oddbits Punk",
+"symbol": "OBP",
+"max": 2600,
+"minted": 457
+},
+"0xb2b7387d714c9909b51dd754ebe673ad198f726f": {
+"name": "Lost Otters",
+"symbol": "Lo",
+"max": 3333,
+"minted": 585
+},
+"0x9557d055b35ff0323783653435386452e4317ed9": {
+"name": "WIK",
+"symbol": "Wick",
+"max": 100000000,
+"minted": 1160
+},
+"0x79da035ade3214d94e3d59fcd7ba4ff6717c9bd2": {
+"name": "Fragments of Green",
+"symbol": "FOG",
+"max": 100,
+"minted": 100
+},
+"0x089ed4c7b9a15724be12d6cc94fb5c89b6bc3621": {
+"name": "Vorakel",
+"symbol": "Vorakel",
+"max": 5555,
+"minted": 122
 }
 }
