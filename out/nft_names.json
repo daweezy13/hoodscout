@@ -3040,5 +3040,76 @@
 "symbol": "Vorakel",
 "max": 5555,
 "minted": 122
+},
+"0x1dd6573a4ad1cb3926468f8aea16434540266c9a": {
+"name": "Hood Borro",
+"symbol": "Hoodborro",
+"max": 2626,
+"minted": 2252
+},
+"0xe288fd1e561e64f977edf91c71bfadce1257df85": {
+"name": "STREET CATS",
+"symbol": "SCATS",
+"max": 696,
+"minted": 696
+},
+"0x35e3bee6d765828f7cd7740f40cbb99e01c26f8d": {
+"name": "X-Bounties",
+"symbol": "X-Bounties",
+"max": 999,
+"minted": 824
+},
+"0x9c7f82c8345d1a5e017a25c76fb37a8fdf6b20bd": {
+"name": "Pawzuki",
+"symbol": "PAWZ",
+"max": 1111,
+"minted": 1110
+},
+"0x2c8b9ac2a9bd317039b4a12ef4050e10bf23d3bb": {
+"name": "Hood Plains",
+"symbol": "Plains",
+"max": 3333,
+"minted": 1513
+},
+"0x9eaaf64ec30657415c32d42acf03e6909c3cdcf0": {
+"name": "Disciples ",
+"symbol": "Disciples",
+"max": 1234,
+"minted": 975
+},
+"0xdae4cb1805fc4ca089347974f125ba6d6a2fac9a": {
+"name": "Chinese Hood",
+"symbol": "CHH",
+"max": 1111,
+"minted": 1037
+},
+"0x98c716626d293bb219db44c980e0d441b3cdb8cf": {
+"name": "PIXEL Z WARRIORS",
+"symbol": "PZWR",
+"max": 1000,
+"minted": 1000
+},
+"0xcb75f4ace92b63c69c140936cd68c43500532d45": {
+"name": "Courier",
+"symbol": "COURIER",
+"max": 3333
+},
+"0xc66f92c2219af3abb7d14d9c3a114db68f6c18a1": {
+"name": "Ossen Genesis",
+"symbol": "OSSEN",
+"max": 2222,
+"minted": 336
+},
+"0x3062c59fd429f36abcee96090c02cb8c2012e850": {
+"name": "Rainbow Hoodie",
+"symbol": "RH",
+"max": 4040,
+"minted": 4040
+},
+"0x0137cf4336446a2a0e44deca373192d0a140b0bf": {
+"name": "Digital humans RH",
+"symbol": "dins",
+"max": 10000,
+"minted": 176
 }
 }
