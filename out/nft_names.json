@@ -2835,7 +2835,7 @@
 "name": "Charles Robinson",
 "symbol": "CharlesRobin",
 "max": 2222,
-"minted": 1083
+"minted": 1508
 },
 "0x8203cb3b43de58a0e689c69df5292d73447a20a8": {
 "name": "Head punk RH",
@@ -3111,5 +3111,70 @@
 "symbol": "dins",
 "max": 10000,
 "minted": 176
+},
+"0xc9691a47f2e5ce2d22b8b64dcd3f74b1b7b8e908": {
+"name": "CHROMAFORM",
+"symbol": "CHROMA",
+"max": 10000
+},
+"0xbd05f0b123536d75b07124689ded5ccd07123ed4": {
+"name": "RH Baboons",
+"symbol": "RHB",
+"max": 3333,
+"minted": 3333
+},
+"0x9897cfab24ae20186df5cdcac609b17fd908bd74": {
+"name": "Tickertapes Pass",
+"symbol": "TPASS",
+"max": 4444,
+"minted": 1371
+},
+"0x9a49f76e622576cea5a2fc3d46f98aca4a362d4f": {
+"name": "ZomBeGotchi",
+"symbol": "zohi",
+"max": 1968,
+"minted": 1792
+},
+"0xb1f4721e84d6fcfee917b53c8882e91456cfeb77": {
+"name": "FatCatz Club",
+"symbol": "FatCatz",
+"max": 1000,
+"minted": 1000
+},
+"0x71790435bb5a850df468aba2275f9ddaeb502a86": {
+"name": "KOBOS FUSION",
+"symbol": "FUSION",
+"max": 555,
+"minted": 555
+},
+"0xf051fbec5518827acc596c9a690ff5f350ac32a5": {
+"name": "MonkeyLegionHQ",
+"symbol": "MLHQ1",
+"max": 300,
+"minted": 300
+},
+"0x3600b866ee34edb1106397cd93e857575bddcfa7": {
+"name": "Space Cruggy",
+"symbol": "SPCY",
+"max": 212,
+"minted": 212
+},
+"0x91a92799329c51489ff4e54e8e7935430819e443": {
+"name": "RYFT CORP RH",
+"symbol": "ryrh",
+"max": 4444,
+"minted": 369
+},
+"0x1ae028d72eb852d93cd2447841fdd6b25cd4059a": {
+"name": "Bankr on Rabbit",
+"symbol": "BOR",
+"max": 1000,
+"minted": 206
+},
+"0x0b82987ce6c4b5b438c12f9db1b5dc3d70d75fd7": {
+"name": "OS",
+"symbol": "OS",
+"max": 1212,
+"minted": 1212
 }
 }
