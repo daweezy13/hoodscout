@@ -3176,5 +3176,77 @@
 "symbol": "OS",
 "max": 1212,
 "minted": 1212
+},
+"0x8266366b647da7eac4c817e619052b2aabb4cab3": {
+"name": "Animated Pixel Vampire",
+"symbol": "APV",
+"max": 6969,
+"minted": 6969
+},
+"0x6237394bed19760bb71321ad216be4f80e872d23": {
+"name": "Necrobits",
+"symbol": "NB",
+"max": 10000,
+"minted": 10000
+},
+"0x1103494479b24d04e6504547c26b6ac949c68e9b": {
+"name": "TEDDIES",
+"symbol": "TDS",
+"max": 1111,
+"minted": 326
+},
+"0x36586d97bcea9f2a8ad80f6fb24a55a606d10cba": {
+"name": "Baby Beaks",
+"symbol": "Baby Beaks",
+"max": 1111,
+"minted": 1111
+},
+"0xfe871486aff475e56e3728c8deed59733f6c9543": {
+"name": "FoolishlyBald",
+"symbol": "Cope",
+"max": 1000,
+"minted": 797
+},
+"0xeec94f0346a3e509c34a55e9607631213938c3d4": {
+"name": "My Computer",
+"symbol": "MyComputer",
+"max": 10000,
+"minted": 10000
+},
+"0xb80287e6fd35c6ec502b37da3e1db35f57573077": {
+"name": "ASCII Dogs",
+"symbol": "ASCII Dogs",
+"max": 4444,
+"minted": 239
+},
+"0x020b7ef0dca53596fe41d6d89e9899f627c22557": {
+"name": "TICKERTAPES \u2014 PROMO EDITION ",
+"symbol": "TTPPP",
+"max": 3321,
+"minted": 413
+},
+"0x8fe7af58bf6ba545349b6eeff698f6193a5bc038": {
+"name": "Pixelated Apes",
+"symbol": "PixelatedApe",
+"max": 999,
+"minted": 736
+},
+"0xc8324cd06aa9a5824dbec46921604c50d6c08e1a": {
+"name": "Kaiju Fold",
+"symbol": "KFOLD",
+"max": 3333,
+"minted": 3333
+},
+"0x5b76b87f228978f039985a55e8ab53c941ec3f56": {
+"name": "Yield Fields",
+"symbol": "Yi",
+"max": 3333,
+"minted": 263
+},
+"0x9bc0044ed63e2ca1662b24c106723de73db3ded6": {
+"name": "Pixel Theory",
+"symbol": "Pixel Theory",
+"max": 3333,
+"minted": 745
 }
 }
