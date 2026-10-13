@@ -3248,5 +3248,76 @@
 "symbol": "Pixel Theory",
 "max": 3333,
 "minted": 745
+},
+"0x5d8c48db855f8905e95857635f03485d6383689a": {
+"name": "Noms",
+"symbol": "NOMPET",
+"max": null
+},
+"0xf18570b6d8bd76b012892136086b87de8fc81f96": {
+"name": "Anime Girls",
+"symbol": "anigirls",
+"max": 3333,
+"minted": 1997
+},
+"0x1e8e6029d3fe57165ac7e3b868f422b2b648217c": {
+"name": "Puppies",
+"symbol": "PPS",
+"max": 2222,
+"minted": 1528
+},
+"0x5d9b89414b2d78b088ef42d753f594472fbf0913": {
+"name": "Chickens RH",
+"symbol": "Chickens",
+"max": 7860,
+"minted": 2161
+},
+"0x62882678d0c653f2178a88a80078741867901a37": {
+"name": "HeadHood",
+"symbol": "HHD",
+"max": 2222,
+"minted": 1848
+},
+"0x2ee2accca5df7077731f2892de6974f45d0342c1": {
+"name": "MaskHood",
+"symbol": "MHD",
+"max": 1111,
+"minted": 685
+},
+"0xf55270454b8574b23ed36aa04bef7077fe3cc3b2": {
+"name": "Birdies",
+"symbol": "BIRDIES",
+"max": 10000,
+"minted": 4190
+},
+"0x27a4b017b3cecb1fd7d392b9a3bbba20d113423b": {
+"name": "GON WAGIES",
+"symbol": "GON",
+"max": 2222,
+"minted": 1254
+},
+"0x1aac2067ebffba44174490409e63efca7bd2da8e": {
+"name": "RobinPunks",
+"symbol": "RobinPunks",
+"max": 2026,
+"minted": 2026
+},
+"0x49ce26c3ea2968b4cda6d047fb55d73e81148cf6": {
+"name": "FloatiesAfloat",
+"symbol": "Float",
+"max": 700,
+"minted": 422
+},
+"0xba4c2ae244c15b89f5c2f10f32fb0765e6d96a51": {
+"name": "BoxCat",
+"symbol": "BOXCAT",
+"max": 2222,
+"minted": 241
+},
+"0x220fbc7acc257f69d00601d7118b814308973b81": {
+"name": "Last Gas",
+"symbol": "LSTGS",
+"max": 1000,
+"minted": 412
 }
 }
