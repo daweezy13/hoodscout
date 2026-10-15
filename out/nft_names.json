@@ -3391,5 +3391,76 @@
 "symbol": "Cool Punks",
 "max": 2500,
 "minted": 451
+},
+"0x18c9719ab6ae4e1a6f95f281ef288e3af5d58602": {
+"name": "SurfBoard",
+"symbol": "SURFBOARD",
+"max": null
+},
+"0x10415831fd2c4839b50662ec10ebe6064112cdc4": {
+"name": "Deadoos",
+"symbol": "DDS",
+"max": 2222,
+"minted": 1328
+},
+"0x4b3acfc1e0cb20b3bdd8a6ab6a631b7b83b5f74d": {
+"name": "Cobalt Crew",
+"symbol": "CTW",
+"max": 1111,
+"minted": 1111
+},
+"0xb2df7b2f3c29210aa396d91db498e539692706a7": {
+"name": "After Hours",
+"symbol": "AH",
+"max": 1000,
+"minted": 595
+},
+"0x61936ce4c4c312f97e7ddd9aaf5fc28f6b2b2c8d": {
+"name": "RH GIRL",
+"symbol": "RIL",
+"max": 3333,
+"minted": 1114
+},
+"0xdb1dc80a7f7e89b9364f59b46a656b4c9d6a7ee2": {
+"name": "we rise as on3",
+"symbol": "ON3",
+"max": 369,
+"minted": 369
+},
+"0xfec1c016d50fdda2d19e4c4536c6af54ac002ab1": {
+"name": "MoodPig",
+"symbol": "MPG",
+"max": 2222,
+"minted": 877
+},
+"0x9f53a07abd857124377fea7bc61f54c4d85bbdd2": {
+"name": "Monopolink",
+"symbol": "Monopolink",
+"max": 2222,
+"minted": 351
+},
+"0x122a3b9e18411e521de6d49bd888bbf8f8fadeb1": {
+"name": "Farming season",
+"symbol": "Fa",
+"max": 1000,
+"minted": 269
+},
+"0x8e82ffea5c5af23f354a00111069ee82bcc427d2": {
+"name": "CyberThrone",
+"symbol": "Rh",
+"max": 8888,
+"minted": 271
+},
+"0x6628ba176c3ca1976df2b9bbd1aeae98fb82c232": {
+"name": "ASTROKID RH",
+"symbol": "Rh",
+"max": 3333,
+"minted": 270
+},
+"0x198c46597df25916f28edfce8883d43e8a48df08": {
+"name": "PRINTERS by theRCPTS",
+"symbol": "Rh",
+"max": 3333,
+"minted": 268
 }
 }
