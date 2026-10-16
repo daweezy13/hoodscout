@@ -3462,5 +3462,77 @@
 "symbol": "Rh",
 "max": 3333,
 "minted": 268
+},
+"0xac14600f5cecf04e6ab7597f2a36902c65eb21cb": {
+"name": "BIBOO STREETHOOD",
+"symbol": "BSH",
+"max": 3333,
+"minted": 1899
+},
+"0x4d9131989a6e573a1960a22c11a55b010856d419": {
+"name": "BIBOO SPORE",
+"symbol": "BSP",
+"max": 200000000,
+"minted": 1696
+},
+"0x73bdc8b405519eb45585715819972f92ed5ef89f": {
+"name": "BIBOO CCFF00",
+"symbol": "BCC",
+"max": 3333,
+"minted": 1583
+},
+"0x9fc6f975e97581d2ea0d50c56c0144cbfe140a32": {
+"name": "Waddle",
+"symbol": "WADDLE",
+"max": 1222,
+"minted": 1222
+},
+"0x81798ed354e67c1d934f2e7301343fbd0d2cc567": {
+"name": "B R O K E",
+"symbol": "BOE",
+"max": 2222,
+"minted": 2221
+},
+"0x1b33471dfeeae43a9b5b34aef32e34f7c7d453e4": {
+"name": "Lost Abstract Silhouettes",
+"symbol": "SILH",
+"max": 10000,
+"minted": 10000
+},
+"0x92b471bd0ad59f21f5b0f88963d5dc7e4830ffbf": {
+"name": "RACCOONOD",
+"symbol": "ROD",
+"max": 2222,
+"minted": 1604
+},
+"0xe5437e360dfc6046c47f364bf30db2aaa421c612": {
+"name": "Robinhood Yeti Pals",
+"symbol": "RHYP",
+"max": 4444,
+"minted": 1013
+},
+"0x80d2c947bb530fef638b33628797d567ef68a48a": {
+"name": "POOPY",
+"symbol": "POY",
+"max": 1111,
+"minted": 812
+},
+"0x83ac554a70d540e02f31cadf13be8bfdf21d9ae6": {
+"name": "Emerald Pixel",
+"symbol": "Emerald",
+"max": 1222,
+"minted": 1132
+},
+"0x32805891c4bcbf29897b73e569d5c3d691254f4e": {
+"name": "PFPs",
+"symbol": "PFPs",
+"max": 1000,
+"minted": 183
+},
+"0xc335a4a5a933f8be75b971e7fbb1d1626d3bf545": {
+"name": "BIBOO DATE",
+"symbol": "BDA",
+"max": 200000000,
+"minted": 190
 }
 }
