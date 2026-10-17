@@ -3534,5 +3534,77 @@
 "symbol": "BDA",
 "max": 200000000,
 "minted": 190
+},
+"0xc0c2e370c3683214ca78b9a42a319ff69ef790fe": {
+"name": "ROADSTER",
+"symbol": "ROADSTER",
+"max": 10000,
+"minted": 2895
+},
+"0xe7303ff715d2771d685c9472eb9f66453f60fa4c": {
+"name": "MISTO7616",
+"symbol": "Misto",
+"max": 7617,
+"minted": 2143
+},
+"0x326e2a4f55707c18c96e6f0ae92eab48b52eb163": {
+"name": "PENHOOD",
+"symbol": "PHD",
+"max": 999,
+"minted": 891
+},
+"0x4c80cb74b6ff3e26a6932ce4c868af3d157e9169": {
+"name": "P I R A T E S",
+"symbol": "PAS",
+"max": 2222,
+"minted": 1764
+},
+"0x1c32b8013f5c79f805e193fb10076de9d8faa2bd": {
+"name": "Celestial Necropolis",
+"symbol": "CNS",
+"max": 1111,
+"minted": 918
+},
+"0xc317f5e42784981f515777720787d9c8848499a2": {
+"name": "EVERYDAY BIRTHDAY",
+"symbol": "EDBD",
+"max": 366,
+"minted": 366
+},
+"0x39e352e5d88741cf3d19be25be7e994ddf48a77a": {
+"name": "Avatars",
+"symbol": "AA",
+"max": 1111,
+"minted": 343
+},
+"0x7113d8011540a7a231caa2d2c8cec6f4bdc5e87e": {
+"name": "PEPEVERSE",
+"symbol": "PVE",
+"max": 444,
+"minted": 270
+},
+"0xd4b46fc171882c7312a8da1da867b2d48421c194": {
+"name": "AltPunks_NFT",
+"symbol": "AltPunks",
+"max": 7650,
+"minted": 560
+},
+"0x8288bba62929a89e4eb86265d84104dcd075d650": {
+"name": "RobinBugs",
+"symbol": "RobinBugs",
+"max": 700,
+"minted": 154
+},
+"0xf993e3df4815f9f1ff2819320dfdcaeb44063a1f": {
+"name": "RH BIKE",
+"symbol": "RIE",
+"max": 1111,
+"minted": 146
+},
+"0xef50baab71a4a47e3337cc737df0406a4a6bb364": {
+"name": "CahsPig",
+"symbol": "Cashpig",
+"max": 7590,
+"minted": 503
 }
 }
