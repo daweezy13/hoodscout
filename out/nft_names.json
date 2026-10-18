@@ -3606,5 +3606,77 @@
 "symbol": "Cashpig",
 "max": 7590,
 "minted": 503
+},
+"0xaab8abb065bbb29b8a602edb318964fb4eec81c3": {
+"name": "MOOSEHOOD",
+"symbol": "MED",
+"max": 1111,
+"minted": 1111
+},
+"0x98ff127cbd9ad5c17b439fb1bef5b1bf3402a32d": {
+"name": "RH Cocks",
+"symbol": "RCCC",
+"max": 1000,
+"minted": 902
+},
+"0x15748d2d89ab5714b34f48b85ad98e3d1ddf8938": {
+"name": "The Balloon",
+"symbol": "TLN",
+"max": 1111,
+"minted": 1022
+},
+"0x2cbd1272980269f633f0e99edc741c3f8c0b9f92": {
+"name": "CCFF00 MOISSANITES",
+"symbol": "CCFF00MOSS",
+"max": 999,
+"minted": 289
+},
+"0xe8ff1b4ecdcd148e99cdefc6c833e340d30c2271": {
+"name": "StonkHood Birds",
+"symbol": "StonkHood Bi",
+"max": 1111,
+"minted": 381
+},
+"0xaf4ee2c98082d74b0925e70cce629ee0a30efbd9": {
+"name": "Pixel Hood Rooms RH",
+"symbol": "PHR",
+"max": 3333,
+"minted": 270
+},
+"0xbb76030c3f99d63a3363db0493dc346f62631783": {
+"name": "Pipingu",
+"symbol": "PIPI",
+"max": 111,
+"minted": 111
+},
+"0xc3549d557dbc248f35b59d40bcb7463d3eb4caad": {
+"name": "THE PANDAS",
+"symbol": "TAS",
+"max": 777,
+"minted": 63
+},
+"0x0cf015be78cfbee48546ba9c326bb9fc90f1fca0": {
+"name": "Moommy meta Stoker",
+"symbol": "9",
+"max": 2222,
+"minted": 193
+},
+"0x4f0d0e8297e1588ed9b4681abe6e1ebd2f32b679": {
+"name": "Jaderound Chain",
+"symbol": "9",
+"max": 3333,
+"minted": 236
+},
+"0x432c123944c9b3ae24737e5cc561d60a9fdfab7d": {
+"name": "Assettes",
+"symbol": "ASSETTES",
+"max": 1111,
+"minted": 260
+},
+"0x81c2e369b03bdb07e092175524b1a6a1f48dae48": {
+"name": "Real Hood People",
+"symbol": "RHP",
+"max": 8888,
+"minted": 4066
 }
 }
