@@ -1951,7 +1951,7 @@
 "name": "Uniswap V3 Positions NFT-V1",
 "symbol": "UNI-V3-POS",
 "max": null,
-"minted": 893318
+"minted": 921544
 },
 "0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
 "name": "Pixel Characters (PC)",
@@ -3750,5 +3750,64 @@
 "symbol": "ROBNFT",
 "max": 6969,
 "minted": 1010
+},
+"0x62783c409041c5246a48e2c76e218781c4d9285f": {
+"name": "NEVER DIE",
+"symbol": "NVRD",
+"max": 200000000,
+"minted": 1079
+},
+"0x99ecc8c4ddaff86858aaea8f9ed7cb9d569b419d": {
+"name": "Lake",
+"symbol": "Robinhood ch",
+"max": 200000000,
+"minted": 4639
+},
+"0x8ebccc9e0932ce5ba9a7032db2d6612d273a7822": {
+"name": "Cosmic Astro Club",
+"symbol": "CSB",
+"max": 1111,
+"minted": 888
+},
+"0x27bc3b39565a702f79f099c76547b1e9244ad90a": {
+"name": "Messenger",
+"symbol": "MSGR",
+"max": 3333
+},
+"0x8ed668ffda621d69daa68ef68661eae0d6775cc6": {
+"name": "Mindbend Society",
+"symbol": "MDY",
+"max": 1111,
+"minted": 775
+},
+"0x5fa89e5556c20a77db5a16f08e214c310a0fbc82": {
+"name": "Orc Society",
+"symbol": "OCY",
+"max": 1111,
+"minted": 743
+},
+"0x14b55e0ac024963aea8876510c7c79ba21c72869": {
+"name": "Neon Syndicate Core",
+"symbol": "NIE",
+"max": 6666,
+"minted": 661
+},
+"0x43c68e86a0ecd1431fcb0678445414048086af45": {
+"name": "Tropi Frogs",
+"symbol": "TROF",
+"max": 333,
+"minted": 333
+},
+"0xf2bc09e6359f6e76eb0e662fbd01f2a8776da188": {
+"name": "0xBabyNut",
+"symbol": "0XBNUT",
+"max": 3200,
+"minted": 3200
+},
+"0xb4ee1bfc302f098105b0ed5ea19d04e845e01fb2": {
+"name": "Cryptic Bones",
+"symbol": "CCS",
+"max": 1111,
+"minted": 137
 }
 }
