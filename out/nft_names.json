@@ -1951,7 +1951,7 @@
 "name": "Uniswap V3 Positions NFT-V1",
 "symbol": "UNI-V3-POS",
 "max": null,
-"minted": 921544
+"minted": 923118
 },
 "0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
 "name": "Pixel Characters (PC)",
@@ -3809,5 +3809,65 @@
 "symbol": "CCS",
 "max": 1111,
 "minted": 137
+},
+"0x4bde6d7a9d681219fd4d0dbcf566b3dbb0c4d324": {
+"name": "Robinhood Skeleton",
+"symbol": "RSKELETN",
+"max": null,
+"minted": 8050
+},
+"0x73432db48e1ac9d99e6665bd9779812aa0683613": {
+"name": "Crypto Cars GARAGE NFT",
+"symbol": "CCG",
+"max": 1111,
+"minted": 931
+},
+"0xfa4060ac68713fde7a5a24325eb4c8c92fce5312": {
+"name": "BabyNut Nft",
+"symbol": "0xBabyNut",
+"max": 1000,
+"minted": 919
+},
+"0x95b29c40552c8d4fa8e990d475667bfc070aac00": {
+"name": "Panda panda",
+"symbol": "Panda",
+"max": 3333,
+"minted": 3333
+},
+"0xa9eb44c425f993f4ec190c1abb9faf2bcdbded7d": {
+"name": "Pipe Dogs",
+"symbol": "PDOGS",
+"max": null,
+"minted": 5120
+},
+"0x1d8a3b6a1ee52ebd0c66dc1847de7d017f7ca005": {
+"name": "Floxxi Bunnies",
+"symbol": "Floxxi Bunni",
+"max": 3333,
+"minted": 1487
+},
+"0x07e351391819e43e093051a3e0d9861c3b2833c9": {
+"name": "Liberatto",
+"symbol": "Liberatto",
+"max": 999,
+"minted": 453
+},
+"0xd5d7b228641c06152774aa9e3fd31a4ffa772fb9": {
+"name": "Sexy HUB",
+"symbol": "Sexy HUB",
+"max": 3333,
+"minted": 458
+},
+"0x71ffc93668539c1417c0549b994e76ae0630ac97": {
+"name": "Pepe Incarnates",
+"symbol": "Pepe Incarna",
+"max": 2222,
+"minted": 430
+},
+"0x1646e94fdc1b2e4b776fdc6a8d44ce19d87029bf": {
+"name": "Leap of Faith Rh",
+"symbol": "LoF",
+"max": 4444,
+"minted": 402
 }
 }
