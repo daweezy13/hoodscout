@@ -3869,5 +3869,71 @@
 "symbol": "LoF",
 "max": 4444,
 "minted": 402
+},
+"0x71e983077967befa7e2a20363f131667bef75e95": {
+"name": "MyPixelHouse",
+"symbol": "MPH",
+"max": 10000,
+"minted": 10000
+},
+"0x6d29c33779f9bfcd0d22b46c7103037abd10a5d7": {
+"name": "Zoog World",
+"symbol": "ZWD",
+"max": 1111,
+"minted": 795
+},
+"0x4654af2d57343662edcd5278555c51b7214657b1": {
+"name": "Van Gogh Society",
+"symbol": "VSY",
+"max": 1111,
+"minted": 679
+},
+"0x175af036f12fc322accb55cd866d073b10046cf2": {
+"name": "Dripster",
+"symbol": "Dripster",
+"max": 4444,
+"minted": 850
+},
+"0x9cf5c4bf7405e8a17a5217c325246880d5b657a7": {
+"name": "The Pixel Monkeys",
+"symbol": "TLS",
+"max": 1111,
+"minted": 587
+},
+"0xacadf245d16992e81938237fa6a2d415d44c0935": {
+"name": "The Obsidian Guard",
+"symbol": "TID",
+"max": 999,
+"minted": 565
+},
+"0xa27882f27cd422084488c0863b2d9510b7c24eb9": {
+"name": "RHComputers",
+"symbol": "Rhc",
+"max": 5555,
+"minted": 2815
+},
+"0xc2b8267dd69178f07338df1d467105e9d49960ac": {
+"name": "Hoodplets",
+"symbol": "Hoodplets",
+"max": 888,
+"minted": 888
+},
+"0x5d15778464e9ca547a04e01bf9706488490c3c0d": {
+"name": "Cloverheads",
+"symbol": "clds",
+"max": 888,
+"minted": 505
+},
+"0xc0e114957f8a435498b8a348cc7ebf6fcb3cc53a": {
+"name": "Non Playable Character Girls",
+"symbol": "NPC Girls",
+"max": 10000,
+"minted": 4453
+},
+"0x978bcaa33571db8333c00c0783d6830609320821": {
+"name": "HEY ROBIN",
+"symbol": "HEYRO",
+"max": 1111,
+"minted": 1111
 }
 }
