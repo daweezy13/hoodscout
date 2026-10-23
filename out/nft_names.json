@@ -3935,5 +3935,77 @@
 "symbol": "HEYRO",
 "max": 1111,
 "minted": 1111
+},
+"0xa9da437ac105fe781ac8526f7a5ffd4bfcbe3380": {
+"name": "Geckoz Gank",
+"symbol": "GKGK",
+"max": 5000,
+"minted": 2698
+},
+"0x4c4384fb4a3399f532c14a11ab8ca601976ed8aa": {
+"name": "Outlawsider",
+"symbol": "Outlawsider",
+"max": 2666,
+"minted": 2463
+},
+"0xc6533bdb59b28d314e60e55aa966ec345ff5025f": {
+"name": "XREIGN UNITS",
+"symbol": "UNITS",
+"max": 5555,
+"minted": 2681
+},
+"0x08d7bff819d24444bce168759596acd78f2ce2ba": {
+"name": "cats cash nft",
+"symbol": "Cash Cats",
+"max": 1000,
+"minted": 659
+},
+"0x2e84269fb0fb30890fe68e1ff6863e6a7493636e": {
+"name": "Paranauts",
+"symbol": "Paranauts",
+"max": 1777,
+"minted": 1641
+},
+"0xfec699bca400f5d1260395fe36b7b0b809e01ef4": {
+"name": "Doinit",
+"symbol": "Doinit",
+"max": 9999,
+"minted": 3515
+},
+"0xb58a2adfbada36b25a0a571c94f7f419f8e4b015": {
+"name": "Pretty cat",
+"symbol": "Pretty cat",
+"max": 999,
+"minted": 999
+},
+"0xea02103314d1d6a83079f910b22ffb54f0fd5f18": {
+"name": "Zumi Shoes Hood",
+"symbol": "ZSH",
+"max": 10000,
+"minted": 2528
+},
+"0x67af352d37737ede06b6f36b65afc57f91b5ecf4": {
+"name": "ASCENDANTS GENESIS",
+"symbol": ".",
+"max": 6666,
+"minted": 922
+},
+"0x9e2bdb609026baf0038f4ca9ecad862eae89b545": {
+"name": "The SurfBoard Nft",
+"symbol": "SurfBoard",
+"max": 1111,
+"minted": 468
+},
+"0x2598e922d359435e4e92658a6c9664e36ca5c88c": {
+"name": "Authority Keys Nft",
+"symbol": "Authority Ke",
+"max": 1000,
+"minted": 456
+},
+"0x32bdbde86ed9ed4e3fc96928be1c4efcc1db9a90": {
+"name": "\u4ec0\u4e48\u662f\u559d\u9189\uff1f",
+"symbol": "LC",
+"max": 200000000,
+"minted": 3150
 }
 }

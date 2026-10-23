@@ -601,6 +601,14 @@
       "liq": 5431.3496
     },
     {
+      "addr": "0x03ace5aef8a2a1933b05403a0918698b65f7a2f5",
+      "sym": "REX",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T00:21:58Z",
+      "fdv": 6012.789777,
+      "liq": 6068.826
+    },
+    {
       "addr": "0x03ae57d593b39dc421b47e0eeff5ad594a3bf644",
       "sym": "MORROW",
       "dex": "uniswap-pools-trade",
@@ -799,6 +807,14 @@
       "born": "2026-10-03T23:51:47Z",
       "fdv": 2818.639204,
       "liq": 0.5391
+    },
+    {
+      "addr": "0x05189de848166bbb0426874aec121a0ce639fd46",
+      "sym": "ZARD",
+      "dex": "pons-v2",
+      "born": "2026-10-23T09:52:29Z",
+      "fdv": 3932.878721,
+      "liq": 3891.441
     },
     {
       "addr": "0x05349ac9a5d65a4fce3ed9c08a6ba23dfcc1ea5d",
@@ -1817,6 +1833,14 @@
       "liq": 7678.7875
     },
     {
+      "addr": "0x0b41df7bbe824bc181a8ab8f7b721c7ae2b897bc",
+      "sym": "zonki",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T09:12:23Z",
+      "fdv": 6034.919225,
+      "liq": 6070.9928
+    },
+    {
       "addr": "0x0b4276b22303a666367ce2d827912d553f6b0c8c",
       "sym": "T/ACC",
       "dex": "uniswap-v3-robinhood",
@@ -1855,6 +1879,14 @@
       "born": "2026-09-19T10:45:40Z",
       "fdv": 5170.575686,
       "liq": 8906.407
+    },
+    {
+      "addr": "0x0b7719c5b695fd990f165492ff5dbb760c89b1a3",
+      "sym": "MERIS",
+      "dex": "pons-v2",
+      "born": "2026-10-22T15:57:03Z",
+      "fdv": 42263.19332,
+      "liq": 5507.0882
     },
     {
       "addr": "0x0b78874c0321826beaf5f3b906ce9cb9a391f85e",
@@ -2542,7 +2574,7 @@
       "dex": "bankr-robinhood",
       "born": "2026-10-07T13:10:41Z",
       "fdv": 800035.0055,
-      "liq": 144603.7591
+      "liq": 148259.7181
     },
     {
       "addr": "0x1033d7c3a52cad9664ac48e286da23345a278c80",
@@ -3049,6 +3081,14 @@
       "liq": 45558.2206
     },
     {
+      "addr": "0x1384d0347cff2387bccdc12a7b8ec1a72f1eb101",
+      "sym": "TETSU",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-22T17:33:29Z",
+      "fdv": 978747.3786,
+      "liq": 0.0
+    },
+    {
       "addr": "0x1386cad498520e832f8539d3c3bcc90f8daf65a9",
       "sym": "LAUNCH",
       "dex": "virtuals-robinhood",
@@ -3215,6 +3255,14 @@
       "born": "2026-08-19T16:37:35Z",
       "fdv": 292446.2497,
       "liq": 47973.7529
+    },
+    {
+      "addr": "0x14643e8b018227c2440cd85f1afb0d389219b368",
+      "sym": "CATICORN",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-08-06T03:40:21Z",
+      "fdv": 6979.18937,
+      "liq": 6956.1919
     },
     {
       "addr": "0x1474f7767e6b0ad9da2b6bfc68ad58738ad3909e",
@@ -3657,6 +3705,14 @@
       "liq": 0.0810517512555864
     },
     {
+      "addr": "0x1773e7ce32a89ada9d81aca4f5098012a95b80cf",
+      "sym": "YUMI",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T12:01:11Z",
+      "fdv": 222947.3404,
+      "liq": 68188.3254
+    },
+    {
       "addr": "0x177daf3d674e358c5cb0fe335ca8c23e003843e3",
       "sym": "coms",
       "dex": "uniswap-v3-robinhood",
@@ -3687,6 +3743,14 @@
       "born": "2026-10-15T14:41:58Z",
       "fdv": 23464.84142,
       "liq": 24193.079
+    },
+    {
+      "addr": "0x179b22557cd511124535e41cc0dacf845b650b07",
+      "sym": "PAPER",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-23T03:16:28Z",
+      "fdv": 1984412.739,
+      "liq": 0.0134826631
     },
     {
       "addr": "0x179fc9fdaa1c9dec548049703e198763ad11c395",
@@ -4097,6 +4161,14 @@
       "liq": 8584.9275
     },
     {
+      "addr": "0x1aaf97e54e0bfa85b4fb0cbd9a0940e1bef38b4a",
+      "sym": "microduck",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:04:42Z",
+      "fdv": 6009.654684,
+      "liq": 6055.8255
+    },
+    {
       "addr": "0x1abf0d488f44ac05080951d01de0603bac318b07",
       "sym": "TIGHTS",
       "dex": "clanker-robinhood",
@@ -4201,6 +4273,14 @@
       "liq": 36940.9884
     },
     {
+      "addr": "0x1b73d8ee83fb75838ebc8a1843305869aa8ec9bf",
+      "sym": "XMTP",
+      "dex": "pons-v2",
+      "born": "2026-10-23T13:23:29Z",
+      "fdv": 3945.679227,
+      "liq": 3892.8679
+    },
+    {
       "addr": "0x1b7712bd708f84bdace0a8df69e21d407dc35ea0",
       "sym": "ELSE",
       "dex": "uniswap-v2-robinhood",
@@ -4231,6 +4311,14 @@
       "born": "2026-10-21T20:54:56Z",
       "fdv": 77098.58904,
       "liq": 8.4223
+    },
+    {
+      "addr": "0x1bd2cfc0f7d29a3950001a6764100124a92609f3",
+      "sym": "SHADOW",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T09:02:10Z",
+      "fdv": 6038.554051,
+      "liq": 6056.7885
     },
     {
       "addr": "0x1be80dea745224e314218f53ab5cd241d196ce47",
@@ -4337,12 +4425,28 @@
       "liq": 0.0
     },
     {
+      "addr": "0x1cc148dafcb372840ddf1b3a0427dc1434122138",
+      "sym": "MULTIHOOKS",
+      "dex": "pons-v2",
+      "born": "2026-10-22T15:12:36Z",
+      "fdv": 21005.40541,
+      "liq": 14351.1865
+    },
+    {
       "addr": "0x1cd23eb3171f3fd08cac431e61f70db852303cd7",
       "sym": "\u4e2d\u56fd\u5965\u5179",
       "dex": "uniswap-v2-robinhood",
       "born": "2026-09-13T05:38:56Z",
       "fdv": 5.605739449,
       "liq": 2.4736
+    },
+    {
+      "addr": "0x1cd3957954a9361b93ee464964000ea438359903",
+      "sym": "DHOOD",
+      "dex": "virtuals-robinhood",
+      "born": "2026-07-15T18:49:02Z",
+      "fdv": 9751.671458,
+      "liq": 10227.8672
     },
     {
       "addr": "0x1cd9f2e1247b951d8ce3b9de0dc64c8cf8a3fbf1",
@@ -4383,6 +4487,22 @@
       "born": "2026-08-10T23:24:10Z",
       "fdv": 2906075.60727215,
       "liq": 82185.8153
+    },
+    {
+      "addr": "0x1d217af2056c916f30fe4010458c4170dcc07a6e",
+      "sym": "VST",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-22T16:59:01Z",
+      "fdv": 1292.0357848,
+      "liq": 4.3335
+    },
+    {
+      "addr": "0x1d382e6ff62273c7676ff9d108c4b960644c416a",
+      "sym": "PIERRE",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T09:32:28Z",
+      "fdv": 0.002163908798,
+      "liq": 0.008068765616
     },
     {
       "addr": "0x1d414481455b50dde4d707ad67feb24c967b65b8",
@@ -4517,7 +4637,7 @@
       "sym": "SWT",
       "dex": "swaphood-finance-v2",
       "born": "2026-09-15T17:47:57Z",
-      "fdv": 39851.4429065851,
+      "fdv": 40143.6046443883,
       "liq": 8104.2566
     },
     {
@@ -4575,6 +4695,14 @@
       "born": "2026-09-29T16:17:34Z",
       "fdv": 56157.5741,
       "liq": 0.0
+    },
+    {
+      "addr": "0x1e1dde91d41025753c347717933ec066cf133d01",
+      "sym": "BA",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-09-03T17:51:12Z",
+      "fdv": 4453.074344,
+      "liq": 4454.2642
     },
     {
       "addr": "0x1e26d5f68d85e856aabcbfc52a7224954f845653",
@@ -5217,6 +5345,14 @@
       "liq": 2.9502
     },
     {
+      "addr": "0x22a33d54b8aa6d0a8cb4378da50c287ed1c90b28",
+      "sym": "SURPLUS",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-18T11:17:16Z",
+      "fdv": 24347.58919,
+      "liq": 24215.9271
+    },
+    {
       "addr": "0x22b917f4b9426996dc93a0833be77fe14a18c6c8",
       "sym": "CASHDOG",
       "dex": "uniswap-v2-robinhood",
@@ -5311,6 +5447,14 @@
       "born": "2026-07-11T04:32:42Z",
       "fdv": 12830585.3435023,
       "liq": 543883.5696
+    },
+    {
+      "addr": "0x23315b74a10c7f26e4e453a46b7e722207f61001",
+      "sym": "FreeWeekend",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-10-22T16:45:58Z",
+      "fdv": 3901.34885,
+      "liq": 4086.009
     },
     {
       "addr": "0x234f5153adec1935b5cf810c2a5bc669a9a09401",
@@ -6049,6 +6193,14 @@
       "liq": 11630.0012
     },
     {
+      "addr": "0x2833e097cf871abb56a4be4b9b987fe0c44f3b44",
+      "sym": "REX",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T00:34:17Z",
+      "fdv": 6362.786063,
+      "liq": 6401.7833
+    },
+    {
       "addr": "0x286b4b456bd10fd1745a7b7b33f25a804ddf5f04",
       "sym": "AGORA",
       "dex": "pons-v2-dex",
@@ -6353,6 +6505,14 @@
       "liq": 25278.7298
     },
     {
+      "addr": "0x2b66bc0795501a3bbf2c55aa9b6f31d67f1a4207",
+      "sym": "X402",
+      "dex": "pons-v2",
+      "born": "2026-10-22T14:05:59Z",
+      "fdv": 7670.883184,
+      "liq": 7010.2536
+    },
+    {
       "addr": "0x2b71d1c62c1238e772231f66c99d0d8d293a79b3",
       "sym": "NeMo",
       "dex": "uniswap-v2-robinhood",
@@ -6447,6 +6607,14 @@
       "born": "2026-09-03T13:56:34Z",
       "fdv": 72354.1166,
       "liq": 30602.3896
+    },
+    {
+      "addr": "0x2bf9c1725a9e9c491bff3eaab7ad0fbb19271cab",
+      "sym": "microduck",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:02:59Z",
+      "fdv": 6008.923453,
+      "liq": 6056.0663
     },
     {
       "addr": "0x2c066b124085141707d76d68e82636f700b0ffcb",
@@ -6606,7 +6774,7 @@
       "dex": "o1-launchpad-robinhood",
       "born": "2026-08-20T13:48:58Z",
       "fdv": 5166.574072,
-      "liq": 4562.1055
+      "liq": 4961.2458
     },
     {
       "addr": "0x2d7badfd7057683ea64b4ee6911a0fc973935127",
@@ -6615,6 +6783,14 @@
       "born": "2026-10-11T10:21:18Z",
       "fdv": 12653.15303,
       "liq": 10856.0568
+    },
+    {
+      "addr": "0x2d7e67463f0fac07f04e67e4bb5ca86b4aa56b07",
+      "sym": "AAPLx3L",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-23T13:10:37Z",
+      "fdv": 89935069.67,
+      "liq": 0.08091264705
     },
     {
       "addr": "0x2d86b97b4d96dc1b1ca72e67f54a5dbc0d5d7777",
@@ -6671,6 +6847,14 @@
       "born": "2026-07-10T22:04:49Z",
       "fdv": 6671669.78558544,
       "liq": 1341070.3225
+    },
+    {
+      "addr": "0x2e0c7b162222d776fe2e1fcc6a15aedc18306ca6",
+      "sym": "VIRTUAL",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T10:41:40Z",
+      "fdv": 6038.412717,
+      "liq": 6074.8448
     },
     {
       "addr": "0x2e1b2f090a762d74be585b450198303a50b9698c",
@@ -6749,8 +6933,8 @@
       "sym": "GH0ST",
       "dex": "pons-v2",
       "born": "2026-10-20T18:54:56Z",
-      "fdv": 47959.715,
-      "liq": 0.0
+      "fdv": 132278.913590579,
+      "liq": 33899.0384
     },
     {
       "addr": "0x2ec5cc87c9a3231bffbbf788ca9182ebd1d64fc4",
@@ -6841,6 +7025,14 @@
       "liq": 203901.3198
     },
     {
+      "addr": "0x2f4c35c82f7214db4666cf37c14b4f81b6ca6ce9",
+      "sym": "GATO",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T09:43:53Z",
+      "fdv": 6049.296913,
+      "liq": 6101.568
+    },
+    {
       "addr": "0x2f4f6f47a6ea85661347509f7ab1d1db61fc1452",
       "sym": "GREEN",
       "dex": "easya-kickstart-robinhood",
@@ -6895,6 +7087,14 @@
       "born": "2026-08-20T16:28:49Z",
       "fdv": 2953345.009,
       "liq": 229724.8868
+    },
+    {
+      "addr": "0x2fb29423b121355674c2c3d984928e3b98b05ba3",
+      "sym": "UMBRELLA",
+      "dex": "bankr-robinhood",
+      "born": "2026-10-23T11:48:01Z",
+      "fdv": 10029.00283,
+      "liq": 8650.8698
     },
     {
       "addr": "0x2fbbac13d086bb3b4d7563c23686060204ff5555",
@@ -7206,7 +7406,7 @@
       "dex": "clanker-robinhood",
       "born": "2026-10-05T20:25:45Z",
       "fdv": 52818.66928,
-      "liq": 2994.7301
+      "liq": 3304.4733
     },
     {
       "addr": "0x31a074b3cdd0051bddbec3f12034a6d4faacb780",
@@ -7414,7 +7614,7 @@
       "dex": "virtuals-robinhood",
       "born": "2026-07-21T14:07:38Z",
       "fdv": 6782.378334,
-      "liq": 6725.6727
+      "liq": 6738.4077
     },
     {
       "addr": "0x3340e28e4a3562e71522e50d09e47037b5d70fa7",
@@ -7721,6 +7921,14 @@
       "liq": 0.0
     },
     {
+      "addr": "0x353c990bcf128bccba5b78f0484278162cd29ba3",
+      "sym": "DAWN",
+      "dex": "bankr-robinhood",
+      "born": "2026-09-19T01:26:36Z",
+      "fdv": 21012.64138,
+      "liq": 21663.8349
+    },
+    {
       "addr": "0x35420cf56dbf1370e4e600828097b19512e3218a",
       "sym": "CREDITS",
       "dex": "uniswap-v2-robinhood",
@@ -7783,6 +7991,14 @@
       "born": "2026-10-16T15:46:37Z",
       "fdv": 4063.406672,
       "liq": 4042.909
+    },
+    {
+      "addr": "0x35a8ef78586ce35974b269d236147d43a838883b",
+      "sym": "SWARMX",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-23T06:06:41Z",
+      "fdv": 30465.10281,
+      "liq": 15784.5854
     },
     {
       "addr": "0x35bc18f770ab629b45366896f9dd0bcd6ae4b91a",
@@ -8023,6 +8239,14 @@
       "born": "2026-09-23T02:57:28Z",
       "fdv": 18473.27922,
       "liq": 12722.1395
+    },
+    {
+      "addr": "0x3849c16785aae65dad7c43d78234bc98d528c138",
+      "sym": "TOGI",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-23T05:25:07Z",
+      "fdv": 647746.7451,
+      "liq": 0.0
     },
     {
       "addr": "0x385f4f8ae47651ce5f58f5265395a669f8281e18",
@@ -8529,6 +8753,14 @@
       "liq": 16227.4077
     },
     {
+      "addr": "0x3c31429fd8c61bc79ffc3aba8bc64cc68ae84cd2",
+      "sym": "CUMROCKET",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T00:00:48Z",
+      "fdv": 0.02788756577,
+      "liq": 0.007954624168
+    },
+    {
       "addr": "0x3c65985681d7f8a28c31aca5bbf8463b49fb2802",
       "sym": "ORION",
       "dex": "easya-kickstart-robinhood",
@@ -8559,6 +8791,14 @@
       "born": "2026-09-24T09:33:20Z",
       "fdv": 14320958.19,
       "liq": 250953.6836
+    },
+    {
+      "addr": "0x3c972d0d4fccc012abfbc244b87b3c3adc50bbb1",
+      "sym": "COINFLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T18:38:22Z",
+      "fdv": 5635.662459,
+      "liq": 5639.328
     },
     {
       "addr": "0x3cb2c8caa734b911589eb30226c6f3f9bb9c5964",
@@ -8703,6 +8943,14 @@
       "born": "2026-07-24T01:25:07Z",
       "fdv": 24197.02542,
       "liq": 31737.9465
+    },
+    {
+      "addr": "0x3df3253bffd020add8693686ac5287e5b22aee5b",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T17:44:33Z",
+      "fdv": 23787.61871,
+      "liq": 11950.3485
     },
     {
       "addr": "0x3df4bd4daf0a988ed3a876c51b048e176d2dbaaf",
@@ -8943,6 +9191,14 @@
       "born": "2026-08-20T19:33:44Z",
       "fdv": 4023.3896,
       "liq": 5449.5815
+    },
+    {
+      "addr": "0x3f89be9d1e64b144d3e9ab01598d80a279a4ff4e",
+      "sym": "HOOKLINE",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-22T17:39:40Z",
+      "fdv": 205446.1192,
+      "liq": 0.0
     },
     {
       "addr": "0x3f8d884d662ce7e47183e70d8776677f698dab07",
@@ -9487,6 +9743,14 @@
       "born": "2026-10-19T13:43:08Z",
       "fdv": 98020.8658,
       "liq": 0.0
+    },
+    {
+      "addr": "0x42c936743a154c062922c81c59f8f7273c978901",
+      "sym": "BUCK",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-07-28T02:08:39Z",
+      "fdv": 4872.622609,
+      "liq": 4892.3214
     },
     {
       "addr": "0x42caeb757d830351551afef02bc9a916213c3102",
@@ -10217,6 +10481,14 @@
       "liq": 10243.1461
     },
     {
+      "addr": "0x483301eb6ffc29e091795b44eff118d53d297a12",
+      "sym": "YEETR",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-22T14:57:15Z",
+      "fdv": 23778.4523,
+      "liq": 23764.6733
+    },
+    {
       "addr": "0x4842314ec0e60900d853689723fecde2ae1938e3",
       "sym": "UDTF",
       "dex": "pons-v2",
@@ -10417,6 +10689,14 @@
       "liq": 3897847.3346
     },
     {
+      "addr": "0x4a12f9aa3f04655ad163e1beb027797757d14498",
+      "sym": "Laura",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-22T17:41:13Z",
+      "fdv": 0.02773420434,
+      "liq": 0.007930208695
+    },
+    {
       "addr": "0x4a30027d2752aaedca97fe6b2fe64c04515be7d1",
       "sym": "CRYPTOMEOW",
       "dex": "uniswap-pools-trade",
@@ -10465,6 +10745,14 @@
       "liq": 18778.4989
     },
     {
+      "addr": "0x4a67ea0d194058558f4926b6bf6b758ef8976675",
+      "sym": "FLOAT",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-22T03:45:30Z",
+      "fdv": 87695.89114,
+      "liq": 26466.656
+    },
+    {
       "addr": "0x4a76d884bb9cbbf2138fbe47e99584eb5168dde2",
       "sym": "PONSTR",
       "dex": "pons-dot-family",
@@ -10477,8 +10765,8 @@
       "sym": "NINJACAT",
       "dex": "pancakeswap-v3-robinhood",
       "born": "2026-10-08T01:31:14Z",
-      "fdv": 857453.11827796,
-      "liq": 460.4276
+      "fdv": 1084865.72680023,
+      "liq": 672.1126
     },
     {
       "addr": "0x4a94856c702109d173703475988c3c5055dfc2e9",
@@ -10889,6 +11177,14 @@
       "liq": 36251.2834
     },
     {
+      "addr": "0x4d61f21ca2fa4002e038d86ad186d9cb1f74eba3",
+      "sym": "DOGE",
+      "dex": "bankr-robinhood",
+      "born": "2026-07-24T00:15:13Z",
+      "fdv": 26972.26435,
+      "liq": 27553.5849
+    },
+    {
       "addr": "0x4d62e2f21bd0597e56f9765c107bc4cce1e19962",
       "sym": "COMP",
       "dex": "pons-v2",
@@ -11167,6 +11463,14 @@
       "born": "2026-10-07T14:12:52Z",
       "fdv": 655569.3674,
       "liq": 79157.2061
+    },
+    {
+      "addr": "0x4ede1f4fb6f18881cfe1fff9e6b9acb4e52414f5",
+      "sym": "REX",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-22T16:07:25Z",
+      "fdv": 2715.311074,
+      "liq": 4190.8375
     },
     {
       "addr": "0x4ee60c51f3b55839dc475b65983141a8ca1d6501",
@@ -11591,6 +11895,22 @@
       "born": "2026-08-19T15:56:18Z",
       "fdv": 3536.811467,
       "liq": 4053.1912
+    },
+    {
+      "addr": "0x51035031352665490a1db2d9f471d41a1e388b07",
+      "sym": "CLANKER",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-22T20:54:27Z",
+      "fdv": 23958.98592,
+      "liq": 24251.7105
+    },
+    {
+      "addr": "0x511f76a3de41f000ec11ea4fd212fb3587c6cef3",
+      "sym": "DARWIN",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-15T04:31:13Z",
+      "fdv": 1253860.69321398,
+      "liq": 101419.7171
     },
     {
       "addr": "0x51250b135174ca09450ec01c4aff73cf69dbb590",
@@ -12689,6 +13009,14 @@
       "liq": 5567.346
     },
     {
+      "addr": "0x5952a5e6f70ebad3ba6a22cfafed4d1b2ef7198b",
+      "sym": "onboard",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T08:52:28Z",
+      "fdv": 0.04539275675,
+      "liq": 0.0126650861642887
+    },
+    {
       "addr": "0x595bfc38d7989e1e204319125a7e5b510ecbab79",
       "sym": "OpenAI",
       "dex": "pons-v2-dex",
@@ -12911,6 +13239,22 @@
       "born": "2026-10-09T22:25:26Z",
       "fdv": 4032.926889,
       "liq": 4053.77
+    },
+    {
+      "addr": "0x5aa6077b62ab1c484a7637a74a330d4d9eb028e2",
+      "sym": "CLAUDIA",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-22T21:53:44Z",
+      "fdv": 0.02742505027,
+      "liq": 0.00801854723926848
+    },
+    {
+      "addr": "0x5aa8bd871eec292921e9de8907a880b316467e2b",
+      "sym": "TETSU",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:31:53Z",
+      "fdv": 6039.579877,
+      "liq": 0.0
     },
     {
       "addr": "0x5ab4a26c4616e74962ada4837e4dbe406fc92645",
@@ -13713,12 +14057,28 @@
       "liq": 18009.1712
     },
     {
+      "addr": "0x604ef21aac7df6e7cddd862aa833466bfeefc1f5",
+      "sym": "$INVERAAl",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-22T14:57:21Z",
+      "fdv": 12.40978306,
+      "liq": 0.4815
+    },
+    {
       "addr": "0x60571ebcdf7caab712dc75a1ba2862171593958b",
       "sym": "MESH",
       "dex": "pons-v2",
       "born": "2026-08-19T16:21:53Z",
       "fdv": 4080.007363,
       "liq": 4193.8273
+    },
+    {
+      "addr": "0x60633794df09856b339eea8bd741d749596b5230",
+      "sym": "ORBIX",
+      "dex": "pons-v2",
+      "born": "2026-10-22T21:33:22Z",
+      "fdv": 147064.7046,
+      "liq": 34107.0603
     },
     {
       "addr": "0x6063ff09d30b06f80fc7539c5fbfcfa5ea2166ad",
@@ -14179,10 +14539,10 @@
     {
       "addr": "0x63ecf3a907049bd6a5cf25a90842c9a7c66c4ef2",
       "sym": "CT",
-      "dex": "sectorone-v2-0-robinhood",
-      "born": "2026-08-14T06:20:40Z",
-      "fdv": 44104.96806,
-      "liq": 7.9082
+      "dex": "uniswap-pools-trade",
+      "born": "2026-08-05T19:51:12Z",
+      "fdv": 13051.69536,
+      "liq": 12167.2387
     },
     {
       "addr": "0x63ee32ac3077d1fbd8a77ebba2a6ed4b8e9c1e18",
@@ -14223,6 +14583,14 @@
       "born": "2026-09-25T11:02:52Z",
       "fdv": 1504857.281,
       "liq": 169905.8984
+    },
+    {
+      "addr": "0x6459ce7fa9736349b32ef8bcd7844b64544d90a7",
+      "sym": "BEAM",
+      "dex": "pons-v2",
+      "born": "2026-10-23T01:43:19Z",
+      "fdv": 19412.52151,
+      "liq": 13580.3301
     },
     {
       "addr": "0x6492f6d0adaf95df220022639f5e122826062f77",
@@ -14609,6 +14977,14 @@
       "liq": 21377.0739
     },
     {
+      "addr": "0x6667a5885271d4c84d39f5fc37009a5803dee598",
+      "sym": "DRAK",
+      "dex": "pons-v2",
+      "born": "2026-10-23T07:36:35Z",
+      "fdv": 3951.245969,
+      "liq": 3967.8008
+    },
+    {
       "addr": "0x666cfae70e6f2f6b96b9367db7ccda644e623801",
       "sym": "PEN",
       "dex": "o1-launchpad-robinhood",
@@ -14647,6 +15023,14 @@
       "born": "2026-10-09T05:46:01Z",
       "fdv": 34693.04908,
       "liq": 21.6493
+    },
+    {
+      "addr": "0x66b9308e0dd99809e15644005d5872884ce97ba3",
+      "sym": "OVERLOAD",
+      "dex": "bankr-robinhood",
+      "born": "2026-10-22T15:50:28Z",
+      "fdv": 3.57191752,
+      "liq": 7.704
     },
     {
       "addr": "0x66c8d067c2bb7b76bf08ad501b9ab40bef15ab97",
@@ -14775,6 +15159,14 @@
       "born": "2026-10-08T18:48:52Z",
       "fdv": 5959.334997,
       "liq": 6062.04
+    },
+    {
+      "addr": "0x68001c93f8c59f45ed1cffc844d63b6196f0aba3",
+      "sym": "JIJI",
+      "dex": "bankr-robinhood",
+      "born": "2026-10-22T19:56:34Z",
+      "fdv": 12556.85898,
+      "liq": 11740.6553
     },
     {
       "addr": "0x680450bf9fda741310ec57ebe7182ed414ca6d01",
@@ -14941,8 +15333,8 @@
       "sym": "OSTRA",
       "dex": "pons-v2",
       "born": "2026-10-19T19:51:02Z",
-      "fdv": 21713.50516,
-      "liq": 14798.092
+      "fdv": 62200.75822,
+      "liq": 22540.7217
     },
     {
       "addr": "0x69066104c208e6fa66f3a432551a20be7443f507",
@@ -15017,6 +15409,14 @@
       "liq": 3346.3513
     },
     {
+      "addr": "0x697a8619fe7ba649198fcc2118b7f8a4dfed6b07",
+      "sym": "BIDS",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-23T14:06:26Z",
+      "fdv": 23775.78046,
+      "liq": 23473.9694
+    },
+    {
       "addr": "0x6982e278a04b8c451f738727042d95565fb47f33",
       "sym": "SPURDO",
       "dex": "uniswap-v2-robinhood",
@@ -15079,6 +15479,14 @@
       "born": "2026-10-17T00:12:25Z",
       "fdv": 305269834.1,
       "liq": 0.0009978673549
+    },
+    {
+      "addr": "0x69dfe6930eeb46fd7aecdf6abaf5fdd7e1e74301",
+      "sym": "Space",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-07-28T01:46:21Z",
+      "fdv": 5748.315682,
+      "liq": 5768.1772
     },
     {
       "addr": "0x69e826f373b16a96b54f9fae386a26b6c02a28d6",
@@ -15521,6 +15929,14 @@
       "liq": 22534.5887
     },
     {
+      "addr": "0x6d3047c8c2896d1a11ca9a945543553aabd4e13f",
+      "sym": "BORBINO",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T10:51:25Z",
+      "fdv": 6020.303883,
+      "liq": 6061.8443
+    },
+    {
       "addr": "0x6d3e9c5837c029ca50ce2537390c67c9e9b59b96",
       "sym": "Bears",
       "dex": "uniswap-v2-robinhood",
@@ -15583,6 +15999,22 @@
       "born": "2026-07-20T16:41:55Z",
       "fdv": 8278.847146,
       "liq": 7489.299
+    },
+    {
+      "addr": "0x6dc7036628c1aaa44b38d8f89c287bd37bf7e97a",
+      "sym": "SUP",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-22T15:06:20Z",
+      "fdv": 23735.41438,
+      "liq": 23764.6733
+    },
+    {
+      "addr": "0x6dca55b249017b8e74922745a745726c3c1e49d6",
+      "sym": "RIVAL",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-22T20:01:57Z",
+      "fdv": 9832.420914,
+      "liq": 0.0
     },
     {
       "addr": "0x6dd1e768326185ed006a26c227de761ba3d632e3",
@@ -16239,6 +16671,14 @@
       "born": "2026-09-20T21:11:33Z",
       "fdv": 4559.355415,
       "liq": 4591.1854
+    },
+    {
+      "addr": "0x733ea6073d256147a4fb7a43a0863b94cecf0f11",
+      "sym": "HOOKLINE",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-22T23:23:43Z",
+      "fdv": 36783.05712,
+      "liq": 0.0
     },
     {
       "addr": "0x7340c278129820885a6d4d0f909258db88da5b41",
@@ -17145,6 +17585,14 @@
       "liq": 3346.1586
     },
     {
+      "addr": "0x79c397292906decdf506c4ab19fe7466eccec1db",
+      "sym": "microduck",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:06:04Z",
+      "fdv": 6011.937211,
+      "liq": 6068.3445
+    },
+    {
       "addr": "0x79c8bbcf8d3ebe305e57f7fd4d626b2e0bf21db6",
       "sym": "VLADMAN",
       "dex": "pons-v2-dex",
@@ -17351,6 +17799,14 @@
       "born": "2026-07-15T18:45:03Z",
       "fdv": 9647.440393,
       "liq": 9605.7129972034
+    },
+    {
+      "addr": "0x7ae0078eb4a7fb13ca2b6a1064df4a1beed739e4",
+      "sym": "PRPOS",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-23T07:23:46Z",
+      "fdv": 349432.3765,
+      "liq": 160699.662
     },
     {
       "addr": "0x7ae225bb62be5cc54b180645437adaf257f5629a",
@@ -17775,6 +18231,14 @@
       "born": "2026-09-16T12:29:21Z",
       "fdv": 26151.89419,
       "liq": 13178.2906
+    },
+    {
+      "addr": "0x7dec90196fd7f0b4befd4014f194189fb54dc893",
+      "sym": "Laura",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T11:26:43Z",
+      "fdv": 0.02803190291,
+      "liq": 0.00150078292
     },
     {
       "addr": "0x7df156ab9f5741029d29ddaa7fa22e62f2c984bc",
@@ -18913,6 +19377,22 @@
       "liq": 320985.8631
     },
     {
+      "addr": "0x862dcbdc4493c72fa13fb556ff450b90674b8360",
+      "sym": "AMBA",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-18T11:45:19Z",
+      "fdv": 24317.57917,
+      "liq": 24215.2222
+    },
+    {
+      "addr": "0x863072e67e17f0a21add8314750fa13eded7f375",
+      "sym": "TETSU",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-22T19:54:15Z",
+      "fdv": 6441.364059,
+      "liq": 6630.255
+    },
+    {
       "addr": "0x863acad3670dff7d1d032d56069fe604cde89373",
       "sym": "ROBINCAT",
       "dex": "ramses-legacy-robinhood",
@@ -19337,6 +19817,14 @@
       "liq": 105387.7055
     },
     {
+      "addr": "0x894fac757250f8e02180e1856957274d84ac4ba3",
+      "sym": "RHAGENT",
+      "dex": "bankr-robinhood",
+      "born": "2026-07-10T19:51:52Z",
+      "fdv": 46294.7333,
+      "liq": 37519.0324
+    },
+    {
       "addr": "0x8953e3d1674cacf330acc81c35d945c7badede49",
       "sym": "DOPE",
       "dex": "uniswap-v3-robinhood",
@@ -19657,6 +20145,14 @@
       "liq": 8941.5106
     },
     {
+      "addr": "0x8bcce4feaa209806b61175712a3999246382e147",
+      "sym": "CYBERCAT",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-23T02:33:42Z",
+      "fdv": 321044.8803,
+      "liq": 152560.6268
+    },
+    {
       "addr": "0x8be34ac2d31e27992d3f92bfcb49d4b59d98ab87",
       "sym": "IMD6900",
       "dex": "uniswap-v3-robinhood",
@@ -19679,6 +20175,14 @@
       "born": "2026-09-20T21:03:57Z",
       "fdv": 4015.808468,
       "liq": 4092.1225
+    },
+    {
+      "addr": "0x8bff4557fa1310f32b507b91ef5f05f26bbfb3fd",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T19:44:46Z",
+      "fdv": 24002.6655,
+      "liq": 12016.7955
     },
     {
       "addr": "0x8c2d101123f80b7cb49bbb674a9efe95875aa296",
@@ -19711,6 +20215,14 @@
       "born": "2026-09-04T19:03:23Z",
       "fdv": 4128.225209,
       "liq": 5053.4716
+    },
+    {
+      "addr": "0x8c512535c5c5a396c0679e75dc39735ff3ec7ba3",
+      "sym": "whyithit",
+      "dex": "bankr-robinhood",
+      "born": "2026-10-23T00:02:43Z",
+      "fdv": 10196.43645,
+      "liq": 10281.2288
     },
     {
       "addr": "0x8c63b6adfb469bbd0cd5d6ee64f73407f15f4c6c",
@@ -19791,6 +20303,14 @@
       "born": "2026-09-02T16:45:58Z",
       "fdv": 3231.728995,
       "liq": 3335.0215
+    },
+    {
+      "addr": "0x8d119006a823ea4c55ef067b71ba939ce2d5bd31",
+      "sym": "CBUCKS",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T01:55:34Z",
+      "fdv": 6059.446476,
+      "liq": 6065.937
     },
     {
       "addr": "0x8d189e18215d7549c5102d2b7f1b4ced6b0ece50",
@@ -20673,6 +21193,14 @@
       "liq": 1947501.2632
     },
     {
+      "addr": "0x936ee3791d1913d53f02ebaac5812c183e0d0b3e",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T18:28:09Z",
+      "fdv": 6786.980741,
+      "liq": 6731.6108
+    },
+    {
       "addr": "0x938ded40b91136291127d8b7a72ddfa522061ff2",
       "sym": "SUNCOIN",
       "dex": "virtuals-robinhood",
@@ -21017,6 +21545,14 @@
       "liq": 450.3213
     },
     {
+      "addr": "0x95ac52f20329c962d3f44d73569b22767aae7226",
+      "sym": "GUST",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:00:12Z",
+      "fdv": 6019.272017,
+      "liq": 6055.8255
+    },
+    {
       "addr": "0x95b225223b170600b0e0cc103ec38caf77f47777",
       "sym": "OILRIG",
       "dex": "pancakeswap-v2-robinhood",
@@ -21113,6 +21649,14 @@
       "liq": 4195.3844
     },
     {
+      "addr": "0x96518fa4f01d109a2cc8e3ba061113e452d75fd0",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T18:30:05Z",
+      "fdv": 5656.834511,
+      "liq": 5660.2733
+    },
+    {
       "addr": "0x965ee01a7f85d60b152afc01c9b52c1ba9c51bb2",
       "sym": "NOGE",
       "dex": "uniswap-v3-robinhood",
@@ -21143,6 +21687,14 @@
       "born": "2026-10-20T00:23:27Z",
       "fdv": 24167.13712,
       "liq": 24697.3977
+    },
+    {
+      "addr": "0x968b74bc419da8b1a171738d80e82834554eaaa7",
+      "sym": "DARK",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T03:43:11Z",
+      "fdv": 6260.072894,
+      "liq": 6375.06
     },
     {
       "addr": "0x969859c137b7788e561e969f453a53925a987777",
@@ -21215,6 +21767,14 @@
       "born": "2026-10-10T20:51:05Z",
       "fdv": 46450.12876,
       "liq": 0.0
+    },
+    {
+      "addr": "0x96ecb92c8c1369cee7c3a7cf58044d50f04007f7",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T19:47:58Z",
+      "fdv": 94656.57281,
+      "liq": 40488.8141
     },
     {
       "addr": "0x96f455a90a80dcf0c2df6703ea4ba3bedf286e43",
@@ -21319,6 +21879,14 @@
       "born": "2026-09-21T12:39:13Z",
       "fdv": 2408914.071,
       "liq": 138009.505
+    },
+    {
+      "addr": "0x97a05188aec4b8294056741972503cdebf5589ab",
+      "sym": "TOUCHIE",
+      "dex": "pons-v2",
+      "born": "2026-10-23T12:10:23Z",
+      "fdv": 20586.24163,
+      "liq": 14160.105
     },
     {
       "addr": "0x97a5d4306a99571ecce5c2448ebfad85d7a8321d",
@@ -21729,6 +22297,14 @@
       "liq": 580.9382
     },
     {
+      "addr": "0x9b10a046fc5e75ca4d9775d63762a157c007e2f0",
+      "sym": "ETFs",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-18T11:32:08Z",
+      "fdv": 24361.98996,
+      "liq": 24215.2222
+    },
+    {
       "addr": "0x9b12c71b66a954ef20a60dbd779f752ddc9fc9d9",
       "sym": "FETCHN",
       "dex": "uniswap-v4-robinhood",
@@ -21767,6 +22343,14 @@
       "born": "2026-10-19T11:02:27Z",
       "fdv": 5646.319374,
       "liq": 5588.3473
+    },
+    {
+      "addr": "0x9b3a9bbba975339b71963d62ad4b139da9002801",
+      "sym": "CLIPPY",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-07-28T02:08:08Z",
+      "fdv": 5531.494188,
+      "liq": 5549.5744
     },
     {
       "addr": "0x9b3bebceab5121dc9f3a5521fb8d13a92f084dc3",
@@ -21871,6 +22455,14 @@
       "born": "2026-10-15T11:21:36Z",
       "fdv": 4353.569845,
       "liq": 4391.479
+    },
+    {
+      "addr": "0x9c55367c058af7c5594b8e74188a5281495076a7",
+      "sym": "VST",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-22T17:47:23Z",
+      "fdv": 0.4679097536,
+      "liq": 23.112
     },
     {
       "addr": "0x9c55c801697bfeb580a8eb501af3020817447bb5",
@@ -22321,6 +22913,14 @@
       "liq": 6264.4781
     },
     {
+      "addr": "0x9ef9266d1fd717792ee31f8fea5f598fa955be6a",
+      "sym": "TETSU",
+      "dex": "pons-v2",
+      "born": "2026-10-22T16:44:21Z",
+      "fdv": 16731.81946,
+      "liq": 13230.7425
+    },
+    {
       "addr": "0x9f3f22342852dc54dc4645139ec9bcec201abb07",
       "sym": "COINAGE",
       "dex": "clanker-robinhood",
@@ -22437,8 +23037,8 @@
       "sym": "s33",
       "dex": "swaphood-finance-v2",
       "born": "2026-09-15T17:48:31Z",
-      "fdv": 21326.8863573873,
-      "liq": 2636.7619
+      "fdv": 22784.3945603995,
+      "liq": 2963.6517
     },
     {
       "addr": "0xa003cdc13cdf25a659aa50611eb3c1e0e7644910",
@@ -22543,6 +23143,14 @@
       "born": "2026-07-15T00:27:32Z",
       "fdv": 83809.639208792,
       "liq": 6.5278507903
+    },
+    {
+      "addr": "0xa0802cf46c7e7b55d183e508f814a58d7968bba3",
+      "sym": "ERP",
+      "dex": "bankr-robinhood",
+      "born": "2026-10-22T15:23:38Z",
+      "fdv": 10115.90995,
+      "liq": 8536.2728
     },
     {
       "addr": "0xa08b0a70a79473c38012c6eb40bd48fb80f1d4c8",
@@ -22735,6 +23343,14 @@
       "born": "2026-09-05T01:31:09Z",
       "fdv": 5243922.59336118,
       "liq": 0.2455
+    },
+    {
+      "addr": "0xa1d2f3139fc6a9f266f80807cab0c8ee57a5beb7",
+      "sym": "CBUCKS",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T08:20:02Z",
+      "fdv": 6069.926944,
+      "liq": 6102.2903
     },
     {
       "addr": "0xa2032f9529dd19d4df269f195f32035f43685501",
@@ -22969,6 +23585,14 @@
       "liq": 271131.1002
     },
     {
+      "addr": "0xa3b6b325f7937f97b3df9f7ee654d7463c2382da",
+      "sym": "LOT",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-23T03:20:13Z",
+      "fdv": 78023.45732,
+      "liq": 25102.145
+    },
+    {
       "addr": "0xa3dca7384655c677f4aa3d9ca3174807bd4deb16",
       "sym": "VLAD",
       "dex": "uniswap-v2-robinhood",
@@ -23161,6 +23785,14 @@
       "liq": 3178.5586
     },
     {
+      "addr": "0xa4f110756c0acae17d41ba147d3308d950e4090e",
+      "sym": "GATO",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-22T22:49:00Z",
+      "fdv": 6008.93792,
+      "liq": 6102.2903
+    },
+    {
       "addr": "0xa4f1c2987a519da9f57e405bb850c0eab2783bd0",
       "sym": "ORR",
       "dex": "virtuals-robinhood",
@@ -23305,6 +23937,14 @@
       "liq": 5047.1476
     },
     {
+      "addr": "0xa5fc07a0f5dd21eb1bfab770e9dc6ecd71b16501",
+      "sym": "Artificial",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-07-28T02:02:58Z",
+      "fdv": 4605.673484,
+      "liq": 4624.3644
+    },
+    {
       "addr": "0xa605875d620753f4fb06024b788b2b6552a81e18",
       "sym": "FTR",
       "dex": "bankr-robinhood",
@@ -23335,6 +23975,14 @@
       "born": "2026-09-04T00:01:28Z",
       "fdv": 4175.708939,
       "liq": 4085.889
+    },
+    {
+      "addr": "0xa62f748f8d16009cb19366da8d1160fb29de428f",
+      "sym": "GOLD",
+      "dex": "pons-v2-dex",
+      "born": "2026-09-22T16:30:02Z",
+      "fdv": 736106.7198,
+      "liq": 73703.3793
     },
     {
       "addr": "0xa639b9a0770fb11692a6fd2bd7e4a8c6e07135a2",
@@ -23703,6 +24351,14 @@
       "born": "2026-09-24T20:27:36Z",
       "fdv": 31839.7592,
       "liq": 31885.4532
+    },
+    {
+      "addr": "0xa9964ec60ddc4a9e2bf0a2251c1c0db04957ea21",
+      "sym": "VST",
+      "dex": "pons-v2",
+      "born": "2026-10-23T08:02:14Z",
+      "fdv": 4021.251632,
+      "liq": 4020.0435
     },
     {
       "addr": "0xa998181416ada11815cb2d0daf8a68eb10b5c0fd",
@@ -24151,6 +24807,14 @@
       "born": "2026-09-18T21:48:17Z",
       "fdv": 13.82121915,
       "liq": 26.9403
+    },
+    {
+      "addr": "0xabfd1321232a61e3c94eea13b56d15b55226767f",
+      "sym": "Laura",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T04:57:06Z",
+      "fdv": 0.00422331763,
+      "liq": 0.008064725607
     },
     {
       "addr": "0xac0e959cdefd9a13bedfd221063f37ddf9dbac27",
@@ -24657,6 +25321,14 @@
       "liq": 0.0
     },
     {
+      "addr": "0xafad225a744193b4f58edead0e145b5994b822c3",
+      "sym": "PERPLEX",
+      "dex": "pons-v2",
+      "born": "2026-10-23T00:23:56Z",
+      "fdv": 16958.46078,
+      "liq": 12483.216
+    },
+    {
       "addr": "0xafb9e3770ff83ce37307a65c09c2b17ed7c5c605",
       "sym": "LCRAWL",
       "dex": "pons-v2",
@@ -24697,6 +25369,14 @@
       "liq": 0.0001319203018
     },
     {
+      "addr": "0xb01fa426ff69e0eb3d4d87e2f09c05db463681f4",
+      "sym": "GUST",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:02:36Z",
+      "fdv": 6149.519664,
+      "liq": 6177.4043
+    },
+    {
       "addr": "0xb02e8f92aa97dd90285af017db27792369ebd02f",
       "sym": "$PULP",
       "dex": "uniswap-v2-robinhood",
@@ -24727,6 +25407,14 @@
       "born": "2026-08-19T05:20:47Z",
       "fdv": 4931.911616,
       "liq": 6188.0434
+    },
+    {
+      "addr": "0xb075f4790a0d0891c1acdc34b4edc2e598b6b044",
+      "sym": "GUST",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:01:48Z",
+      "fdv": 6006.97118,
+      "liq": 6055.8255
     },
     {
       "addr": "0xb0788f5f65a9f4c0d8a634c45c391234f46221ab",
@@ -24857,6 +25545,14 @@
       "liq": 327975.4837
     },
     {
+      "addr": "0xb11384a6ac2b3708e3d25a834c8a88687accbcd1",
+      "sym": "CREORA",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-20T18:32:34Z",
+      "fdv": 1133569.98998758,
+      "liq": 96210.048
+    },
+    {
       "addr": "0xb12424877de0f527d26a1d5d748f68cffd85872a",
       "sym": "GROTTO",
       "dex": "clanker-robinhood",
@@ -24985,6 +25681,14 @@
       "liq": 3408.7031
     },
     {
+      "addr": "0xb1f34708b26df97a069b54e0ef8688d02f77f691",
+      "sym": "MILETUS",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T17:11:25Z",
+      "fdv": 5638.098992,
+      "liq": 5636.6798
+    },
+    {
       "addr": "0xb1f4b1ca60010ab1ab97b60a913e0edb6531049a",
       "sym": "BULLCAT",
       "dex": "uniswap-pools-trade",
@@ -25007,6 +25711,14 @@
       "born": "2026-10-12T18:38:13Z",
       "fdv": 0.03110342162,
       "liq": 0.008189157738
+    },
+    {
+      "addr": "0xb23d1319c919d9ccd03baff46e7a417167e83926",
+      "sym": "BTC",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-22T23:28:34Z",
+      "fdv": 6053.325622,
+      "liq": 6096.5123
     },
     {
       "addr": "0xb245a0e4bcf6f7961b68785d54ccdf51eac906c1",
@@ -25079,6 +25791,14 @@
       "born": "2026-08-18T23:34:08Z",
       "fdv": 2598.25385,
       "liq": 5.164956361e-19
+    },
+    {
+      "addr": "0xb2e99030f951788ce067ae2802aaa75b83a984da",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T19:00:27Z",
+      "fdv": 5611.962628,
+      "liq": 5812.9088
     },
     {
       "addr": "0xb30fcc1d1dc674ae372cab38ae73f4266de794fe",
@@ -25337,6 +26057,14 @@
       "liq": 34881.8592
     },
     {
+      "addr": "0xb4ddf60c920240d7b226c63044a2aeb2bc21cc68",
+      "sym": "SYSTEM",
+      "dex": "pons-v2",
+      "born": "2026-10-22T21:05:23Z",
+      "fdv": 4321.704322,
+      "liq": 4190.5997
+    },
+    {
       "addr": "0xb4f019cd48770f8232c92d9e398390b9ac0c627c",
       "sym": "KIM",
       "dex": "uniswap-v3-robinhood",
@@ -25383,6 +26111,14 @@
       "born": "2026-10-08T12:43:46Z",
       "fdv": 320.5746699,
       "liq": 2.6981
+    },
+    {
+      "addr": "0xb55f47a40ccedacbd38562102e6af1df7552de20",
+      "sym": "BUTLER",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T19:41:16Z",
+      "fdv": 5687.173976,
+      "liq": 5720.22
     },
     {
       "addr": "0xb5623823cbb29ad2af8c55ebec14ad2dc515216a",
@@ -25489,6 +26225,14 @@
       "liq": 119768.6657
     },
     {
+      "addr": "0xb61f5a7f64e72adf388bab11c2f18978c9c63747",
+      "sym": "JIJI",
+      "dex": "pons-v2",
+      "born": "2026-10-22T20:05:55Z",
+      "fdv": 3957.164127,
+      "liq": 4005.8393
+    },
+    {
       "addr": "0xb6286543be368bfbf32e475d548c4fecf31108be",
       "sym": "OVER",
       "dex": "virtuals-robinhood",
@@ -25507,10 +26251,10 @@
     {
       "addr": "0xb63d07cef74be747231d601bb2faa6b252c68106",
       "sym": "FABLES",
-      "dex": "sectorone-v2-2-robinhood",
-      "born": "2026-10-20T21:48:50Z",
-      "fdv": 14137689.2483227,
-      "liq": 421.6078
+      "dex": "sectorone-v2-0-robinhood",
+      "born": "2026-10-20T21:44:35Z",
+      "fdv": 10754674.4137273,
+      "liq": 702.476
     },
     {
       "addr": "0xb64fd97d3ce8c487bd3613fcda691eb874f37ace",
@@ -25601,6 +26345,14 @@
       "liq": 0.00368181703059787
     },
     {
+      "addr": "0xb7806f41e167e4125881a3cf40a2aa245105d403",
+      "sym": "SHADOW",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T01:46:30Z",
+      "fdv": 6081.23443,
+      "liq": 6097.4753
+    },
+    {
       "addr": "0xb7829a20f4eff97831294ffe97ead20275068699",
       "sym": "jomo",
       "dex": "pons-v2",
@@ -25689,6 +26441,14 @@
       "liq": 0.0
     },
     {
+      "addr": "0xb815559286e633a902621c4a5dbf08976092855b",
+      "sym": "MACCA",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-21T21:04:25Z",
+      "fdv": 85646.67656,
+      "liq": 19447.6929
+    },
+    {
       "addr": "0xb818eac7a4a95b04f763de9f1e750facb0bf9dfc",
       "sym": "HRZN",
       "dex": "virtuals-robinhood",
@@ -25737,6 +26497,14 @@
       "liq": 3678.2583
     },
     {
+      "addr": "0xb847391fcd3b02bec351ff46f5225b80a4a78e76",
+      "sym": "ALCOVE",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T16:36:41Z",
+      "fdv": 5638.053877,
+      "liq": 5636.6798
+    },
+    {
       "addr": "0xb876edc455402d45cd9686dddc13da4020800328",
       "sym": "TAKO",
       "dex": "uniswap-v2-robinhood",
@@ -25751,6 +26519,14 @@
       "born": "2026-09-28T03:09:48Z",
       "fdv": 6753.297703,
       "liq": 12558.1291
+    },
+    {
+      "addr": "0xb878f95d7d2377efddbb576429089066abd4ecf2",
+      "sym": "BAGS",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T18:22:15Z",
+      "fdv": 5818.94142,
+      "liq": 5884.893
     },
     {
       "addr": "0xb885c999ba7f069a12a575c34c06ab1100641343",
@@ -25999,6 +26775,14 @@
       "born": "2026-08-19T00:33:12Z",
       "fdv": 265851.0865,
       "liq": 16.6203
+    },
+    {
+      "addr": "0xb9ea8b6a4c0beb688f70461b733362cb42e55230",
+      "sym": "ORBIX",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-23T05:30:41Z",
+      "fdv": 58141.29563,
+      "liq": 54517.8861
     },
     {
       "addr": "0xb9f53611316fa2428eb93c4cc4dccae0d3977f79",
@@ -26465,6 +27249,30 @@
       "liq": 54233.5771
     },
     {
+      "addr": "0xbd095fb55f55d59f1e16115dabe3b81d5ce035dc",
+      "sym": "THKR",
+      "dex": "pons-v2",
+      "born": "2026-10-22T17:02:19Z",
+      "fdv": 27959.50328,
+      "liq": 17184.2749
+    },
+    {
+      "addr": "0xbd1a43744409a33d131cfc0c14103d6dcff11c12",
+      "sym": "V4M",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-22T16:04:20Z",
+      "fdv": 136819.0192,
+      "liq": 34925.4668
+    },
+    {
+      "addr": "0xbd3633706a8e271d257d37140558571216db3b07",
+      "sym": "SHIB",
+      "dex": "clanker-robinhood",
+      "born": "2026-07-14T17:52:24Z",
+      "fdv": 14138183.71,
+      "liq": 9908416.9985
+    },
+    {
       "addr": "0xbd655af8e7dfa16fee0c7384c46bfea1f6d29ad4",
       "sym": "TAPE",
       "dex": "virtuals-robinhood",
@@ -26559,6 +27367,14 @@
       "born": "2026-09-23T20:02:08Z",
       "fdv": 30968.9477898515,
       "liq": 5769.5447
+    },
+    {
+      "addr": "0xbe071ad9fed255e64c3fb6e03e85a0821025ce6b",
+      "sym": "CHAD",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-22T13:40:40Z",
+      "fdv": 2760.385249,
+      "liq": 4289.0508
     },
     {
       "addr": "0xbe16e3a1ba2a330ff5d21822db33ebe727e744cc",
@@ -26825,6 +27641,14 @@
       "liq": 0.0
     },
     {
+      "addr": "0xbffb81d2f22e2915330c4ff57efff2d34f5a3501",
+      "sym": "SHADOW",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T09:05:35Z",
+      "fdv": 6065.765664,
+      "liq": 6074.1225
+    },
+    {
       "addr": "0xc00899951d84ee5afb1bf22df1d91d5206457d86",
       "sym": "ZIP",
       "dex": "pons-v2-dex",
@@ -26847,6 +27671,22 @@
       "born": "2026-08-14T03:56:49Z",
       "fdv": 7199.1118420876,
       "liq": 4083.3587
+    },
+    {
+      "addr": "0xc0255b459d9e9b6ddf29893b5f4dcb40913e2a04",
+      "sym": "microduck",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:09:56Z",
+      "fdv": 6035.375005,
+      "liq": 6071.715
+    },
+    {
+      "addr": "0xc030386c4579b07831613fc38f4addd613470f83",
+      "sym": "PROV",
+      "dex": "pons-v2-dex",
+      "born": "2026-10-23T03:48:34Z",
+      "fdv": 15922.51586,
+      "liq": 11388.5587
     },
     {
       "addr": "0xc044c0a130c4349b2f81c1518c41c879dfed374a",
@@ -26985,12 +27825,28 @@
       "liq": 32333.7768
     },
     {
+      "addr": "0xc12ef04b04b781d027d924e51ac288cb64a9c4f3",
+      "sym": "FLIP",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-22T18:33:30Z",
+      "fdv": 5628.404019,
+      "liq": 5696.3858
+    },
+    {
       "addr": "0xc164e51e628b8ef3890cb383f9cedada46ace555",
       "sym": "VICE",
       "dex": "uniswap-v3-robinhood",
       "born": "2026-10-22T03:44:05Z",
       "fdv": 369258.6484,
       "liq": 39.7053
+    },
+    {
+      "addr": "0xc167f84df2d46ecde0d98f175132aa25cffd4ba3",
+      "sym": "UMBRELLA",
+      "dex": "bankr-robinhood",
+      "born": "2026-10-22T20:10:19Z",
+      "fdv": 10777.83054,
+      "liq": 8817.7095
     },
     {
       "addr": "0xc17a29b8b708d522a806bd0a5ac0bec1a6e5d7eb",
@@ -27311,6 +28167,14 @@
       "born": "2026-09-05T05:31:56Z",
       "fdv": 6257.830109,
       "liq": 256.5738
+    },
+    {
+      "addr": "0xc358223430aa5027446d0c85d7d7e13ab4146600",
+      "sym": "LOWKEY",
+      "dex": "pons-v2",
+      "born": "2026-10-23T00:34:51Z",
+      "fdv": 3871.871094,
+      "liq": 3884.2605
     },
     {
       "addr": "0xc36d7924a1da6ff8e07cf39a8dd97f8f6b4c587e",
@@ -27955,10 +28819,10 @@
     {
       "addr": "0xc72c01aab5f5678dc1d6f5c6d2b417d91d402ba3",
       "sym": "HOODIE",
-      "dex": "rubicon-clmm-robinhood",
-      "born": "2026-09-15T19:59:12Z",
-      "fdv": 155183.856698362,
-      "liq": 1.4643981782
+      "dex": "bankr-robinhood",
+      "born": "2026-07-08T15:42:46Z",
+      "fdv": 53937.3307639008,
+      "liq": 42381.35
     },
     {
       "addr": "0xc730b5ea9bcc8a131e0801f2bbea5561e0b61e18",
@@ -28345,6 +29209,14 @@
       "liq": 24469.394
     },
     {
+      "addr": "0xcad0e76fd3b0f28de3dbcc83cb61fdc7ff685d0e",
+      "sym": "DREAMLABS",
+      "dex": "virtuals-robinhood",
+      "born": "2026-10-23T11:24:02Z",
+      "fdv": 5984.460382,
+      "liq": 6005.9903
+    },
+    {
       "addr": "0xcad7447c088d891dffd353a9eff92622c09114ed",
       "sym": "USDCAT",
       "dex": "sushiswap-v3-robinhood",
@@ -28583,6 +29455,14 @@
       "born": "2026-10-07T11:25:40Z",
       "fdv": 6612.506143,
       "liq": 26670.7769
+    },
+    {
+      "addr": "0xccafc1fdcc0d1f2e90ef426f5b3b38e189872c45",
+      "sym": "Pok\u00e9mon",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T05:37:44Z",
+      "fdv": 0.02868158058,
+      "liq": 0.007934752279
     },
     {
       "addr": "0xccbcae53e67df6a0d5e22ffdae57119147ed1a5a",
@@ -28825,6 +29705,14 @@
       "liq": 78853.9649
     },
     {
+      "addr": "0xce4f9b296852fcf0bbf7e95d6db349eba06aac08",
+      "sym": "KURO",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:39:20Z",
+      "fdv": 6063.563355,
+      "liq": 6095.5493
+    },
+    {
       "addr": "0xce509d9f132e691fbb9fc6859292b90442e61f3c",
       "sym": "Grok 4.7",
       "dex": "uniswap-pools-trade",
@@ -28925,7 +29813,7 @@
       "sym": "cbBTC",
       "dex": "uniswap-v3-robinhood",
       "born": "2026-08-29T06:24:52Z",
-      "fdv": 2106385.84532154,
+      "fdv": 2148471.24597706,
       "liq": 163140.6527
     },
     {
@@ -28951,6 +29839,14 @@
       "born": "2026-10-16T15:43:17Z",
       "fdv": 4049.834117,
       "liq": 4039.759
+    },
+    {
+      "addr": "0xcefcc00be209255177c0cefed5b0b279ec60395a",
+      "sym": "FOB",
+      "dex": "virtuals-robinhood",
+      "born": "2026-07-16T13:50:49Z",
+      "fdv": 5705.982262,
+      "liq": 5736.3979
     },
     {
       "addr": "0xcf1968747bc573294e468fd0cdab0dc61b971e18",
@@ -29167,6 +30063,14 @@
       "born": "2026-09-14T16:13:32Z",
       "fdv": 39135.21008,
       "liq": 65413.2858
+    },
+    {
+      "addr": "0xd08c7e2a33a235ac6b17d90eff2912527fa7ab07",
+      "sym": "I",
+      "dex": "clanker-robinhood",
+      "born": "2026-10-22T20:41:44Z",
+      "fdv": 23963.11386,
+      "liq": 24245.2103
     },
     {
       "addr": "0xd0a6042a7d5bb0c45116e6d2a3aa718c72a43bf8",
@@ -29553,6 +30457,14 @@
       "liq": 122.5876
     },
     {
+      "addr": "0xd2e4fda34eb26aa97a8e44ca053e43d329975bf7",
+      "sym": "ARCHIER",
+      "dex": "virtuals-robinhood",
+      "born": "2026-07-16T13:08:02Z",
+      "fdv": 8041.998598,
+      "liq": 7849.6416
+    },
+    {
       "addr": "0xd30833bfa3089b12e6ad0d9aabb110528c3d16fa",
       "sym": "ZERO",
       "dex": "uniswap-v2-robinhood",
@@ -29697,6 +30609,14 @@
       "liq": 9466.2526
     },
     {
+      "addr": "0xd3eff03f469cf3b4ad0c2a571c52578f26c36864",
+      "sym": "VLPUP",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-23T10:13:18Z",
+      "fdv": 443631.7312,
+      "liq": 166646.4278
+    },
+    {
       "addr": "0xd3f5371ed630baabdafa592bd26f391d73c57d7b",
       "sym": "ACCRUAL",
       "dex": "virtuals-robinhood",
@@ -29727,6 +30647,14 @@
       "born": "2026-10-08T15:50:49Z",
       "fdv": 1893156.72732646,
       "liq": 69532.8968
+    },
+    {
+      "addr": "0xd43e2956b7e2675e73292ceb983bc50da61b5b61",
+      "sym": "TRENCHERS",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-22T22:31:39Z",
+      "fdv": 6039.459112,
+      "liq": 6105.9015
     },
     {
       "addr": "0xd444622c16aa92c33b56f922ee9fd64776789171",
@@ -29791,6 +30719,14 @@
       "born": "2026-08-19T15:30:10Z",
       "fdv": 7570.364483,
       "liq": 7029.3077
+    },
+    {
+      "addr": "0xd4dc4e337a7aedfe5e0a7ccc30539415d50df5e7",
+      "sym": "TETSU",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:34:02Z",
+      "fdv": 6099.884015,
+      "liq": 6135.273
     },
     {
       "addr": "0xd4dc6b48ad73ec51e71d9b8f65568f88609b92c1",
@@ -29907,17 +30843,17 @@
     {
       "addr": "0xd5f1afea47b1a9eab414d2ee740cf1d6d039e725",
       "sym": "microduck",
-      "dex": "sectorone-v2-0-robinhood",
-      "born": "2026-08-27T13:12:20Z",
-      "fdv": 10364289.2681034,
-      "liq": 76063.2179
+      "dex": "pons-v2-dex",
+      "born": "2026-08-27T11:48:43Z",
+      "fdv": 4256321.86062906,
+      "liq": 175135.4966
     },
     {
       "addr": "0xd5f3879160bc7c32ebb4dc785f8a4f505888de68",
       "sym": "QQQ",
       "dex": "orvex-v4",
       "born": "2026-07-10T18:21:17Z",
-      "fdv": 5424908.63870556,
+      "fdv": 5448504.39694799,
       "liq": 1036545.4559
     },
     {
@@ -30015,6 +30951,14 @@
       "born": "2026-09-05T02:12:31Z",
       "fdv": 16083.24457,
       "liq": 12040.0405
+    },
+    {
+      "addr": "0xd6a31fae8682a65bf338b35d5cecf40e54967322",
+      "sym": "REX",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T00:29:12Z",
+      "fdv": 6021.196788,
+      "liq": 6071.4743
     },
     {
       "addr": "0xd6a6558651a0b907d87eb6e679a5e55d9baa9a78",
@@ -30385,6 +31329,14 @@
       "liq": 115032.8931
     },
     {
+      "addr": "0xd93ec2a7ab50a03fbafbfd65983903630933810e",
+      "sym": "GRFT",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-23T01:03:42Z",
+      "fdv": 2398.518065,
+      "liq": 2415.4448
+    },
+    {
       "addr": "0xd94d4c9db428f7f7a0d68927bf373c21bd8cf72a",
       "sym": "SHIM",
       "dex": "virtuals-robinhood",
@@ -30439,6 +31391,14 @@
       "born": "2026-07-20T18:35:02Z",
       "fdv": 18079070.6696923,
       "liq": 2787070.5787
+    },
+    {
+      "addr": "0xd9df8911c0593a5959ffade9a4f130105bc327d6",
+      "sym": "AE",
+      "dex": "pons-v2",
+      "born": "2026-10-22T20:45:58Z",
+      "fdv": 49817.44599,
+      "liq": 0.0
     },
     {
       "addr": "0xd9e97054cf82cc0067718fc9ed45cb274313e1ad",
@@ -30741,7 +31701,7 @@
       "sym": "DARK",
       "dex": "pons-v2-dex",
       "born": "2026-09-16T18:08:10Z",
-      "fdv": 4583139.60014415,
+      "fdv": 4868991.77931674,
       "liq": 290819.8444
     },
     {
@@ -30889,6 +31849,14 @@
       "liq": 4111.5771
     },
     {
+      "addr": "0xdd5e3fe8eddb64d1e27b6b13a24719ea0bb278dc",
+      "sym": "PONS",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-22T17:53:11Z",
+      "fdv": 262694692.012,
+      "liq": 91633984.4669
+    },
+    {
       "addr": "0xdd883cb7b621aa8f8800011c26f9502087b7e6d6",
       "sym": "RWA",
       "dex": "uniswap-pools-trade",
@@ -30999,6 +31967,14 @@
       "born": "2026-10-12T22:41:45Z",
       "fdv": 4161.806428,
       "liq": 4142.9115
+    },
+    {
+      "addr": "0xde36bc5f7e2a2e5e04ddb9dcc7aad819ec354c07",
+      "sym": "HOOKLINE",
+      "dex": "pons-v2",
+      "born": "2026-10-22T16:18:23Z",
+      "fdv": 80453.88666,
+      "liq": 25717.3655
     },
     {
       "addr": "0xde5c597380295619db22505fa38747fa2dc5fe8c",
@@ -31213,8 +32189,8 @@
       "sym": "UHI",
       "dex": "uniswap-v4-robinhood",
       "born": "2026-10-19T12:18:49Z",
-      "fdv": 26556479.82,
-      "liq": 433344.5421
+      "fdv": 34389584.11,
+      "liq": 573174.6233
     },
     {
       "addr": "0xe02c0f0f793cf0dcbe441b222a7c8104f3ff7a9d",
@@ -31287,6 +32263,14 @@
       "born": "2026-09-29T05:09:16Z",
       "fdv": 6989.599944,
       "liq": 8651.4733
+    },
+    {
+      "addr": "0xe056c1644857cc29270197edec04007f955c1601",
+      "sym": "test",
+      "dex": "o1-launchpad-robinhood",
+      "born": "2026-10-22T15:30:50Z",
+      "fdv": 3893.83192,
+      "liq": 3909.5393
     },
     {
       "addr": "0xe073826b70babe3b1a200c2c2989de5a9c249e5a",
@@ -31583,6 +32567,14 @@
       "born": "2026-10-13T15:13:17Z",
       "fdv": 24840.97515,
       "liq": 24013.0301
+    },
+    {
+      "addr": "0xe32550d49f3cd347492cf1409e0a5bf77fae83fa",
+      "sym": "microduck",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-23T11:12:00Z",
+      "fdv": 6027.766469,
+      "liq": 6092.6603
     },
     {
       "addr": "0xe345c7daeac04b7b5ab9e2d54183b0e4040bbb07",
@@ -31894,7 +32886,7 @@
       "dex": "uniswap-v4-robinhood",
       "born": "2026-10-04T14:42:14Z",
       "fdv": 156496937.1,
-      "liq": 209921.0853
+      "liq": 8184018.8572
     },
     {
       "addr": "0xe5bc8bbc184e26cafa4a59c4f76ab42ef187c584",
@@ -32249,6 +33241,14 @@
       "liq": 2.3771
     },
     {
+      "addr": "0xe8fe1ea5f9a47ee117f34d65f14790ba37d7429f",
+      "sym": "SIFT",
+      "dex": "pons-v2",
+      "born": "2026-10-22T13:02:32Z",
+      "fdv": 19635.95217,
+      "liq": 13749.8124
+    },
+    {
       "addr": "0xe8ffd7e24187f72afb08d75b1bb13088a989a791",
       "sym": "DELTA",
       "dex": "pons-dot-family",
@@ -32375,6 +33375,14 @@
       "born": "2026-10-01T06:23:52Z",
       "fdv": 505768.1259,
       "liq": 0.0
+    },
+    {
+      "addr": "0xe9b870ff0291b6afca8aa97032172c0df46c8503",
+      "sym": "Friendship",
+      "dex": "pons-v2",
+      "born": "2026-10-23T10:24:36Z",
+      "fdv": 3990.078433,
+      "liq": 4008.006
     },
     {
       "addr": "0xe9cf74b323bd4f75d6ca26e3bad2678c11735a59",
@@ -32985,6 +33993,22 @@
       "liq": 11036.2752
     },
     {
+      "addr": "0xef0a84b16902efcd41fa001bd6473c64876b93b0",
+      "sym": "WORTH",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-08-05T23:08:25Z",
+      "fdv": 7338.9476811223,
+      "liq": 7764.8107
+    },
+    {
+      "addr": "0xef0f31927f4f4ef9f437934fa067b9b91bf52c06",
+      "sym": "PANGO",
+      "dex": "virtuals-robinhood",
+      "born": "2026-07-10T11:32:24Z",
+      "fdv": 28699.47547,
+      "liq": 16389.6739
+    },
+    {
       "addr": "0xef143a0760540294876a11155a7d27bc64232b07",
       "sym": "DOPPLER",
       "dex": "clanker-robinhood",
@@ -33087,6 +34111,14 @@
       "born": "2026-09-05T08:01:50Z",
       "fdv": 6234.170619,
       "liq": 7143.2318
+    },
+    {
+      "addr": "0xefc85573fb33adf31243a37c4056a273e6991602",
+      "sym": "Dacity",
+      "dex": "uniswap-v2-robinhood",
+      "born": "2026-10-23T12:25:35Z",
+      "fdv": 209010.824029,
+      "liq": 21.6915
     },
     {
       "addr": "0xefe572902bc3d2c976795b5b30cbf6e083256ba3",
@@ -33929,6 +34961,14 @@
       "liq": 7055.2642
     },
     {
+      "addr": "0xf650db0823c3dbf736ac1027cedf5b0fb692e4ea",
+      "sym": "RIVAL",
+      "dex": "uniswap-v4-robinhood",
+      "born": "2026-10-22T20:33:00Z",
+      "fdv": 308262.9841,
+      "liq": 0.0
+    },
+    {
       "addr": "0xf6589f11bc40b669e584073f428b05562f568733",
       "sym": "snap",
       "dex": "giga-v3",
@@ -34665,6 +35705,22 @@
       "liq": 14523.7349
     },
     {
+      "addr": "0xfc2e06489f7c630fb65df639807aef04917fd020",
+      "sym": "SHAVCOIN",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-22T22:19:57Z",
+      "fdv": 5989.159043,
+      "liq": 6070.2705
+    },
+    {
+      "addr": "0xfc484fbe7420e54c1a72c71f4547a9beaadf6e63",
+      "sym": "fring",
+      "dex": "uniswap-pools-trade",
+      "born": "2026-10-22T15:57:23Z",
+      "fdv": 6002.473913,
+      "liq": 6029.1023
+    },
+    {
       "addr": "0xfc5a5c521c80d8e1d6b5aee6454b8c9483c91bff",
       "sym": "LLL",
       "dex": "uniswap-v2-robinhood",
@@ -35178,45 +36234,45 @@
     }
   ],
   "swept": {
-    "uniswap-v2-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "uniswap-v3-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "uniswap-v4-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "pancakeswap-v3-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "pancakeswap-v2-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "bankr-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "virtuals-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "robinswap": "2026-10-22T14:37:52.870785+00:00",
-    "hoodit": "2026-10-22T14:37:52.870785+00:00",
-    "pons-dot-family": "2026-10-22T14:37:52.870785+00:00",
-    "clanker-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "easya-kickstart-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "swaphood-finance-v2": "2026-10-22T14:37:52.870785+00:00",
-    "swaphood-finance-v3": "2026-10-22T14:37:52.870785+00:00",
-    "mint-club-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "sushiswap-v2-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "sushiswap-v3-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "curve-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "up-v3": "2026-10-22T14:37:52.870785+00:00",
-    "sectorone-v2-2-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "sectorone-v2-0-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "parityswap": "2026-10-22T14:37:52.870785+00:00",
-    "pons-v2": "2026-10-22T14:37:52.870785+00:00",
-    "pons-v2-dex": "2026-10-22T14:37:52.870785+00:00",
-    "ekubo-v3-robinhood": "2026-10-22T14:37:52.870785+00:00",
-    "uniswap-pools-trade": "2026-10-21T14:35:28.583941+00:00",
-    "ramses-v3-robinhood": "2026-10-21T14:35:28.583941+00:00",
-    "ramses-dlmm-robinhood": "2026-10-21T14:35:28.583941+00:00",
-    "ramses-legacy-robinhood": "2026-10-21T14:35:28.583941+00:00",
-    "giga-v3": "2026-10-21T14:35:28.583941+00:00",
-    "giga-v2": "2026-10-21T14:35:28.583941+00:00",
-    "alandale": "2026-10-21T14:35:28.583941+00:00",
-    "alandale-cl": "2026-10-21T14:35:28.583941+00:00",
-    "orvex-v2": "2026-10-21T14:35:28.583941+00:00",
-    "orvex-v4": "2026-10-21T14:35:28.583941+00:00",
-    "synthra-robinhood": "2026-10-21T14:35:28.583941+00:00",
-    "rubicon-robinhood": "2026-10-21T14:35:28.583941+00:00",
-    "rubicon-clmm-robinhood": "2026-10-21T14:35:28.583941+00:00",
-    "o1-launchpad-robinhood": "2026-10-22T14:37:52.870785+00:00",
+    "uniswap-v2-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "uniswap-v3-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "uniswap-v4-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "pancakeswap-v3-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "pancakeswap-v2-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "bankr-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "virtuals-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "robinswap": "2026-10-23T14:20:06.814441+00:00",
+    "hoodit": "2026-10-23T14:20:06.814441+00:00",
+    "pons-dot-family": "2026-10-23T14:20:06.814441+00:00",
+    "clanker-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "easya-kickstart-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "swaphood-finance-v2": "2026-10-23T14:20:06.814441+00:00",
+    "swaphood-finance-v3": "2026-10-23T14:20:06.814441+00:00",
+    "mint-club-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "sushiswap-v2-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "sushiswap-v3-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "curve-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "up-v3": "2026-10-23T14:20:06.814441+00:00",
+    "sectorone-v2-2-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "sectorone-v2-0-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "parityswap": "2026-10-23T14:20:06.814441+00:00",
+    "pons-v2": "2026-10-23T14:20:06.814441+00:00",
+    "pons-v2-dex": "2026-10-23T14:20:06.814441+00:00",
+    "ekubo-v3-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "uniswap-pools-trade": "2026-10-23T14:20:06.814441+00:00",
+    "ramses-v3-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "ramses-dlmm-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "ramses-legacy-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "giga-v3": "2026-10-23T14:20:06.814441+00:00",
+    "giga-v2": "2026-10-23T14:20:06.814441+00:00",
+    "alandale": "2026-10-23T14:20:06.814441+00:00",
+    "alandale-cl": "2026-10-23T14:20:06.814441+00:00",
+    "orvex-v2": "2026-10-23T14:20:06.814441+00:00",
+    "orvex-v4": "2026-10-23T14:20:06.814441+00:00",
+    "synthra-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "rubicon-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "rubicon-clmm-robinhood": "2026-10-23T14:20:06.814441+00:00",
+    "o1-launchpad-robinhood": "2026-10-23T14:20:06.814441+00:00",
     "brownfi": "2026-09-09T14:03:28.035757+00:00",
     "brownfi-v3-robinhood": "2026-10-22T14:37:52.870785+00:00",
     "abyss": "2026-10-22T14:37:52.870785+00:00",
