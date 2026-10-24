@@ -4007,5 +4007,76 @@
 "symbol": "LC",
 "max": 200000000,
 "minted": 3150
+},
+"0x596988c7aa82cdde9f4375d2fb337f3844b0ab89": {
+"name": "StreetHood Vaults",
+"symbol": "SHVaults",
+"max": 1000,
+"minted": 1000
+},
+"0xecbaab02397ccccc74744d5b36c783e5fbb0468a": {
+"name": "CHIFFYS",
+"symbol": "CHIF",
+"max": 2222,
+"minted": 769
+},
+"0xa1ef42cbf5643acd7a5964f7179bff2f8ab6477f": {
+"name": "Cloverbots",
+"symbol": "Cloverbots",
+"max": 1555,
+"minted": 1324
+},
+"0x4b5736c798ab6e675c5b4517d284a2f045aa6c2c": {
+"name": "SNOTHOOD",
+"symbol": "SNOTHOOD",
+"max": 1234,
+"minted": 712
+},
+"0x6092798f21cfc529867dd2ff04b5c7a3f4cbcbd8": {
+"name": "MONKHAOS",
+"symbol": "MONKHAOS",
+"max": 1500,
+"minted": 962
+},
+"0x7ac870c63f38350e17af7a7841331e368144c8e5": {
+"name": "BROODZ",
+"symbol": "Robinhood ch",
+"max": 2222,
+"minted": 1275
+},
+"0xbdf4fb9e8f1356685d4a9306ef06ee41fa09eafd": {
+"name": "Lumina",
+"symbol": "LUMX",
+"max": 250,
+"minted": 250
+},
+"0xa38f99da200ed780e12b26e049a169912da0f89a": {
+"name": "0xBabyNut",
+"symbol": "0XBABYNUT",
+"max": 3200,
+"minted": 3200
+},
+"0x5baed2c7e0d83e41525067d847b897db648cb86d": {
+"name": "Baby Bulls",
+"symbol": "BabyBulls",
+"max": 1000,
+"minted": 139
+},
+"0x54aac7668e516eaaf167907e2497b708d9ff9c15": {
+"name": "Pixel Plebs Game NFT",
+"symbol": "PPG",
+"max": 3333,
+"minted": 179
+},
+"0x2f0c80ecb071062a46bd24de4fa51e82ea542dd3": {
+"name": "Mewly",
+"symbol": "mew",
+"max": 777,
+"minted": 53
+},
+"0x1c7dddc2fa9bec0549fcdeabcfebd37452d2cdcb": {
+"name": "Overcall Channel",
+"symbol": "OCCH",
+"max": null
 }
 }
