@@ -4060,7 +4060,7 @@
 "name": "Baby Bulls",
 "symbol": "BabyBulls",
 "max": 1000,
-"minted": 139
+"minted": 217
 },
 "0x54aac7668e516eaaf167907e2497b708d9ff9c15": {
 "name": "Pixel Plebs Game NFT",
@@ -4078,5 +4078,69 @@
 "name": "Overcall Channel",
 "symbol": "OCCH",
 "max": null
+},
+"0xf04a7a20a1462ba7dbbe153ae31a90b41a1dce75": {
+"name": "SNOCRO",
+"symbol": "Snocro",
+"max": 1555,
+"minted": 593
+},
+"0xd18e1ad081cefd2e97a35a6474795dd59150fc0a": {
+"name": "Giga Legends",
+"symbol": "Giga Legends",
+"max": 4444,
+"minted": 4156
+},
+"0xadc7663e63216cbd86e4dcdd9152a79daedf154e": {
+"name": "Agent Dojo",
+"symbol": "Adojo",
+"max": 5000,
+"minted": 3975
+},
+"0xc3f8a35e4dee98b88a28ff46759ba0247589b952": {
+"name": "Persona Non Grata",
+"symbol": "PNG",
+"max": 3333,
+"minted": 1961
+},
+"0xc6f8c96b387ef046d11baa033ac390e0b1792bc8": {
+"name": "ByteBroker",
+"symbol": "BYB",
+"max": 6666,
+"minted": 6666
+},
+"0x296ee02f21808faae9fe6e4ef5181836ce3a2fce": {
+"name": "DOTA HEROES \u2014 Pixel Battlegrou",
+"symbol": "DOTAPB",
+"max": 2540,
+"minted": 956
+},
+"0x1f6b87bb07322f11622b631ddd45e58798078b93": {
+"name": "Lime Invaders",
+"symbol": "Lime Invader",
+"max": 1234,
+"minted": 489
+},
+"0x67db8ba032bc4b6ab2e58a19e18c271d445d3bcb": {
+"name": "Squash Pirate",
+"symbol": "Squashpirate",
+"max": 3434,
+"minted": 291
+},
+"0x89f7a78312530a12d5aa24dc788c667a1f1da7fc": {
+"name": "Hot Buns Baskets",
+"symbol": "BASKET",
+"max": null
+},
+"0x9d1d341508f6e5f7b90b73f8847698e7e2e4f9b2": {
+"name": "Chibi Machine",
+"symbol": "CHIBI",
+"max": null
+},
+"0x4e84fc31d54f8b20711e33ec285e8f8bac41ffe9": {
+"name": "Baudet du Poitou",
+"symbol": "BAUDET",
+"max": 500,
+"minted": 500
 }
 }
