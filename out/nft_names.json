@@ -4142,5 +4142,77 @@
 "symbol": "BAUDET",
 "max": 500,
 "minted": 500
+},
+"0xcf32e712de7dac92f54e6fbc0baaa3c3f6bae324": {
+"name": "Vaultlings",
+"symbol": "Vaultlings",
+"max": 2965,
+"minted": 267
+},
+"0x1a51d2487e59a3f991b79288f48ffe30ec7f36ef": {
+"name": "3S",
+"symbol": "3S",
+"max": 3333,
+"minted": 277
+},
+"0x7b7ede5d9da74bbe56a0ab039b7f47fdb8aee62d": {
+"name": "Sloppies NFT",
+"symbol": "SN",
+"max": 3333,
+"minted": 34
+},
+"0x7a0f78f20b5a0b3c10c0f82e2a4e28e56317ba99": {
+"name": "The Rebate Pad",
+"symbol": "T",
+"max": 3000,
+"minted": 126
+},
+"0x9cc351549ea9b97e7866dabf86682111b8ad3a01": {
+"name": "Forever Framework",
+"symbol": "F",
+"max": 500,
+"minted": 105
+},
+"0xa6aad9ca319bf050f413a372d0a9d437b65ab667": {
+"name": "PRICED OUT",
+"symbol": "P",
+"max": 5555,
+"minted": 22
+},
+"0x1a49a8520ea6222363e09a3faca1823fdf038ccd": {
+"name": "SQUIRRELNAUTS",
+"symbol": "Squirrelnaut",
+"max": 4444,
+"minted": 4087
+},
+"0x69316aaf746ebf461e86b64e736e32d1fe3f0460": {
+"name": "Node 1435",
+"symbol": "Node1425",
+"max": 5341,
+"minted": 3113
+},
+"0x9d15ebf724fe910638fbf3527077f607cb8f823a": {
+"name": "Sleepytoons ",
+"symbol": "sleepytoons",
+"max": 3333,
+"minted": 2808
+},
+"0xde9070651610db800e0efdfae849809ab7edc48b": {
+"name": "Karafuru world",
+"symbol": "K",
+"max": 3333,
+"minted": 7
+},
+"0xaf9b3d083417b4e23956c0c1a90b1a6d001e5713": {
+"name": "Loreonist",
+"symbol": "Loreonist",
+"max": 2000,
+"minted": 1462
+},
+"0x88e6fff707d3899896dabd3e5f2925bc32755843": {
+"name": "Influencer Family",
+"symbol": "Robinhood ch",
+"max": 1000,
+"minted": 10
 }
 }
