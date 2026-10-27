@@ -4214,5 +4214,77 @@
 "symbol": "Robinhood ch",
 "max": 1000,
 "minted": 10
+},
+"0x7d10f1b5dcc199f0aff1d836a04ba2c4f66bf0a9": {
+"name": "Robin Wapes",
+"symbol": "Robin Wapes",
+"max": 3333,
+"minted": 1637
+},
+"0x014906402e1b4971f7c9b247d2093578dc06e377": {
+"name": "ACT FUN",
+"symbol": "Robinhood ch",
+"max": 2222,
+"minted": 1148
+},
+"0xae11cdd5992c4d84c42ba1cfc549908d8e9c7748": {
+"name": "Fishes RH",
+"symbol": ".",
+"max": 3333,
+"minted": 203
+},
+"0xde53d638d683ef6adc47762d9fe7f759062e0f3d": {
+"name": "IMPLINGZ NFT",
+"symbol": "in",
+"max": 9999,
+"minted": 574
+},
+"0x1ab7f93341275fad01696595a3ec9bca670f85c2": {
+"name": "uikn",
+"symbol": "Robinhood ch",
+"max": 200000000,
+"minted": 181
+},
+"0x9f07339224b24caede7732b4d16407d39ca496df": {
+"name": "Monster Wheels",
+"symbol": "Robinhood ch",
+"max": 2222,
+"minted": 275
+},
+"0xa7ee4b5b60da8eb893e788ca195318bbf9527c69": {
+"name": "VaultlingNft",
+"symbol": "Vaultlings",
+"max": 1000,
+"minted": 154
+},
+"0x1b3bf728268d9b5487227723e753b76cfd7aca81": {
+"name": "Egglo RH",
+"symbol": ".",
+"max": 2888,
+"minted": 34
+},
+"0x783c56798b75bc10c950216c9dc7c4d52c4bd413": {
+"name": "Inkbit Wild Ones",
+"symbol": "IWILD",
+"max": 4444,
+"minted": 637
+},
+"0x34375196e0fa1b26d9ff2f22dfcae6adfc24294c": {
+"name": "Monster Wheels NFT",
+"symbol": "MWN",
+"max": 4444,
+"minted": 36
+},
+"0x29495b408ad58723c39b3a93bbb5a0b5c4ba16f5": {
+"name": "UJANG CILOK",
+"symbol": "UJLK",
+"max": 1000,
+"minted": 1000
+},
+"0x0e0c7f84fd1ceac81a7a5e5a21f81e7bcf9320d8": {
+"name": "30-Day Onchain Challenge",
+"symbol": "30DAY",
+"max": null,
+"minted": 684
 }
 }
