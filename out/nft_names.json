@@ -4286,5 +4286,71 @@
 "symbol": "30DAY",
 "max": null,
 "minted": 684
+},
+"0x135e02b339c205763222c88f5397b29b1f89893e": {
+"name": "KnightHood",
+"symbol": "KHD",
+"max": 1222,
+"minted": 1222
+},
+"0x9f757dc80547ea792d0221618dcb8c5d4d4cbecd": {
+"name": "Robin Borough",
+"symbol": "Robin Boroug",
+"max": 3333,
+"minted": 847
+},
+"0x30c4127389c41f5c046d40d88ee6358e56525f7c": {
+"name": "GIGA LEGENDS ",
+"symbol": "Giga Legends",
+"max": 3333,
+"minted": 659
+},
+"0xcda240b381bd71a10eeb4bc8889e7ea6968f972a": {
+"name": "XTRON 404",
+"symbol": "XT",
+"max": 1818,
+"minted": 1818
+},
+"0xc5ab1f7e8ed2b9527ec97c537e088a147f2dc816": {
+"name": "AgentR",
+"symbol": "AgentR",
+"max": 2222,
+"minted": 1055
+},
+"0xcce9528373d0d3e02481ff574df534a66a211d55": {
+"name": "XREIGN ",
+"symbol": "XREIGN UNITS",
+"max": 7500,
+"minted": 240
+},
+"0x16cd4de6350187749e7bc274aa9e27cbee93ea41": {
+"name": "Pixel Hood Minis RH",
+"symbol": "PHM",
+"max": 1333,
+"minted": 145
+},
+"0xe1fc5727ae4fce6f24932ed08aa89f4a96223770": {
+"name": "League Drago RH",
+"symbol": "League ",
+"max": 7590,
+"minted": 162
+},
+"0x44862953c5c351da2d8cec7390280b8e4f0042eb": {
+"name": "SoB NFT",
+"symbol": "SOB",
+"max": 2696,
+"minted": 914
+},
+"0xf2649b0057a9d6201af8d7675631c90127072e65": {
+"name": "Huemans",
+"symbol": "huns",
+"max": 1111,
+"minted": 43
+},
+"0x18ec18f123aa477f1e4a4762ee0db2ff3b8ecbcf": {
+"name": "The Sharkroll Token-Backer",
+"symbol": "99",
+"max": 10000,
+"minted": 147
 }
 }
