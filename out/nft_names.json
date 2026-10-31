@@ -4352,5 +4352,76 @@
 "symbol": "99",
 "max": 10000,
 "minted": 147
+},
+"0x4042ddd35b4ea5fcdc795f6de6438a91c4c83427": {
+"name": "Nexus Warrios",
+"symbol": "NW",
+"max": 1999,
+"minted": 1812
+},
+"0x5412d7c99b6539d4e2a280096de9859a0ce399ba": {
+"name": "Bloom by Julian Undav",
+"symbol": "bllom",
+"max": 4000,
+"minted": 2561
+},
+"0x2cf39dd7a72d925af5a9a21a09a3d22dbfabfa4a": {
+"name": "Influence.family Diamond Holde",
+"symbol": "DIAMOND",
+"max": 923
+},
+"0x42c8f02088c30ceec8cb20d9b83269d8c03acb79": {
+"name": "Rh Normies",
+"symbol": "RNN",
+"max": 1000,
+"minted": 864
+},
+"0xda082ea53ec70d9f5f3a7241ae16d79691e860cb": {
+"name": "FlushiesRH",
+"symbol": "Flush",
+"max": 3131,
+"minted": 582
+},
+"0x89d93c980ed69e6f69f7519b533b9fd928c1292d": {
+"name": "Graveyard on RH",
+"symbol": "Graveyard",
+"max": 1000,
+"minted": 1000
+},
+"0x315e87d55cf47c5ee7caf030e06f745f7d943e94": {
+"name": "BeakBones",
+"symbol": "BBS",
+"max": 1000,
+"minted": 339
+},
+"0xb16793aea9a45cd707e2da18c146b196eaa08f79": {
+"name": "Bloom by Julian Undav_",
+"symbol": "BbJU",
+"max": 4000,
+"minted": 503
+},
+"0x85622d5f3fabbb4069b4ef3f2130f6f3efc5b835": {
+"name": "Pixel Phantoms",
+"symbol": "PP",
+"max": 2222,
+"minted": 309
+},
+"0x2f16c66501119e0440110db11fcb15f01f857082": {
+"name": "Molecule",
+"symbol": "MOLEC",
+"max": 1111,
+"minted": 310
+},
+"0x65f435d06bdbd01de429af242a6da81de05e0f8b": {
+"name": "Phntm",
+"symbol": "ph",
+"max": 3333,
+"minted": 471
+},
+"0xd36809125945da2e57c1d4ac2bacaaacf680e1dd": {
+"name": "Ape Tribe",
+"symbol": "APETR",
+"max": 1000,
+"minted": 286
 }
 }
