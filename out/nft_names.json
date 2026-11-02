@@ -4423,5 +4423,77 @@
 "symbol": "APETR",
 "max": 1000,
 "minted": 286
+},
+"0x95a85681e28988b4ef503369470b4da7681c4bc8": {
+"name": "The Goat Ranch Club",
+"symbol": "TGRC",
+"max": 10000,
+"minted": 10000
+},
+"0xab62925f52f95492bb47cd8257a879e56f5eca38": {
+"name": "Crytozedown",
+"symbol": "Cryptozedown",
+"max": 3890,
+"minted": 3890
+},
+"0x2d1af2522d8c6240d832b5242156c6b9281dfbfd": {
+"name": "Pokerpunks",
+"symbol": "Pokerpunks",
+"max": 2222,
+"minted": 1584
+},
+"0x40b4a6003af1649b02c0d966954417b15444abc1": {
+"name": "The Goat Ranch Club",
+"symbol": "Robinhood ch",
+"max": 10000,
+"minted": 4180
+},
+"0xcdda3f1de363387f27d09e1ca28831e8c57db782": {
+"name": "Piggy Bankers",
+"symbol": "PB",
+"max": 999,
+"minted": 437
+},
+"0xb0d12c2da01023bbe6d7b6d6e5e751e054eb403b": {
+"name": "Monster Spin Jackpot 777",
+"symbol": "MSJ",
+"max": 7777,
+"minted": 6756
+},
+"0xd61f1c33d883c9df1f6181f6d0a82bf4f7799d2a": {
+"name": "Crawl Hood",
+"symbol": "Crawlhood",
+"max": 6000,
+"minted": 2219
+},
+"0x6cb8b14f87e96d84ea7bc5dc52fd083537bde8ab": {
+"name": "Robin Tiles",
+"symbol": "RT",
+"max": 500,
+"minted": 500
+},
+"0xf615254124e7943f5580fa2029ae153370288262": {
+"name": "Offbody  Soul ",
+"symbol": "$BODY",
+"max": 222,
+"minted": 222
+},
+"0x3f79b2612406af6ba1262610dc5129e93137b438": {
+"name": "BULL BEARS",
+"symbol": "bull",
+"max": 2222,
+"minted": 600
+},
+"0x64f74a41b142a75ab3b679a25ef390e7517f5f78": {
+"name": "Goblins on Crack",
+"symbol": "Robinhood ch",
+"max": 397,
+"minted": 397
+},
+"0x51670050578a04c340f5088f8c4966ee6d9709e1": {
+"name": "Midnight Minimart: The 3AM Reg",
+"symbol": "MM3AM",
+"max": 1999,
+"minted": 1999
 }
 }
