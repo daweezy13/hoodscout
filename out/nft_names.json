@@ -4495,5 +4495,76 @@
 "symbol": "MM3AM",
 "max": 1999,
 "minted": 1999
+},
+"0x517356aee22e36c5df3bc9dfeb6d99570ea1f1a5": {
+"name": "maxonauts",
+"symbol": "maxonauts",
+"max": 10000,
+"minted": 5361
+},
+"0xbb121438c58a0ef91ce0f734ade98381873ee68c": {
+"name": "hoodgenesis ",
+"symbol": "hoodgenesis",
+"max": 10000,
+"minted": 1774
+},
+"0x9a748745c45fc2e7bbeb38943a786a227362e406": {
+"name": "The9to5",
+"symbol": "9TO5",
+"max": null,
+"minted": 1114
+},
+"0x60450964687a0927f81d717b54379e8cd4c797f7": {
+"name": "Influence.family Diamond Holde",
+"symbol": "DIAMOND",
+"max": 923
+},
+"0xc90178f58f9c459136f5b28122d6069b3742a1ab": {
+"name": "Monochrome Essence",
+"symbol": "MONOC",
+"max": 999,
+"minted": 671
+},
+"0xc5f95fbf29de5774244736d2380906bc5751b04c": {
+"name": "Inkbit Tides",
+"symbol": "TIDES",
+"max": 5555,
+"minted": 5555
+},
+"0xabada27f3143b6ddb5bd4a03638932639f81dca1": {
+"name": "Ori Clan",
+"symbol": "ORICL",
+"max": 999,
+"minted": 516
+},
+"0x9942f0e3447fee433e8a57256365a709c0fc7548": {
+"name": "Legacy Ornament",
+"symbol": "LEGAC",
+"max": 999,
+"minted": 482
+},
+"0x90b5fca005cf2bd6a552f55dbfbb6a7751790819": {
+"name": "Golden Idols",
+"symbol": "GOLDE",
+"max": 999,
+"minted": 478
+},
+"0x015c51f8a86f4b8fad954ba767de902095ca52e3": {
+"name": "Valiant Sprites",
+"symbol": "VALIA",
+"max": 1000,
+"minted": 469
+},
+"0xaafad75d2516941962d5950fb7b077bd83898a0c": {
+"name": "Vaultlings NFT",
+"symbol": "VN",
+"max": 3333,
+"minted": 1001
+},
+"0xa3db8ba1da7a576b97c51b7acd9d270f4ef0af39": {
+"name": "Inkbit Shinobi",
+"symbol": "SHINOBI",
+"max": 2999,
+"minted": 2999
 }
 }
