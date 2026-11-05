@@ -1951,7 +1951,7 @@
 "name": "Uniswap V3 Positions NFT-V1",
 "symbol": "UNI-V3-POS",
 "max": null,
-"minted": 923118
+"minted": 946019
 },
 "0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
 "name": "Pixel Characters (PC)",
@@ -4566,5 +4566,65 @@
 "symbol": "SHINOBI",
 "max": 2999,
 "minted": 2999
+},
+"0x33166b45c3e62bbce40382617ba311fe4b211240": {
+"name": "Stench Swarm",
+"symbol": "SHM",
+"max": 1000,
+"minted": 1000
+},
+"0xc5e246aac376fac65c62e7734bfec1ddfa132fa1": {
+"name": "Leviathan",
+"symbol": "LAN",
+"max": 1111,
+"minted": 931
+},
+"0x2b0b76df960962b88adaa44a85d7d013035758dd": {
+"name": "Zachies",
+"symbol": "ZCC",
+"max": 1333,
+"minted": 1210
+},
+"0x79088d07553cedb2731b844aab19d76d9d381409": {
+"name": " Hooded Mythics",
+"symbol": "HMN",
+"max": 2222,
+"minted": 1700
+},
+"0xb814447ea576b5a60e7ef41ddf98d9de85792437": {
+"name": "TernLise",
+"symbol": "TL",
+"max": 3333,
+"minted": 2029
+},
+"0xe28e61f3d808012d115a1fd7d9e4471167c47437": {
+"name": "OTC Desk Strategy",
+"symbol": "OTC Desks",
+"max": 7580,
+"minted": 2829
+},
+"0x84dc91b8e99494d1ed20de2778d12a4aef44b10e": {
+"name": "ArgoWeen",
+"symbol": "ArgoWeen",
+"max": 4200,
+"minted": 2245
+},
+"0x4b5e42070b3a2883f7a4d2d5977c48627baad2f5": {
+"name": "Hoodmigos",
+"symbol": "Hoodmigos",
+"max": 10000,
+"minted": 5331
+},
+"0xca99f89edf98dadb8bb7d718d8e8db4f39044b35": {
+"name": "The lunar verse",
+"symbol": "LunarVerse",
+"max": 4444,
+"minted": 293
+},
+"0x5033a7ac4928ef055d591b8659fc543a2ffc85b9": {
+"name": "PoEFE Spectrum",
+"symbol": "SPECTRUM",
+"max": 3333,
+"minted": 369
 }
 }
