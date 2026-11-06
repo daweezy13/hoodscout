@@ -4626,5 +4626,71 @@
 "symbol": "SPECTRUM",
 "max": 3333,
 "minted": 369
+},
+"0xe7feb6c8954bf488a932d7563ce6ffffe28838fa": {
+"name": "Robinhood FutuPunk",
+"symbol": "Robinhoodfut",
+"max": 10000,
+"minted": 10000
+},
+"0x14f9828b1265f3e72cfdbea66f366b024ca8340a": {
+"name": "Dry Mercy",
+"symbol": "DryMercy",
+"max": 9999,
+"minted": 2522
+},
+"0xcf58ef1be01b082eb1756a29814ebb564d01991d": {
+"name": "Hoodmallard",
+"symbol": "MALLARD",
+"max": 3333,
+"minted": 3333
+},
+"0x6cdc870935aada95437808d6818d20061a246838": {
+"name": "BITHEADS",
+"symbol": "BITS",
+"max": 2500,
+"minted": 1707
+},
+"0xd36f35708f2a6489f2d19227c5102a558d830b13": {
+"name": "Robinhood Owls",
+"symbol": "robinhoodowl",
+"max": 6969,
+"minted": 2478
+},
+"0xd10bc5264ca91b33fb7058e252417fa298162651": {
+"name": "N O N I",
+"symbol": "NNI",
+"max": 1111,
+"minted": 1111
+},
+"0xf9642ac8fb5be8d3d8c409c332670e69407feec6": {
+"name": "Collectors Crypt ",
+"symbol": "Collector Cr",
+"max": 8000,
+"minted": 2071
+},
+"0x8577e0849eccf5b1468cee72c7c16d4b8b1dd8d5": {
+"name": "Frog Dump",
+"symbol": "FDUMP",
+"max": 5000,
+"minted": 5000
+},
+"0x7c21bbd6140ef3fb5bcb55598354257711bdc5f5": {
+"name": "YieldField NFT",
+"symbol": ".",
+"max": 2340,
+"minted": 668
+},
+"0xf59113b3bd19ee9bf0aa6b293f0f18503898aa96": {
+"name": "Hood Survivors RH",
+"symbol": "Hood Survivo",
+"max": 2000,
+"minted": 549
+},
+"0x96b6b3763cb9698f67f72ff1a271b2a2c11ad6be": {
+"name": "Trench Chimps Nft",
+"symbol": "Trench Chimp",
+"max": 3333,
+"minted": 547
 }
 }
