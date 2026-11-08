@@ -4692,5 +4692,77 @@
 "symbol": "Trench Chimp",
 "max": 3333,
 "minted": 547
+},
+"0x6cfb1be80326c22603a051d5b1d976ba482dc81e": {
+"name": "PixTurted",
+"symbol": "pixturted",
+"max": 1111,
+"minted": 1111
+},
+"0xef0a832c613f4f58852a9d694cc6a65e3b29b872": {
+"name": "Cursed-P",
+"symbol": "csssP",
+"max": 1000,
+"minted": 903
+},
+"0x488382804a5af26e3a4f4c565ef71389f61cc9a1": {
+"name": "Robinhood Hardware Laptops ",
+"symbol": "rhl",
+"max": 3333,
+"minted": 3333
+},
+"0x141d59663cb32e1e5fc5e3840c1784f4060b535d": {
+"name": "HoodSkull",
+"symbol": "HOODSKULL",
+"max": 2222,
+"minted": 1060
+},
+"0xe6f298fa12285ee7cbc3081587e11b584392d5d4": {
+"name": "Glitch Matrix Punk",
+"symbol": "GMP",
+"max": 1111,
+"minted": 1111
+},
+"0x321c88321e9c20464184228529a58ba48ef24635": {
+"name": "NEKO",
+"symbol": "NEKO",
+"max": 2222,
+"minted": 2222
+},
+"0xc82f765f8c94c54909829609072c5506269c128e": {
+"name": "Chain Society Rh",
+"symbol": "CS",
+"max": 1111,
+"minted": 355
+},
+"0xe1f3f6626db2f450191d6009bc19ed2759871a1e": {
+"name": "Punks MVP",
+"symbol": "Punks2027 MV",
+"max": 7500,
+"minted": 577
+},
+"0xb0b5d7bf810677a43a5cbdc4c8dc168df522ef5d": {
+"name": "Ghosts Cifer",
+"symbol": "Cifer Ghost",
+"max": 7770,
+"minted": 542
+},
+"0x3677a309cf6d4a897931cf572c6bc627b3f15e2b": {
+"name": "ApeSad RH ",
+"symbol": "Ape ",
+"max": 8880,
+"minted": 540
+},
+"0x5e409cb4a61388505551b4574af047c8ffa9301f": {
+"name": "Mutant Mumi",
+"symbol": "Mutant Misfi",
+"max": 7500,
+"minted": 507
+},
+"0x7f1e6966fb985162b150ffdde8a7f02da3657d54": {
+"name": "Grim Pixelz",
+"symbol": "Rh",
+"max": 3333,
+"minted": 262
 }
 }
