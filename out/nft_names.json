@@ -4764,5 +4764,77 @@
 "symbol": "Rh",
 "max": 3333,
 "minted": 262
+},
+"0xb0413c9a83dd83aacaa7f33f26ffbfc0d77f630f": {
+"name": "Chop Lumberjacks_",
+"symbol": "CL",
+"max": 3333,
+"minted": 3333
+},
+"0x27caaa20e2a271e3fb69f2dcad829e66f65f16c4": {
+"name": "Pudgy Puppets",
+"symbol": "PudgyPuppets",
+"max": 10000,
+"minted": 4953
+},
+"0x18c51f86e0d9fba80cdbdb5fe6e7dd1a24ee1b34": {
+"name": "RobinMutants",
+"symbol": "9",
+"max": 5555,
+"minted": 6599
+},
+"0x3185c20fe910365dbcd101da13be6bf2564c8403": {
+"name": "Hood Bulls",
+"symbol": "BULL",
+"max": 2222,
+"minted": 1568
+},
+"0xdc5dc537a9dcddcd8a407d1f1c48f398e2c93500": {
+"name": "RH BoxHead",
+"symbol": "RBH",
+"max": 999,
+"minted": 999
+},
+"0x176a6e1d8eda7e6210f0fd68896646f4e1f25d15": {
+"name": "ROGUE ANTS",
+"symbol": "RGA",
+"max": 3333,
+"minted": 3333
+},
+"0x521b2252902aff8e0f885bc2571faafe91325d8c": {
+"name": "Hood Knights",
+"symbol": "hk",
+"max": 1500,
+"minted": 1500
+},
+"0x1ece4247e7a6dedc04d746456c322bd7d06bcd90": {
+"name": "Retros NFT",
+"symbol": "RN",
+"max": 2222,
+"minted": 204
+},
+"0x0fa568ca999d94a2ed0cc6ff66d779ecf576a48f": {
+"name": "BLFIGHTERHOOD",
+"symbol": "BHD",
+"max": 1818,
+"minted": 1818
+},
+"0x98c99d709065c1ecc29059f5224a13696822be14": {
+"name": "Cat Agents",
+"symbol": "CatAgents",
+"max": 990,
+"minted": 990
+},
+"0xdae18aedb33104f5ad7aaf8f058c830364c8ece4": {
+"name": "Ascendants",
+"symbol": "Rh",
+"max": 3333,
+"minted": 689
+},
+"0x2113909d8f967699cafa238c669f1a8f8b55c015": {
+"name": "MemePit",
+"symbol": "Me",
+"max": 1111,
+"minted": 266
 }
 }
