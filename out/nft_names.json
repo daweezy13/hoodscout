@@ -4836,5 +4836,77 @@
 "symbol": "Me",
 "max": 1111,
 "minted": 266
+},
+"0x8b2a61b90947ca9fa89cdd9d40d5124421e55a3f": {
+"name": "GirlZuki RH",
+"symbol": "GRZZ",
+"max": 1250,
+"minted": 1141
+},
+"0xc5ad266249784c7976828c91f97daa86e29ee5dd": {
+"name": "DOTS ONCHAIN",
+"symbol": "DOTS",
+"max": 2222,
+"minted": 1322
+},
+"0xe8a53991f35c8222eb73827c3cbe30bea4d7aa57": {
+"name": "The Syndicate",
+"symbol": "TS",
+"max": 1888,
+"minted": 461
+},
+"0x47c60dd8a4e8fd47deefc4611f5ef7af0d977720": {
+"name": "Magic Potions",
+"symbol": "POTION",
+"max": 888,
+"minted": 888
+},
+"0x90d831ce83b081eb84932ce5eda79966c9df8f87": {
+"name": "Christmas Punk",
+"symbol": "Christmas Pu",
+"max": 6666,
+"minted": 803
+},
+"0x0fba67c50eb08a7986ed19f8015261d2e1cd878c": {
+"name": "Coded Army",
+"symbol": "coded",
+"max": 3333,
+"minted": 1670
+},
+"0xf689463c01338f909312b2f1ea23eee2526aa258": {
+"name": "Lemon VG",
+"symbol": "lemon",
+"max": 4444,
+"minted": 1310
+},
+"0xbfd95e41b8a355acb7fb79a13b8c1a291310eecb": {
+"name": "Bitizens",
+"symbol": "BTZN",
+"max": 3000,
+"minted": 1564
+},
+"0x954eaab1d54afb2bc0f890f5e27ff2e3ad47da79": {
+"name": "TDS: Quackers",
+"symbol": "Quakers",
+"max": 10000,
+"minted": 5570
+},
+"0xd2ffe171051c78014dfe71d9b845a93c6109f483": {
+"name": "Dead Hood",
+"symbol": "Rh",
+"max": 5555,
+"minted": 252
+},
+"0x9b6fd665a290cc069f3c72d8c7117f37b0e7affc": {
+"name": "Hoodfrenz",
+"symbol": "Rh",
+"max": 3333,
+"minted": 252
+},
+"0x2f11f1f300888a107c63020ef59ecebe51495604": {
+"name": "Green Hood Mafia",
+"symbol": "Rh",
+"max": 5555,
+"minted": 252
 }
 }
