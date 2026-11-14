@@ -4908,5 +4908,76 @@
 "symbol": "Rh",
 "max": 5555,
 "minted": 252
+},
+"0x83dbc5a9531f67acebd870fbb0bb4db717303834": {
+"name": "PetroCraniums",
+"symbol": "PETROC",
+"max": 2222,
+"minted": 2222
+},
+"0x46ca9620aad571e0f99266652283ab9941944aa9": {
+"name": "Old Cat",
+"symbol": "OLDCAT",
+"max": 2999,
+"minted": 1413
+},
+"0x735c6c68278865e5ae787d2ed5ce905059f7d09f": {
+"name": "GOATVILLE",
+"symbol": "GV",
+"max": 2220,
+"minted": 2220
+},
+"0xbd94edbc87b74c570c654d9128a33ae91a31c689": {
+"name": "KEKTUS",
+"symbol": "Kektus",
+"max": 2222,
+"minted": 1304
+},
+"0x37fcce50a35c3d4a5331602929b6f64be5da2586": {
+"name": "Agent Cat Bag",
+"symbol": "AGCBAG",
+"max": null
+},
+"0x96fb0d4f777b57b071bf61253f526b88eb19e6d4": {
+"name": "The Norks",
+"symbol": ".",
+"max": 1000,
+"minted": 587
+},
+"0x9ec088d2099c8b140359276e61cac6af845b69fb": {
+"name": "MetaKnights Character",
+"symbol": ".",
+"max": 1000,
+"minted": 587
+},
+"0x1632017d2535b262c03071a8e73925e6c0c9d58a": {
+"name": "MetaKnights Character",
+"symbol": ".",
+"max": 1000,
+"minted": 1000
+},
+"0xeb06e4e26ed806a38888d6a48b0f3fed82725e7d": {
+"name": "Archers Tribute",
+"symbol": "TRIB",
+"max": 1000,
+"minted": 1000
+},
+"0x9fb12b9fe9aaeb44a9640abbbac81c49fd604f9d": {
+"name": "Payphone",
+"symbol": "Rh",
+"max": 1111,
+"minted": 234
+},
+"0xc2cf93d2e5ba251bc9eb45b592ac2defee1de157": {
+"name": "MintABear",
+"symbol": "Rh",
+"max": 4444,
+"minted": 234
+},
+"0xae0142b94f4855ca82ef3be2d993f691e0c38de7": {
+"name": "Themochi ",
+"symbol": "Rh",
+"max": 4444,
+"minted": 233
 }
 }
