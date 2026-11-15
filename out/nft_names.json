@@ -1951,7 +1951,7 @@
 "name": "Uniswap V3 Positions NFT-V1",
 "symbol": "UNI-V3-POS",
 "max": null,
-"minted": 946019
+"minted": 961815
 },
 "0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
 "name": "Pixel Characters (PC)",
@@ -4979,5 +4979,65 @@
 "symbol": "Rh",
 "max": 4444,
 "minted": 233
+},
+"0x83abe28bb1052d7ac9bcc118b8293b4acd1f2c75": {
+"name": "Jpeg OnCats",
+"symbol": "JOC",
+"max": 3333,
+"minted": 3333
+},
+"0xf5a8dd88066034457832977711c2770bc3b49c44": {
+"name": "Q-TRON LAPTOPS",
+"symbol": "Q-TRON LAPTO",
+"max": 999,
+"minted": 689
+},
+"0x3a65626e3765cc51b7a3a86624ebe1ae9b21455c": {
+"name": "Crimson Ronin",
+"symbol": "Ronin",
+"max": 2214,
+"minted": 296
+},
+"0x27312c80d6acfb89e2d7321911d91f6283352ee9": {
+"name": "Lumina Beetle Rangers",
+"symbol": "LBR",
+"max": 4848,
+"minted": 1703
+},
+"0xc055dd8a754a052c213984e249022b1c042c7c4d": {
+"name": "Loffy Onchain",
+"symbol": "Loffy Onchai",
+"max": 2222,
+"minted": 510
+},
+"0x7e231a57dcc995d90ff7c4ca6baacb9890a58fab": {
+"name": "Dead Hood",
+"symbol": "Rh",
+"max": 5555,
+"minted": 234
+},
+"0xb2ae13b1de96ee21e9e647f6702d8acc2dcaf0f5": {
+"name": "PotionRH",
+"symbol": "Rh",
+"max": 4444,
+"minted": 234
+},
+"0xde949b33a2f4560e8ee3ca23a8f8499957a08a59": {
+"name": "HOODVERSE",
+"symbol": "Rh",
+"max": 2222,
+"minted": 237
+},
+"0x7e00b36d33990e2eb582a11155d62baf34633e56": {
+"name": "This Is Not a CryptoPunk",
+"symbol": "Robin ",
+"max": 1000,
+"minted": 1000
+},
+"0x9df05999ac58afc402d8da767eebab594ff4a6f3": {
+"name": "Mauverse",
+"symbol": "mau",
+"max": 1111,
+"minted": 100
 }
 }
