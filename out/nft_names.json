@@ -3677,7 +3677,7 @@
 "name": "Real Hood People",
 "symbol": "RHP",
 "max": 8888,
-"minted": 4066
+"minted": 5595
 },
 "0x7c12137b7aca6f4a89db55394fee4583715ba070": {
 "name": "AiReinos",
@@ -5039,5 +5039,65 @@
 "symbol": "mau",
 "max": 1111,
 "minted": 100
+},
+"0x96b09f1f9bae937e60a67b75907c49ae7043297c": {
+"name": "Robinhood Monkey",
+"symbol": "RobinhoodMon",
+"max": 5555,
+"minted": 2369
+},
+"0x1b9b8a7f5caed351548b82016099660dad28e718": {
+"name": "Foxora",
+"symbol": "FXO",
+"max": 2222,
+"minted": 2222
+},
+"0xea574799c135f891169bbaec6dc39199dab3f561": {
+"name": "Archive Machines",
+"symbol": "ARCHIVE",
+"max": 25000,
+"minted": 601
+},
+"0x6ab153fdb92e13923eab653c5da4969f4816a8d4": {
+"name": "Hashlings",
+"symbol": "has",
+"max": 1111,
+"minted": 1098
+},
+"0x155ae2e1f045e1e09b8c0ca56f27e8a03d16214d": {
+"name": "Bit Hood Miners",
+"symbol": "Bit Miners",
+"max": 7500,
+"minted": 2035
+},
+"0x6f487f6d66b401378788d8915c5304832fa82d71": {
+"name": "ROACH CLUB",
+"symbol": "RC",
+"max": 888,
+"minted": 888
+},
+"0x0bdfd10883afa539e1d153448f211c83824ae27a": {
+"name": "Robin Claus",
+"symbol": "RobinClaus",
+"max": 4444,
+"minted": 4444
+},
+"0xc4bad53ddbf706b181bc921334d945e2d4275369": {
+"name": "Hoodfrenz",
+"symbol": "Hoodfrenz",
+"max": 999,
+"minted": 481
+},
+"0xa3790f03072d73262ee70edf7cb6d813457a19ce": {
+"name": "Companions by WFit",
+"symbol": "cbw",
+"max": 5555,
+"minted": 425
+},
+"0x478d34662f1262054b05870b5e3b97fa814dbeb3": {
+"name": "Galactic Oasis",
+"symbol": "STELLA",
+"max": null,
+"minted": 969
 }
 }
