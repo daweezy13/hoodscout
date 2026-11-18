@@ -5099,5 +5099,71 @@
 "symbol": "STELLA",
 "max": null,
 "minted": 969
+},
+"0x2c7ddea97a37ccc0eea0c3f51c2f308595a08dc7": {
+"name": "freakytoadz",
+"symbol": "FTOADZ",
+"max": 3333,
+"minted": 1592
+},
+"0x1f1c44a04f58788d0fcccba48bbd13afdc8816a2": {
+"name": "Ape Pirates",
+"symbol": "Ape Pirates",
+"max": 10000,
+"minted": 1381
+},
+"0x0226f5990c65ea34926a25178a3bc277de8b9366": {
+"name": "BearJaks",
+"symbol": "BRRC",
+"max": 1111,
+"minted": 1012
+},
+"0xd49ca0713a726bda3deeb0664527b5bd6d35f0a9": {
+"name": "bundle_test",
+"symbol": "BT",
+"max": 2222,
+"minted": 556
+},
+"0x71c1a18ff6a875d5c71ec5d34b74bbe32f3cedf5": {
+"name": "Cache Relics NFT",
+"symbol": "9",
+"max": 4444,
+"minted": 1093
+},
+"0x576eba623d5e250c7e50210023cd5a4d761e7942": {
+"name": "Chaotic Order",
+"symbol": "cher",
+"max": 1111,
+"minted": 512
+},
+"0x34dcbce33d25106ef4b21f04b00503bbd90c9a01": {
+"name": "Beavz Club",
+"symbol": "Bea",
+"max": 4000,
+"minted": 999
+},
+"0xcab4b4777f5a56abad9546b209153120ecbab0e6": {
+"name": "THE SHADOW BORN",
+"symbol": "Hsh",
+"max": 3333,
+"minted": 501
+},
+"0x720cf9e165f52c9afd4882bd5710bfdf046a5337": {
+"name": "Cache Relics",
+"symbol": "RELIC",
+"max": 10000,
+"minted": 1923
+},
+"0x71af07142bb8f48a73a3c89b1f4151bca7888c23": {
+"name": "Glutch Dogs",
+"symbol": "GD",
+"max": 1111,
+"minted": 1111
+},
+"0x6f20366b646232ed4491d3eba6639b452d633ca1": {
+"name": "PLATA",
+"symbol": "plata",
+"max": 2222,
+"minted": 373
 }
 }
