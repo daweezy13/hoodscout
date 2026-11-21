@@ -5165,5 +5165,77 @@
 "symbol": "plata",
 "max": 2222,
 "minted": 373
+},
+"0x79cf4e3ad96267e459d9545642f7ef01a3bf56a6": {
+"name": "MONINJA",
+"symbol": "MNJIK",
+"max": 5000,
+"minted": 3663
+},
+"0x3568a85e37767d9d04ce871d47fe7dabe681ebc1": {
+"name": "The Fallen by No Mercy Society",
+"symbol": "NMS",
+"max": 3333,
+"minted": 3333
+},
+"0x9fe900cfc28114be02a052c5cfcaf12ed4b00cb0": {
+"name": "The Ritual by No Mercy Socity",
+"symbol": "NMS",
+"max": 3333,
+"minted": 3333
+},
+"0xbc8e7360b17407ab018458c445874b8165ba4f81": {
+"name": "Timothy",
+"symbol": "TIMOT",
+"max": 1000,
+"minted": 959
+},
+"0x5c52441a33254a4d5437544adfb0726092de6b15": {
+"name": "Lemkidz",
+"symbol": "LEMK",
+"max": 1000,
+"minted": 1000
+},
+"0x88570ef63046773f5844020e606fc8b339a62df6": {
+"name": "dererolls",
+"symbol": "dererolls",
+"max": 4444,
+"minted": 3001
+},
+"0xe6d10e49c7effab173560999bce634812cd33fe7": {
+"name": "Blood Moon Amulets",
+"symbol": "AMULET",
+"max": null,
+"minted": 4444
+},
+"0x3779bdfc46db35d6659bbb63624ceb9b2f240549": {
+"name": "Cosmic Valentine",
+"symbol": "COSMI",
+"max": 999,
+"minted": 833
+},
+"0xc1d2e17c1bf9fda483d8e53f4b34834ea202ff45": {
+"name": "Femme",
+"symbol": "FEMME",
+"max": 1111,
+"minted": 843
+},
+"0xc547f386752334aeb0af5e233cb19723fc56e783": {
+"name": "FurryBrush",
+"symbol": "FURRY",
+"max": 999,
+"minted": 595
+},
+"0x026a19ae3ef72ee9d49d35cca80e65ae523a37a3": {
+"name": "Stargaze",
+"symbol": "STARG",
+"max": 1111,
+"minted": 550
+},
+"0xa178567c987019d0107c990fb27f0db35cd9f611": {
+"name": "Dots Dashes",
+"symbol": "DOTSD",
+"max": 1111,
+"minted": 461
 }
 }
