@@ -5237,5 +5237,77 @@
 "symbol": "DOTSD",
 "max": 1111,
 "minted": 461
+},
+"0x691898612ef7829e34e2a1577b847ee8d659d1ef": {
+"name": "kukiverse3D",
+"symbol": "Kke",
+"max": 5555,
+"minted": 5555
+},
+"0x4a156c8e17e78f293cd0201135d6f9014a2a6b50": {
+"name": "Pixelora Genesis Land",
+"symbol": "PXL",
+"max": 2222,
+"minted": 2222
+},
+"0xd9477bf88893a1f61919faaf0420483bdcf708e4": {
+"name": "Zunki",
+"symbol": "ZKI",
+"max": 5000,
+"minted": 1621
+},
+"0x4115257e2287d09c7a5d3a1c1670f99e4f59b073": {
+"name": "GUINS",
+"symbol": "GUINS",
+"max": 3333,
+"minted": 3333
+},
+"0x6d1bb0a134d109d1fa75913044c552c2951e6a40": {
+"name": "Robinhood Mutant Ghosts",
+"symbol": "RMG",
+"max": 10000,
+"minted": 4470
+},
+"0xe6bc0f5e7f75158321f982c7fc4b33be68fe88ae": {
+"name": "GARASU",
+"symbol": "GRSU",
+"max": 5555,
+"minted": 1068
+},
+"0xfceff590e6ef143ad087313df41be51fc1722d62": {
+"name": "yumi",
+"symbol": "yumi",
+"max": 4444,
+"minted": 4444
+},
+"0x555f20e2750f89d0c7c858d8105c5254c356ed6c": {
+"name": "Enter The Apes",
+"symbol": "ETAPES",
+"max": 1110,
+"minted": 1110
+},
+"0x03455c376dd907fa6adb5b695cf86ed9e19f3299": {
+"name": "Flockhood",
+"symbol": "FLOCK",
+"max": 555,
+"minted": 555
+},
+"0x240547301d2c2777251137254bc156dcf14545ef": {
+"name": "Keystroke",
+"symbol": "Keys",
+"max": 2222,
+"minted": 943
+},
+"0x0534ec60789f642bd060c1f9bf08775420ebdbd0": {
+"name": "Sealedarts",
+"symbol": "Sealed",
+"max": 444,
+"minted": 444
+},
+"0xf7fc893ef4d918b71680ba9eb24a52ddc559e160": {
+"name": "Signal Ghoul",
+"symbol": "Signalghoul",
+"max": 1000,
+"minted": 409
 }
 }
