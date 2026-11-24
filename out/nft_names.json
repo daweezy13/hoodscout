@@ -1951,7 +1951,7 @@
 "name": "Uniswap V3 Positions NFT-V1",
 "symbol": "UNI-V3-POS",
 "max": null,
-"minted": 961815
+"minted": 974037
 },
 "0x29f9fb2af2bba71e9aa6016967df4e79b70092f9": {
 "name": "Pixel Characters (PC)",
@@ -5309,5 +5309,65 @@
 "symbol": "Signalghoul",
 "max": 1000,
 "minted": 409
+},
+"0xb9c6a7731f22234ffe58ee67f58e53bc6155f0a6": {
+"name": "GLOOPIX",
+"symbol": "GLOO",
+"max": 2222,
+"minted": 1976
+},
+"0xbb3439d8c8206b3881edf32c7118f1e13026ea18": {
+"name": "Just Headz",
+"symbol": "HEADZ",
+"max": 3120,
+"minted": 2096
+},
+"0x8386343d575548dde2f253c16d09c64bd94732f8": {
+"name": "TRASH GANG",
+"symbol": "TRASH",
+"max": 2222,
+"minted": 2222
+},
+"0xa02f6ebc0adbc1aaea496f8c6f9725cdc987a471": {
+"name": "ASCIHOOD",
+"symbol": "ASCIHOOD",
+"max": 4444,
+"minted": 3049
+},
+"0xc337257b606a97dabed7acc30476af1ba8f88ffa": {
+"name": "Flip It Like",
+"symbol": "FL",
+"max": 2222,
+"minted": 2168
+},
+"0xb94f7011dae3f7a909a2c5b62b4dbcaa16e81b28": {
+"name": "Wearers",
+"symbol": "WEAR",
+"max": 1000,
+"minted": 834
+},
+"0xef1fc6279497678519154171063562a2e4beedc3": {
+"name": "Supernovers",
+"symbol": "Supernovers",
+"max": 3333,
+"minted": 1106
+},
+"0x22733b810460d4bd211277d27f312b74cdaf257d": {
+"name": "PunksHood",
+"symbol": "PHD",
+"max": 1500,
+"minted": 544
+},
+"0xda7fb7d83df0cdf3ec05118535d2c25f9a43e19c": {
+"name": "Mopes",
+"symbol": "Mopes",
+"max": 1111,
+"minted": 284
+},
+"0x1e9c3a6b66c7ac5bfcf0639f83542efb4fe657ab": {
+"name": "Gloopix",
+"symbol": "Gloopix",
+"max": 2222,
+"minted": 284
 }
 }
