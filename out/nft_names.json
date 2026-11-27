@@ -5369,5 +5369,77 @@
 "symbol": "Gloopix",
 "max": 2222,
 "minted": 284
+},
+"0xd80a78e90733fe671d9b53af5bbc7b8a3e073e4b": {
+"name": "GATRI WORLD",
+"symbol": "GATRI",
+"max": 3111,
+"minted": 3111
+},
+"0xc4a171b91cc415629ede407094924e78a819bdca": {
+"name": "Vamps Lethal Mutant",
+"symbol": "VLM",
+"max": 2222,
+"minted": 2222
+},
+"0xe28b977ac6f53766d2c862fb3a32b1dc93430f52": {
+"name": "No Mercy Zoo",
+"symbol": "NMZ",
+"max": 666,
+"minted": 666
+},
+"0xc5387a072ae4ae191424189f5d7f3c7b46edf375": {
+"name": "Lamoryant",
+"symbol": "LAM",
+"max": 1000,
+"minted": 619
+},
+"0x6e356a99b01754feefc07d040bc06ad60d7607ae": {
+"name": "Melters",
+"symbol": "Melters",
+"max": 5000,
+"minted": 1318
+},
+"0xb656d68bcf0dc4978fb3eacb8071865bf245d216": {
+"name": "Enter The Manga",
+"symbol": "ETM",
+"max": 2222,
+"minted": 375
+},
+"0x0025a8cc345825aa7bd7898191bf0b910bb3dc38": {
+"name": "Toad Gobs",
+"symbol": "TGS",
+"max": 1111,
+"minted": 321
+},
+"0x296d89d1be68ed90cfb7d209f971fcbcde0c6384": {
+"name": "Prism Visions",
+"symbol": "PIS",
+"max": 999,
+"minted": 320
+},
+"0xe6752cb383458eba414cf8cdb67c0014e913e24d": {
+"name": "Lamoryant",
+"symbol": "Robinhood ch",
+"max": 1000,
+"minted": 888
+},
+"0xf2c7357dfe437065c4472edb8095015bdeea2650": {
+"name": "SyndicateHC",
+"symbol": "SH",
+"max": 2047,
+"minted": 296
+},
+"0x05df71d4bef6811a51fd4756ca7cd5f0e349ec4d": {
+"name": "OUTLAWSx",
+"symbol": "o",
+"max": 6666,
+"minted": 223
+},
+"0xc3a815d872ef7f2bf51f6fb382d8b6516de8c12c": {
+"name": "OUTLAWSxNFTs",
+"symbol": "ox",
+"max": 6666,
+"minted": 223
 }
 }
